@@ -16,7 +16,7 @@ FILE_SINK::debug(const LOG_MESSAGE& msg) {
   if(msg.log_level() < _log_level) {
     STRING m = msg.message();
     char* str = m;
-    fprintf(_file, "DEBUG: %s\n", str);
+    fprintf(_file, "DEBUG(%d): %s\n", msg.log_level(), str);
     fflush(_file);
   }
 }
@@ -26,7 +26,7 @@ FILE_SINK::info(const LOG_MESSAGE& msg) {
   if(msg.log_level() < _log_level) {
     STRING m = msg.message();
     char* str = m;
-    fprintf(_file, "INFO: %s", str);
+    fprintf(_file, "INFO(%d): %s", msg.log_level(), str);
     fflush(_file);
   }
 }
@@ -36,7 +36,7 @@ FILE_SINK::warning(const LOG_MESSAGE& msg) {
   if(msg.log_level() < _log_level) {
     STRING m = msg.message();
     char* str = m;
-    fprintf(_file, "WARNING: %s\n", str);
+    fprintf(_file, "WARNING(%d): %s\n", msg.log_level(), str);
     fflush(_file);
   }
 }
@@ -46,7 +46,7 @@ FILE_SINK::error(const LOG_MESSAGE& msg) {
   if(msg.log_level() < _log_level) {
     STRING m = msg.message();
     char* str = m;
-    fprintf(_file, "ERROR: %s\n", str);
+    fprintf(_file, "ERROR(%d): %s\n", msg.log_level(), str);
     fflush(_file);
   }
 }

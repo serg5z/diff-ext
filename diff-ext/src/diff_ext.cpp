@@ -78,10 +78,11 @@ DIFF_EXT::Release() {
 
   ULONG ret = 0L;
   
-  if(InterlockedDecrement((LPLONG)&_ref_count) != 0)
+  if(InterlockedDecrement((LPLONG)&_ref_count) != 0) {
     ret = _ref_count;
-  else
+  } else {
     delete this;
+  }
 
   return ret;
 }
@@ -96,12 +97,14 @@ DIFF_EXT::initialize_language() {
   TCHAR language_lib[MAX_PATH];
 
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\DIFF_EXT\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    TRACE trace(__func__, __FILE__, __LINE__, 4);
     len = sizeof(DWORD);
     RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &len);
 
     RegCloseKey(key);
 
     if(language != _language) {
+      TRACE trace(__func__, __FILE__, __LINE__, 5);
       _language = language;
       
       if(_resource != SERVER::instance()->handle()) {
@@ -109,6 +112,7 @@ DIFF_EXT::initialize_language() {
       }
       
       if(_language != 1033) {
+        TRACE trace(__func__, __FILE__, __LINE__, 6);
 	GetModuleFileName(SERVER::instance()->handle(), language_lib, sizeof(language_lib)/sizeof(language_lib[0]));
 	
 	wsprintf(language_lib+strlen(language_lib)-4, "%ld.dll", language);
@@ -137,6 +141,7 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
   HRESULT ret = E_INVALIDARG;
 
   if(data->GetData(&format, &medium) == S_OK) {
+    TRACE trace(__func__, __FILE__, __LINE__);
     HDROP drop = (HDROP)medium.hGlobal;
     _n_files = DragQueryFile(drop, 0xFFFFFFFF, 0, 0);
 
@@ -145,12 +150,14 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
     initialize_language();
     
     if(_n_files == 1) {
+      TRACE trace(__func__, __FILE__, __LINE__);
       DragQueryFile(drop, 0, tmp, MAX_PATH);
 
       _file_name1 = STRING(tmp);
 
       ret = S_OK;
     } else if(_n_files == 2) {
+      TRACE trace(__func__, __FILE__, __LINE__);
       DragQueryFile(drop, 1, tmp, MAX_PATH);
 
       _file_name1 = STRING(tmp);
@@ -316,6 +323,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
     } else {
+      TRACE trace(__func__, __FILE__, __LINE__);
       assert(false);
     }
 
@@ -343,14 +351,19 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
 
   if(HIWORD(ici->lpVerb) == 0) {
     if(LOWORD(ici->lpVerb) == IDM_DIFF) {
+      TRACE trace(__func__, __FILE__, __LINE__, 4);
       diff();
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_WITH) {
+      TRACE trace(__func__, __FILE__, __LINE__, 4);
       diff_with(0);
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_LATER) {
+      TRACE trace(__func__, __FILE__, __LINE__, 4);
       diff_later();
     } else if((LOWORD(ici->lpVerb) >= IDM_DIFF_WITH_BASE) && (LOWORD(ici->lpVerb) < IDM_DIFF_WITH_BASE+_recent_files->size())) {
+      TRACE trace(__func__, __FILE__, __LINE__, 4);
       diff_with(LOWORD(ici->lpVerb)-IDM_DIFF_WITH_BASE);
     } else {
+      TRACE trace(__func__, __FILE__, __LINE__, 4);
       ret = E_INVALIDARG;
       assert(0);
     }
@@ -369,6 +382,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
   
   if(uFlags == GCS_HELPTEXT) {
     if(idCmd == IDM_DIFF) {
+      TRACE trace(__func__, __FILE__, __LINE__, 4);
       resource_string_length = LoadString(_resource, DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
@@ -382,6 +396,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
       
       lstrcpyn(pszName, resource_string, cchMax);
     } else if(idCmd == IDM_DIFF_WITH) {
+      TRACE trace(__func__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
 	LPSTR file_name1 = _file_name1;
 	LPSTR file_name2 = _recent_files->front();
@@ -407,6 +422,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	lstrcpyn(pszName, TEXT(""), cchMax);
       }
     } else if(idCmd == IDM_DIFF_LATER) {
+      TRACE trace(__func__, __FILE__, __LINE__, 4);
       resource_string_length = LoadString(_resource, DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
@@ -426,6 +442,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
       lstrcpyn(pszName, message, cchMax);
       LocalFree(message);
     } else if((idCmd >= IDM_DIFF_WITH_BASE) && (idCmd < IDM_DIFF_WITH_BASE+_recent_files->size())) {
+      TRACE trace(__func__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
 	resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
@@ -453,6 +470,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	LocalFree(message);
       }
       else {
+        TRACE trace(__func__, __FILE__, __LINE__, 4);
 	lstrcpyn(pszName, TEXT(""), cchMax);
       }
     }
@@ -476,13 +494,16 @@ DIFF_EXT::diff() {
   ZeroMemory(command, sizeof(command));
 
   if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
-    if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command, &length) != ERROR_SUCCESS)
+    TRACE trace(__func__, __FILE__, __LINE__, 4);
+    if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command, &length) != ERROR_SUCCESS) {
       command[0] = '\0';
-    else
+    } else {
       command[length] = '\0';
+    }
 
     RegCloseKey(key);
   } else {
+    TRACE trace(__func__, __FILE__, __LINE__, 4);
     char* message;
 
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
@@ -506,6 +527,7 @@ DIFF_EXT::diff() {
   si.cb = sizeof(si);
 
   if (CreateProcess(0, command, 0, 0, FALSE, 0, 0, 0, &si, &pi) == 0) {
+    TRACE trace(__func__, __FILE__, __LINE__, 4);
 /*
     LPTSTR message;
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
@@ -543,6 +565,7 @@ DIFF_EXT::diff() {
 
     MessageBox(_hwnd, resource_string, error_string, MB_OK);
   } else {
+    TRACE trace(__func__, __FILE__, __LINE__, 4);
     CloseHandle( pi.hProcess );
     CloseHandle( pi.hThread );
   }
@@ -556,8 +579,9 @@ DIFF_EXT::diff_with(unsigned int num) {
   //~ STRING str = "diff "+_file_name1+" and "+_recent_files->at(num);
   //~ MessageBox(_hwnd, str, "command", MB_OK);
   DEQUE<STRING>::CURSOR i = _recent_files->begin();
-  for(unsigned int j = 0; j < num; j++)
+  for(unsigned int j = 0; j < num; j++) {
     i++;
+  }
 
   _file_name2 = _recent_files->item(i);
 
@@ -573,8 +597,9 @@ DIFF_EXT::diff_later() {
   DEQUE<STRING>::CURSOR current = _recent_files->begin();
   
   while(!current.done() && !found) {
-    if((*current) == _file_name1)
+    if((*current) == _file_name1) {
       found = true;
+    }
     current++;
   }
 
