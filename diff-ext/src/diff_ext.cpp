@@ -307,7 +307,7 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
       diff_with(0);
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_LATER) {
       diff_later();
-    } else if((LOWORD(ici->lpVerb) >= IDM_DIFF_WITH_BASE) || (LOWORD(ici->lpVerb) < IDM_DIFF_WITH_BASE+_recent_files.size())) {
+    } else if((LOWORD(ici->lpVerb) >= IDM_DIFF_WITH_BASE) && (LOWORD(ici->lpVerb) < IDM_DIFF_WITH_BASE+_recent_files.size())) {
       diff_with(LOWORD(ici->lpVerb)-IDM_DIFF_WITH_BASE);
     } else {
       ret = E_INVALIDARG;
@@ -326,27 +326,61 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
   
   if(uFlags == GCS_HELPTEXT) {
     if(idCmd == IDM_DIFF) {
+      resource_string_length = LoadString(_resource, DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      lstrcpyn(pszName, resource_string, cchMax);
     } else if(idCmd == IDM_DIFF_WITH) {
       resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(TCHAR));
       if(resource_string_length > 0) {
         if(!_recent_files.empty()) {
           char* file_name1 = _file_name1;
           char* file_name2 = _recent_files.front();
-          //~ char* args[] = {file_name1, file_name2};
-          //~ FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &pszName, cchMax, args);
-          sprintf(pszName, resource_string, file_name1, file_name2);
+          char* message;
+          char* args[] = {file_name1, file_name2};
+
+          FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
+          lstrcpyn(pszName, message, cchMax);
+          LocalFree(message);
         }
         else {
           lstrcpyn(pszName, _T(""), cchMax);
         }
       }
     } else if(idCmd == IDM_DIFF_LATER) {
-    } else if((idCmd >= IDM_DIFF_WITH_BASE) || (idCmd < IDM_DIFF_WITH_BASE+_recent_files.size())) {
-  //      diff_with(LOWORD(ici->lpVerb)-IDM_DIFF_WITH_BASE);
+      resource_string_length = LoadString(_resource, DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      if(resource_string_length > 0) {
+        char* file_name1 = _file_name1;
+        char* message;
+        char* args[] = {file_name1};
+
+        FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
+        lstrcpyn(pszName, message, cchMax);
+        LocalFree(message);
+      }
+    } else if((idCmd >= IDM_DIFF_WITH_BASE) && (idCmd < IDM_DIFF_WITH_BASE+_recent_files.size())) {
+      resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      if(resource_string_length > 0) {
+        if(!_recent_files.empty()) {
+          unsigned int num = idCmd-IDM_DIFF_WITH_BASE;
+          char* file_name1 = _file_name1;
+          
+          DEQUE<STRING>::CURSOR i = _recent_files.begin();
+          for(unsigned int j = 0; j < num; j++)
+            i++;
+        
+          char* file_name2 = _recent_files.item(i);
+          char* message;
+          char* args[] = {file_name1, file_name2};
+
+          FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
+          lstrcpyn(pszName, message, cchMax);
+          LocalFree(message);
+        }
+        else {
+          lstrcpyn(pszName, _T(""), cchMax);
+        }
+      }
     }
   }
-//  if (uFlags == GCS_HELPTEXT && cchMax > 35)
-//    lstrcpy(pszName, _T("nothing here yet."));
 
   return ret;
 }

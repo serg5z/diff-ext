@@ -63,4 +63,8 @@ STRINGTABLE
   DIFF_STR "сравнить"
   DIFF_WITH_STR "сравнить с"
   DIFF_LATER_STR "сравнить позже"
+  
+  DIFF_HINT "Сравнить выбранные файлы"
+  DIFF_WITH_HINT "Сравнить '%1' и '%2'"
+  DIFF_LATER_HINT "Запомнить '%1' для последующего сравнения"
 }

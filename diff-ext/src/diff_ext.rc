@@ -63,5 +63,6 @@ STRINGTABLE
   DIFF_LATER_STR "diff later"
   
   DIFF_HINT "Compare selected files"
-  DIFF_WITH_HINT "Compare '%s' with '%s'"
+  DIFF_WITH_HINT "Compare '%1' with '%2'"
+  DIFF_LATER_HINT "Save '%1' for later comparison"
 }
