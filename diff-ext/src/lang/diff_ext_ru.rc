@@ -8,7 +8,7 @@
 
 #include <windows.h>
 
-#include "../diff_ext_res.h"
+#include "../diff_ext.rh"
 
 #define xstr(x) str(x)
 #define str(x) #x
@@ -67,4 +67,8 @@ STRINGTABLE
   DIFF_HINT "Сравнить выбранные файлы"
   DIFF_WITH_HINT "Сравнить '%1' и '%2'"
   DIFF_LATER_HINT "Запомнить '%1' для последующего сравнения"
+
+  CREATE_PROCESS_STR "Не могу запустить программу сравнения. Пожалуста проверьте установки diff_ext."
+  
+  ERROR_STR "Ошибка"
 }

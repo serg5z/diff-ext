@@ -11,7 +11,7 @@
 
 #include "diff_ext.h"
 #include "server.h"
-#include "diff_ext_res.h"
+#include "diff_ext.rh"
 
 const UINT IDM_TEST_COMMAND=10;
 const UINT IDM_DIFF=20;
@@ -21,9 +21,6 @@ const UINT IDM_DIFF_WITH_BASE=50;
 
 DEQUE<STRING> DIFF_EXT::_recent_files(4);
 
-#define _T(x)  x
-
-// *********************** DIFF_EXT *************************
 DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(""), _file_name2(""), _language(1033), _ref_count(0L) {
   if(_recent_files.size() == 0)
     _recent_files = DEQUE<STRING>(8);
@@ -381,7 +378,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	LocalFree(message);
       }
       else {
-	lstrcpyn(pszName, _T(""), cchMax);
+	lstrcpyn(pszName, TEXT(""), cchMax);
       }
     } else if(idCmd == IDM_DIFF_LATER) {
       resource_string_length = LoadString(_resource, DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
@@ -430,7 +427,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	LocalFree(message);
       }
       else {
-	lstrcpyn(pszName, _T(""), cchMax);
+	lstrcpyn(pszName, TEXT(""), cchMax);
       }
     }
   }
@@ -451,7 +448,7 @@ DIFF_EXT::diff() {
 
   ZeroMemory(command, sizeof(command));
 
-  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\DIFF_EXT"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command, &length) != ERROR_SUCCESS)
       command[0] = '\0';
     else
@@ -491,7 +488,33 @@ DIFF_EXT::diff() {
 
     LocalFree(message);
 */
-    MessageBox(_hwnd, TEXT("Error creating process: Check if differ is in your path!"), TEXT("diff_ext.dll error"), MB_OK);
+    TCHAR resource_string[1024];
+    TCHAR error_string[256];
+    int string_length;
+    
+    string_length = LoadString(_resource, CREATE_PROCESS_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+  
+    if(string_length == 0) {
+      string_length = LoadString(SERVER::instance()->handle(), CREATE_PROCESS_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+      
+      if(string_length == 0) {
+	lstrcpy(resource_string, TEXT("Could not start diff command. Please run diff_ext setup program and verify your configuration."));
+	MessageBox(0, TEXT("Can not load 'CREATE_PROCESS_STR' string resource"), TEXT("ERROR"), MB_OK);
+      }
+    }
+    
+    string_length = LoadString(_resource, ERROR_STR, error_string, sizeof(error_string)/sizeof(error_string[0]));
+  
+    if(string_length == 0) {
+      string_length = LoadString(SERVER::instance()->handle(), ERROR_STR, error_string, sizeof(error_string)/sizeof(error_string[0]));
+      
+      if(string_length == 0) {
+	lstrcpy(error_string, TEXT("Error"));
+	MessageBox(0, TEXT("Can not load 'ERROR_STR' string resource"), TEXT("ERROR"), MB_OK);
+      }
+    }
+
+    MessageBox(_hwnd, resource_string, error_string, MB_OK);
   } else {
     CloseHandle( pi.hProcess );
     CloseHandle( pi.hThread );

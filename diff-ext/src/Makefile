@@ -22,7 +22,8 @@ STATICLIB = diff_ext.a
 EXPLIB = diff_ext.exp
 
 SRC-CXX = $(wildcard *.cpp)
-SRC-C$ = $(wildcard *.c)
+SRC-C = $(wildcard *.c)
+SRC-RC = $(wildcard *.c)
 
 OBJ  := $(SRC-CXX:.cpp=.o) $(SRC-C:.c=.o)
 OBJ += $(RES)
@@ -39,7 +40,12 @@ LANG := $(LANG_RU)
 
 .SUFFIXES: .rc .res
 
-all: all-before $(DLL) $(LANG) all-after
+all: .depend all-before $(DLL) $(LANG) all-after
+
+.depend: Makefile $(SRC-C) $(SRC-RC) $(SRC-CXX)
+	$(CXX) -M $(CXXFLAGS) $(SRC-C) $(SRC-RC) $(SRC-CXX) > .depend
+	
+include .depend
 
 clean: clean-custom
 	${RM}  $(OBJ) $(DLL) ${RES} ${EXPLIB} $(STATICLIB) $(LANG) lang/$(PROJ)_ru.res
@@ -64,7 +70,7 @@ $(DLL): $(OBJ)
 #	strip $@
 
 .cpp.o:
-	$(CXX) -c $? -o $@ $(CXXFLAGS)
+	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 .rc.res:
 	$(WINDRES)  $< -I rc -o $@ -O coff -DMING
