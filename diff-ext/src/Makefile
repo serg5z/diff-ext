@@ -1,4 +1,3 @@
-# $Id$
 # Project: diff_ext
 # Generates diff_ext.dll with gcc.
 # Can be used for Cygwin and MingW (MingW ignores -mno-cygwin)
@@ -25,12 +24,11 @@ OBJ  := $(SRC-CPP:.cpp=.o) $(SRC-C:.c=.o)
 OBJ += $(RES)
 
 INCS :=
-DLL  := diff_ext.dll
+DLL  := $(BUILD)/diff_ext.dll
 
 .PHONY: all all-before all-after clean clean-custom
 
 all: all-before $(DLL) all-after
-#	${RM} ${RES}
 
 clean: clean-custom
 	${RM}  $(OBJ) $(DLL) ${RES} ${EXPLIB} $(STATICLIB)
@@ -44,6 +42,7 @@ $(DLL): $(OBJ)
 		--implib $(STATICLIB) \
 		$(OBJ) $(LDFLAGS) $(LIBS) \
 		-o $@
+	strip $@
 
 .cpp.o:
 	$(CPP) -c $? -o $@ $(CXXFLAGS)
