@@ -8,27 +8,25 @@
 
 #include "class_factory.h"
 #include "diff_ext.h"
+#include "server.h"
 
-extern "C" void inc_cRefThisDLL();
-extern "C" void dec_cRefThisDLL();
-
-ExtClassFactory::ExtClassFactory() {
+CLASS_FACTORY::CLASS_FACTORY() {
   _ref_count = 0L;
 
-  inc_cRefThisDLL();
+  SERVER::instance()->lock();
 }
 
-ExtClassFactory::~ExtClassFactory() {
-  dec_cRefThisDLL();
+CLASS_FACTORY::~CLASS_FACTORY() {
+  SERVER::instance()->release();
 }
 
 STDMETHODIMP 
-ExtClassFactory::QueryInterface(REFIID riid, void** ppv) {
+CLASS_FACTORY::QueryInterface(REFIID riid, void** ppv) {
   HRESULT ret = E_NOINTERFACE;
   *ppv = 0;
 
   if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_IClassFactory)) {
-    *ppv = static_cast<ExtClassFactory*>(this);
+    *ppv = static_cast<CLASS_FACTORY*>(this);
 
     AddRef();
 
@@ -39,12 +37,12 @@ ExtClassFactory::QueryInterface(REFIID riid, void** ppv) {
 }
 
 STDMETHODIMP_(ULONG) 
-ExtClassFactory::AddRef() {
+CLASS_FACTORY::AddRef() {
   return InterlockedIncrement((LPLONG)&_ref_count);
 }
 
 STDMETHODIMP_(ULONG) 
-ExtClassFactory::Release() {
+CLASS_FACTORY::Release() {
   ULONG ret = 0L;
   
   if(InterlockedDecrement((LPLONG)&_ref_count) != 0)
@@ -56,24 +54,24 @@ ExtClassFactory::Release() {
 }
 
 STDMETHODIMP 
-ExtClassFactory::CreateInstance(IUnknown* outer, REFIID refiid, void** obj) {
+CLASS_FACTORY::CreateInstance(IUnknown* outer, REFIID refiid, void** obj) {
   HRESULT ret = CLASS_E_NOAGGREGATION;
   *obj = 0;
 
   // Shell extensions typically don't support aggregation (inheritance)
   if(outer == 0) {
-    CShellExt* diff_ext = new CShellExt();
+    DIFF_EXT* ext = new DIFF_EXT();
   
-    if(diff_ext == 0)
+    if(ext == 0)
       ret = E_OUTOFMEMORY;    
     else
-      ret = diff_ext->QueryInterface(refiid, obj);
+      ret = ext->QueryInterface(refiid, obj);
   }
   
   return ret;
 }
 
 STDMETHODIMP 
-ExtClassFactory::LockServer(BOOL fLock) {
+CLASS_FACTORY::LockServer(BOOL fLock) {
   return NOERROR;
 }

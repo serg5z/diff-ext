@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "diff_ext.h"
+#include "server.h"
 #include "diff_ext_res.h"
 
 const int IDM_TEST_COMMAND=10;
@@ -18,34 +19,32 @@ const int IDM_DIFF_LATER=30;
 const int IDM_DIFF_WITH=40;
 const int IDM_DIFF_WITH_BASE=50;
 
-DEQUE<STRING> CShellExt::_recent_files(4);
+DEQUE<STRING> DIFF_EXT::_recent_files(4);
 
-extern "C" void inc_cRefThisDLL();
 extern "C" void dec_cRefThisDLL();
-extern "C" HINSTANCE g_hmodThisDll;
 
 #define _T(x)  x
 
-// *********************** CShellExt *************************
-CShellExt::CShellExt() : _n_files(0), _file_name1(""), _file_name2(""), _language(1033), _ref_count(0L) {
+// *********************** DIFF_EXT *************************
+DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(""), _file_name2(""), _language(1033), _ref_count(0L) {
   if(_recent_files.size() == 0)
     _recent_files = DEQUE<STRING>(8);
 
-  _resource = g_hmodThisDll;
+  _resource = SERVER::instance()->handle();
   
-  inc_cRefThisDLL();
+  SERVER::instance()->lock();
 }
 
-CShellExt::~CShellExt() {
-  if(_resource != g_hmodThisDll) {
+DIFF_EXT::~DIFF_EXT() {
+  if(_resource != SERVER::instance()->handle()) {
     FreeLibrary(_resource);
   }
   
-  dec_cRefThisDLL();
+  SERVER::instance()->release();
 }
 
 STDMETHODIMP
-CShellExt::QueryInterface(REFIID refiid, void** ppv) {
+DIFF_EXT::QueryInterface(REFIID refiid, void** ppv) {
   HRESULT ret = E_NOINTERFACE;
   *ppv = 0;
 
@@ -65,12 +64,12 @@ CShellExt::QueryInterface(REFIID refiid, void** ppv) {
 }
 
 STDMETHODIMP_(ULONG)
-CShellExt::AddRef() {
+DIFF_EXT::AddRef() {
   return InterlockedIncrement((LPLONG)&_ref_count);
 }
 
 STDMETHODIMP_(ULONG)
-CShellExt::Release() {
+DIFF_EXT::Release() {
   ULONG ret = 0L;
   
   if(InterlockedDecrement((LPLONG)&_ref_count) != 0)
@@ -82,13 +81,13 @@ CShellExt::Release() {
 }
 
 void
-CShellExt::initialize_language() {
+DIFF_EXT::initialize_language() {
   HKEY key;
   DWORD language = 0;
   DWORD len;
   char language_lib[MAX_PATH];
 
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext\\", 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\DIFF_EXT\\", 0, KEY_READ, &key) == ERROR_SUCCESS) {
     len = sizeof(DWORD);
     RegQueryValueEx(key, "language", 0, NULL, (BYTE*)&language, &len);
 
@@ -97,31 +96,31 @@ CShellExt::initialize_language() {
     if(language != _language) {
       _language = language;
       
-      if(_resource != g_hmodThisDll) {
+      if(_resource != SERVER::instance()->handle()) {
 	FreeLibrary(_resource);
       }
       
       if(_language != 1033) {
-	GetModuleFileName(g_hmodThisDll, language_lib, sizeof(language_lib)/sizeof(char*));
+	GetModuleFileName(SERVER::instance()->handle(), language_lib, sizeof(language_lib)/sizeof(char*));
 	
 	sprintf(language_lib+strlen(language_lib)-4, "%ld.dll", language);
 	
 	_resource = LoadLibrary(language_lib);
 
 	if(_resource == 0) {
-	  _resource = g_hmodThisDll;
+	  _resource = SERVER::instance()->handle();
 	  _language = 1033;
  	}
       }
       else {
-	_resource = g_hmodThisDll;
+	_resource = SERVER::instance()->handle();
       }
     }
   }
 }
 
 STDMETHODIMP
-CShellExt::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY /*key not used*/) {
+DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY /*key not used*/) {
   FORMATETC format = {CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
   STGMEDIUM medium;
   medium.tymed = TYMED_HGLOBAL;
@@ -158,7 +157,7 @@ CShellExt::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY
 }
 
 STDMETHODIMP
-CShellExt::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*last_cmd not used*/, UINT flags) {
+DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*last_cmd not used*/, UINT flags) {
   TCHAR resource_string[256];
   int resource_string_length;
   HRESULT ret = MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, 0);
@@ -295,7 +294,7 @@ CShellExt::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*la
 }
 
 STDMETHODIMP
-CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
+DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
   HRESULT ret = NOERROR;
 
   _hwnd = ici->hwnd;
@@ -322,7 +321,7 @@ CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
 }
 
 STDMETHODIMP
-CShellExt::GetCommandString(UINT idCmd, UINT uFlags, UINT FAR *reserved, LPSTR pszName, UINT cchMax) {
+DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT FAR *reserved, LPSTR pszName, UINT cchMax) {
   if (uFlags == GCS_HELPTEXT && cchMax > 35)
     lstrcpy(pszName, _T("nothing here yet."));
 
@@ -330,8 +329,8 @@ CShellExt::GetCommandString(UINT idCmd, UINT uFlags, UINT FAR *reserved, LPSTR p
 }
 
 void
-CShellExt::diff() {
-  //~ FILE* f = fopen("d:/diff_ext.log", "a");
+DIFF_EXT::diff() {
+  //~ FILE* f = fopen("d:/DIFF_EXT.log", "a");
   //~ MessageBox(_hwnd, "diff", "command", MB_OK);
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
@@ -341,7 +340,7 @@ CShellExt::diff() {
 
   ZeroMemory(command, sizeof(command));
 
-  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext", 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\DIFF_EXT", 0, KEY_READ, &key) == ERROR_SUCCESS) {
     if (RegQueryValueEx(key, "diff", 0, 0, (BYTE *)command, &length) != ERROR_SUCCESS)
       command[0] = '\0';
     else
@@ -385,7 +384,7 @@ CShellExt::diff() {
   si.cb = sizeof(si);
 
   if (CreateProcess(0, command, 0, 0, FALSE, 0, 0, 0, &si, &pi) == 0) {
-    MessageBox(_hwnd, "Error creating process: Check if differ is in your path!", "diff_ext.dll error", MB_OK);
+    MessageBox(_hwnd, "Error creating process: Check if differ is in your path!", "DIFF_EXT.dll error", MB_OK);
   } else {
     CloseHandle( pi.hProcess );
     CloseHandle( pi.hThread );
@@ -395,7 +394,7 @@ CShellExt::diff() {
 }
 
 void
-CShellExt::diff_with(unsigned int num) {
+DIFF_EXT::diff_with(unsigned int num) {
   //~ STRING str = "diff "+_file_name1+" and "+_recent_files.at(num);
   //~ MessageBox(_hwnd, str, "command", MB_OK);
   DEQUE<STRING>::CURSOR i = _recent_files.begin();
@@ -408,8 +407,8 @@ CShellExt::diff_with(unsigned int num) {
 }
 
 void
-CShellExt::diff_later() {
-  //~ FILE* f = fopen("d:/diff_ext.log", "a");
+DIFF_EXT::diff_later() {
+  //~ FILE* f = fopen("d:/DIFF_EXT.log", "a");
   //~ MessageBox(_hwnd, "diff later", "command", MB_OK);
   bool found = false;
   DEQUE<STRING>::CURSOR current = _recent_files.begin();
@@ -432,19 +431,19 @@ CShellExt::diff_later() {
 }
 
 STRING
-CShellExt::cut_to_length(STRING in, int max_len) {
-  //~ STRING ret;
-  //~ int length = in.length();
+DIFF_EXT::cut_to_length(STRING in, int max_len) {
+  STRING ret;
+  int length = in.length();
   
-  //~ if(length > max_len) {
-    //~ ret = in.substr(0, (max_len-3)/2);
-    //~ ret += "...";
-    //~ ret += in.substr(length-(max_len-3)/2, STRING::end);
-  //~ }
-  //~ else {
-    //~ ret = in;
-  //~ }
+  if(length > max_len) {
+    ret = in.substr(0, (max_len-3)/2);
+    ret += "...";
+    ret += in.substr(length-(max_len-3)/2, STRING::end);
+  }
+  else {
+    ret = in;
+  }
   
-  //~ return ret;
-  return in;
+  return ret;
+  //~ return in;
 }

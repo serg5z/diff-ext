@@ -12,17 +12,17 @@
 #include <shlobj.h>
 #include <shlguid.h>
 
-class ExtClassFactory : public IClassFactory {
+class CLASS_FACTORY : public IClassFactory {
   public:
-    ExtClassFactory();
-    virtual ~ExtClassFactory();
+    CLASS_FACTORY();
+    virtual ~CLASS_FACTORY();
 
     //IUnknown members
     STDMETHODIMP QueryInterface(REFIID, void**);
     STDMETHODIMP_(ULONG) AddRef();
     STDMETHODIMP_(ULONG) Release();
 
-    //IExtClassFactory members
+    //ICLASS_FACTORY members
     STDMETHODIMP CreateInstance(IUnknown*, REFIID, void**);
     STDMETHODIMP LockServer(BOOL);
   

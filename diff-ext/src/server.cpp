@@ -17,6 +17,7 @@
 #include <objbase.h>
 #include <initguid.h>
 
+#include "server.h"
 #include "class_factory.h"
 
 #define ARRAYSIZE(a)    (sizeof(a)/sizeof(a[0]))
@@ -31,9 +32,33 @@ typedef struct {
 }
 REGSTRUCT, *LPREGSTRUCT;
 
-extern "C" HINSTANCE g_hmodThisDll; // Handle to this DLL itself.
+static HINSTANCE server_instance; // Handle to this DLL itself.
 
 DEFINE_GUID(CLSID_DIFF_EXT, 0xA0482097, 0xC69D, 0x4DEC, 0x8A, 0xB6, 0xD3, 0xA2, 0x59, 0xAC, 0xC1, 0x51);
+
+STDAPI 
+DllCanUnloadNow(void) {
+  HRESULT ret = S_FALSE;
+  
+  if(SERVER::instance()->refference_count() == 0)
+    ret = S_OK;
+  
+  return ret;
+}
+
+extern "C" int APIENTRY
+DllMain(HINSTANCE instance, DWORD reason, LPVOID /* reserved */) {
+  switch (reason) {
+    case DLL_PROCESS_ATTACH:
+      server_instance = instance;
+      break;
+
+    case DLL_PROCESS_DETACH:
+      break;
+  }
+
+  return 1;
+}
 
 STDAPI 
 DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppvOut) {
@@ -41,7 +66,7 @@ DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppvOut) {
   *ppvOut = 0;
 
   if (IsEqualIID(rclsid, CLSID_DIFF_EXT)) {
-    ExtClassFactory* pcf = new ExtClassFactory();
+    CLASS_FACTORY* pcf = new CLASS_FACTORY();
 
     ret = pcf->QueryInterface(riid, ppvOut);
   }
@@ -51,6 +76,31 @@ DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppvOut) {
 
 STDAPI
 DllRegisterServer() {
+  return SERVER::instance()->do_register();
+}
+
+STDAPI
+DllUnregisterServer() {
+  return SERVER::instance()->do_unregister();
+}
+
+HINSTANCE 
+SERVER::handle() const {
+  return server_instance;
+}
+
+void 
+SERVER::lock() {
+  InterlockedIncrement(&_refference_count);
+}
+
+void  
+SERVER::release() {
+  InterlockedDecrement(&_refference_count);
+}
+
+HRESULT
+SERVER::do_register() {
   TCHAR   szCLSID[MAX_PATH];
   LPWSTR  pwszShellExt;
   HRESULT ret = SELFREG_E_CLASS;
@@ -66,7 +116,7 @@ DllRegisterServer() {
     LRESULT  lResult = NOERROR;
     DWORD    dwDisp;
     //get this DLL's path and file name
-    GetModuleFileName(g_hmodThisDll, szModule, ARRAYSIZE(szModule));
+    GetModuleFileName(SERVER::instance()->handle(), szModule, ARRAYSIZE(szModule));
   
     // these entries have their %s's replaced with CLSID strings,
     // their second entries are replaced with the module's path.
@@ -147,8 +197,8 @@ DllRegisterServer() {
   return ret;
 }
 
-STDAPI
-DllUnregisterServer() {
+HRESULT
+SERVER::do_unregister() {
   TCHAR    szCLSID[MAX_PATH];
   LPWSTR   pwszShellExt;
   HRESULT ret = SELFREG_E_CLASS;

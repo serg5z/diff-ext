@@ -19,10 +19,10 @@
 #include <util/string.h>
 
 // this is the actual OLE Shell context menu handler
-class CShellExt : public IContextMenu, IShellExtInit {
+class DIFF_EXT : public IContextMenu, IShellExtInit {
   public:
-    CShellExt();
-    virtual ~CShellExt();
+    DIFF_EXT();
+    virtual ~DIFF_EXT();
 
     //IUnknown members
     STDMETHODIMP QueryInterface(REFIID interface_id, void** result);
@@ -41,7 +41,7 @@ class CShellExt : public IContextMenu, IShellExtInit {
     void diff();
     void diff_with(unsigned int num);
     void diff_later();
-    STRING cut_to_length(STRING, int length = 43);
+    STRING cut_to_length(STRING, int length = 64);
     void initialize_language();
 
   private:
