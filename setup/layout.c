@@ -352,6 +352,8 @@ layout(HWND hwndDlg) {
   RECT dialog_rect;
   HWND current_control;
   
+  HDWP position_handle = BeginDeferWindowPos(16); /* store number of controls inside LAYOUT structure */
+  
   GetClientRect(hwndDlg, &dialog_rect);
   
   while(current != 0) {
@@ -408,8 +410,11 @@ layout(HWND hwndDlg) {
     x = rect.left;
     y = rect.top;
 
-    MoveWindow(current_control, x, y, w, h, FALSE);
+/*    MoveWindow(current_control, x, y, w, h, FALSE);*/
+    position_handle = DeferWindowPos(position_handle, current_control, 0, x, y, w, h, SWP_NOZORDER);
     
     current = current->next;
   }
+  
+  EndDeferWindowPos(position_handle);
 }

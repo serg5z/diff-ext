@@ -326,7 +326,7 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
         window_placement->height = rect.bottom-rect.top;
 
 /*	RedrawWindow(dialog, 0, 0, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW);*/
-        InvalidateRect(dialog, 0, TRUE);
+/*        InvalidateRect(dialog, 0, TRUE);*/
 
 	ret = TRUE;
       }
@@ -349,7 +349,7 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	      if(i == page) {
 		SetWindowPos(pages[i]->page, HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
 		layout(pages[i]->page);
-		RedrawWindow(pages[i]->page, 0, 0, RDW_ALLCHILDREN | RDW_INVALIDATE);
+/*		RedrawWindow(pages[i]->page, 0, 0, RDW_ALLCHILDREN | RDW_INVALIDATE);*/
 	      } else {
 	        ShowWindow(pages[i]->page, FALSE);
 	      }
