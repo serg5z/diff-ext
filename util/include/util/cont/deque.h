@@ -106,7 +106,7 @@ class DEQUE {
       delete [] _container;
     }
 
-    DEQUE<T>& operator =(const DEQUE<T>& d) {
+    DEQUE<T>& operator=(const DEQUE<T>& d) {
       delete [] _container;
 
       _container = new T[d._size];
@@ -127,7 +127,7 @@ class DEQUE {
     }
 
     bool full() const {
-      return _begin == _end;
+      return (_begin == _end);
     }
 
     bool empty() const {
@@ -152,10 +152,11 @@ class DEQUE {
     DEQUE<T>::CURSOR begin() const {
       unsigned int begin;
 
-      if(_begin == _size-1)
+      if(_begin == _size-1) {
         begin = 0;
-      else
+      } else {
         begin = _begin+1;
+      }
 
       return CURSOR(this, begin);
     }
@@ -163,10 +164,11 @@ class DEQUE {
     DEQUE<T>::CURSOR end() const {
       unsigned int end;
 
-      if(_end == 0)
+      if(_end == 0) {
         end = _size-1;
-      else
+      } else {
         end = _end-1;
+      }
 
       return CURSOR(this, end);
     }
@@ -175,10 +177,11 @@ class DEQUE {
       assert(!empty());
       unsigned int begin;
 
-      if(_begin == _size-1)
+      if(_begin == _size-1) {
         begin = 0;
-      else
+      } else {
         begin = _begin+1;
+      }
 
       return _container[begin];
     }
@@ -187,10 +190,11 @@ class DEQUE {
       assert(!empty());
       unsigned int begin;
 
-      if(_begin == _size-1)
+      if(_begin == _size-1) {
         begin = 0;
-      else
+      } else {
         begin = _begin+1;
+      }
 
       return _container[begin];
     }
@@ -199,10 +203,11 @@ class DEQUE {
       assert(!empty());
       unsigned int end;
 
-      if(_end == 0)
+      if(_end == 0) {
         end = _size-1;
-      else
+      } else {
         end = _end-1;
+      }
 
       return _container[end];
     }
@@ -211,10 +216,11 @@ class DEQUE {
       assert(!empty());
       unsigned int end;
 
-      if(_end == 0)
+      if(_end == 0) {
         end = size-1;
-      else
+      } else {
         end = _end-1;
+      }
 
       return _container[end];
     }
@@ -225,8 +231,9 @@ class DEQUE {
 
         unsigned int new_end = _end+1;
 
-        if(new_end >= _size)
+        if(new_end >= _size) {
           new_end = 0;
+        }
 
         _end = new_end;
       }
@@ -238,10 +245,11 @@ class DEQUE {
 
         unsigned int new_begin;
 
-        if(_begin == 0)
+        if(_begin == 0) {
           new_begin = _size-1;
-        else
+        } else {
           new_begin = _begin-1;
+        }
 
         _begin = new_begin;
       }
@@ -250,27 +258,31 @@ class DEQUE {
     void pop_back() {
       unsigned int new_end;
 
-      if(_end == 0)
+      if(_end == 0) {
         new_end = _size-1;
-      else
+      } else {
         new_end  = _end-1;
+      }
 
-      if(new_end != _begin)
+      if(new_end != _begin) {
         _end = new_end;
+      }
     }
 
     void pop_front() {
       unsigned int new_begin = _begin+1;
 
-      if(new_begin >= _size)
+      if(new_begin >= _size) {
         new_begin = 0;
+      }
 
-      if(new_begin != _end)
+      if(new_begin != _end) {
         _begin = new_begin;
+      }
     }
 
     bool owner(const DEQUE<T>::CURSOR& c) const {
-      return c._owner == this;
+      return (c._owner == this);
     }
 
     bool valid(const DEQUE<T>::CURSOR& c) const {
@@ -282,17 +294,19 @@ class DEQUE {
       assert(!done(c));
       c._current++;
 
-      if(c._current == _size)
+      if(c._current == _size) {
         c._current = 0;
+      }
     }
 
     void previous(DEQUE<T>::CURSOR& c) const {
       assert(owner(c));
       assert(!done(c));
-      if(c._current == 0)
+      if(c._current == 0) {
         c._current = _size-1;
-      else
+      } else {
         c._current--;
+      }
     }
 
     bool done(const DEQUE<T>::CURSOR& c) const {

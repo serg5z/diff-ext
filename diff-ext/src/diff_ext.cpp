@@ -604,8 +604,9 @@ DIFF_EXT::diff_later() {
   }
 
   if(!found) {
-    if(_recent_files->full())
+    if(_recent_files->full()) {
       _recent_files->pop_back();
+    }
 
     _recent_files->push_front(_file_name1);
   }

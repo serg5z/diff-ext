@@ -21,6 +21,8 @@
 #include <log/log_message.h>
 #include <log/file_sink.h>
 
+#include <debug/trace.h>
+
 #include "server.h"
 #include "class_factory.h"
 
@@ -36,6 +38,7 @@ typedef struct {
 }
 REGSTRUCT, *LPREGSTRUCT;
 
+static SERVER* SERVER::_instance = 0;
 static HINSTANCE server_instance; // Handle to this DLL itself.
 
 DEFINE_GUID(CLSID_DIFF_EXT, 0xA0482097, 0xC69D, 0x4DEC, 0x8A, 0xB6, 0xD3, 0xA2, 0x59, 0xAC, 0xC1, 0x51);
@@ -65,9 +68,13 @@ DllCanUnloadNow(void) {
 
 extern "C" int APIENTRY
 DllMain(HINSTANCE instance, DWORD reason, LPVOID /* reserved */) {
+  char str[1024];
+  sprintf(str, "instance: %x; reason: %d", instance, reason);
+  MessageBox(0, str, TEXT("Info"), MB_OK);  
   switch (reason) {
     case DLL_PROCESS_ATTACH:
       server_instance = instance;
+      SERVER::instance()->save_history();
       break;
 
     case DLL_PROCESS_DETACH:
@@ -79,14 +86,14 @@ DllMain(HINSTANCE instance, DWORD reason, LPVOID /* reserved */) {
 }
 
 STDAPI 
-DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppvOut) {
+DllGetClassObject(REFCLSID rclsid, REFIID riid, void** class_object) {
   HRESULT ret = CLASS_E_CLASSNOTAVAILABLE;
-  *ppvOut = 0;
+  *class_object = 0;
 
   if (IsEqualIID(rclsid, CLSID_DIFF_EXT)) {
     CLASS_FACTORY* pcf = new CLASS_FACTORY();
 
-    ret = pcf->QueryInterface(riid, ppvOut);
+    ret = pcf->QueryInterface(riid, class_object);
   }
 
   return ret;
@@ -137,6 +144,7 @@ SERVER::~SERVER() {
   if(_file_sink != 0) {
     delete _file_sink;
   }
+  MessageBox(0, TEXT("~SERVER"), TEXT("info"), MB_OK);
 }
 
 HINSTANCE 
@@ -232,13 +240,27 @@ SERVER::save_history() const {
 	STRING str = (*i);
 	LPSTR c_str = str;
 	if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, (*i).length()) != ERROR_SUCCESS) {
-	  LPTSTR message;
-	  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
-	    GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-	    (LPTSTR) &message, 0, 0);
-	  MessageBox(0, message, TEXT("GetLastError"), MB_OK | MB_ICONINFORMATION);
-      
-	  LocalFree(message);
+          TRACE trace(__func__, __FILE__, __LINE__, 4);
+          HKEY history_entry;
+          if(RegCreateKeyEx(key, no[n], 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &history_entry, 0) == ERROR_SUCCESS) {
+            if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, (*i).length()) != ERROR_SUCCESS) {
+              LPTSTR message;
+              FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
+                GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                (LPTSTR) &message, 0, 0);
+              MessageBox(0, message, TEXT("Save history after expand"), MB_OK | MB_ICONINFORMATION);
+          
+              LocalFree(message);
+            }
+          } else {
+            LPTSTR message;
+            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
+              GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+              (LPTSTR) &message, 0, 0);
+            MessageBox(0, message, TEXT("Save history"), MB_OK | MB_ICONINFORMATION);
+        
+            LocalFree(message);
+          }
 	}
 	n++;
 	i++;
@@ -251,54 +273,55 @@ SERVER::save_history() const {
 
 HRESULT
 SERVER::do_register() {
-  TCHAR   szCLSID[MAX_PATH];
-  LPWSTR  pwszShellExt;
+  TCHAR   class_id[MAX_PATH];
+  LPWSTR  tmp_guid;
   HRESULT ret = SELFREG_E_CLASS;
 
-  if (StringFromIID(CLSID_DIFF_EXT, &pwszShellExt) == S_OK) {
-    wcstombs(szCLSID, pwszShellExt, ARRAYSIZE(szCLSID));
-    CoTaskMemFree((void*)pwszShellExt);
+  if (StringFromIID(CLSID_DIFF_EXT, &tmp_guid) == S_OK) {
+    wcstombs(class_id, tmp_guid, ARRAYSIZE(class_id));
+    CoTaskMemFree((void*)tmp_guid);
     
-    TCHAR    szSubKey[MAX_PATH];
-    TCHAR    szModule[MAX_PATH];
-    HKEY     hKey;
-    LRESULT  lResult = NOERROR;
+    TCHAR    subkey[MAX_PATH];
+    TCHAR    server_path[MAX_PATH];
+    HKEY     key;
+    LRESULT  result = NOERROR;
     DWORD    dwDisp;
 
-    GetModuleFileName(SERVER::instance()->handle(), szModule, ARRAYSIZE(szModule));
+    GetModuleFileName(SERVER::instance()->handle(), server_path, ARRAYSIZE(server_path));
   
-    REGSTRUCT ShExClsidEntries[] = {
+    REGSTRUCT entry[] = {
       {TEXT("CLSID\\%s"), 0, TEXT(SHELLEXNAME)},
       {TEXT("CLSID\\%s\\InProcServer32"), 0, TEXT("%s")},
-      {TEXT("CLSID\\%s\\InProcServer32"), TEXT("ThreadingModel"), TEXT("Apartment")}};
+      {TEXT("CLSID\\%s\\InProcServer32"), TEXT("ThreadingModel"), TEXT("Apartment")}
+    };
   
-    for(unsigned int i = 0; (i < ARRAYSIZE(ShExClsidEntries)) && (lResult == NOERROR); i++) {
-      wsprintf(szSubKey, ShExClsidEntries[i].subkey, szCLSID);
-      lResult = RegCreateKeyEx(HKEY_CLASSES_ROOT, szSubKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &hKey, &dwDisp);
+    for(unsigned int i = 0; (i < ARRAYSIZE(entry)) && (result == NOERROR); i++) {
+      wsprintf(subkey, entry[i].subkey, class_id);
+      result = RegCreateKeyEx(HKEY_CLASSES_ROOT, subkey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &dwDisp);
     
-      if(lResult == NOERROR) {
+      if(result == NOERROR) {
         TCHAR szData[MAX_PATH];
 
-        wsprintf(szData, ShExClsidEntries[i].value, szModule);
+        wsprintf(szData, entry[i].value, server_path);
     
-        lResult = RegSetValueEx(hKey, ShExClsidEntries[i].name, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData) + 1);
+        result = RegSetValueEx(key, entry[i].name, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData) + 1);
       }
       
-      RegCloseKey(hKey);
+      RegCloseKey(key);
     }
     
-    if(lResult == NOERROR) {  
-      lResult = RegCreateKeyEx(HKEY_CLASSES_ROOT, TEXT("*\\shellex\\ContextMenuHandlers\\"SHELLEXNAME), 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &hKey, &dwDisp);
+    if(result == NOERROR) {  
+      result = RegCreateKeyEx(HKEY_CLASSES_ROOT, TEXT("*\\shellex\\ContextMenuHandlers\\"SHELLEXNAME), 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &dwDisp);
     
-      if(lResult == NOERROR) {
+      if(result == NOERROR) {
         TCHAR szData[MAX_PATH];
     
         //if necessary, create the value string
-        wsprintf(szData, TEXT("%s"), szCLSID);
+        wsprintf(szData, TEXT("%s"), class_id);
     
-        lResult = RegSetValueEx(hKey, 0, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData) + 1);
+        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData) + 1);
     
-        RegCloseKey(hKey);
+        RegCloseKey(key);
     
         //If running on NT, register the extension as approved.
         OSVERSIONINFO  osvi;
@@ -308,21 +331,21 @@ SERVER::do_register() {
       
         // NT needs to have shell extensions "approved".
         if (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-          lstrcpy(szSubKey, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved"));
+          lstrcpy(subkey, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved"));
       
-          lResult = RegCreateKeyEx(HKEY_LOCAL_MACHINE, szSubKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &hKey, &dwDisp);
+          result = RegCreateKeyEx(HKEY_LOCAL_MACHINE, subkey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &dwDisp);
       
-          if(lResult == NOERROR) {
+          if(result == NOERROR) {
             TCHAR szData[MAX_PATH];
       
             lstrcpy(szData, TEXT(SHELLEXNAME));
       
-            lResult = RegSetValueEx(hKey, szCLSID, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData) + 1);
+            result = RegSetValueEx(key, class_id, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData) + 1);
       
-            RegCloseKey(hKey);
+            RegCloseKey(key);
             
             ret = S_OK;
-          } else if (lResult == ERROR_ACCESS_DENIED) {
+          } else if (result == ERROR_ACCESS_DENIED) {
 	    TCHAR msg[] = TEXT("Warning! You have unsuficient rights to write to a specific registry key.\n")
 			  TEXT("The application may work anyway, but it is adsvised to register this module ")
 			  TEXT("again while having administrator rights.");
@@ -344,30 +367,31 @@ SERVER::do_register() {
 
 HRESULT
 SERVER::do_unregister() {
-  TCHAR    szCLSID[MAX_PATH];
-  LPWSTR   pwszShellExt;
+  TCHAR class_id[MAX_PATH];
+  LPWSTR tmp_guid;
   HRESULT ret = SELFREG_E_CLASS;
 
-  if (StringFromIID(CLSID_DIFF_EXT, &pwszShellExt) == S_OK) {
-    wcstombs(szCLSID, pwszShellExt, ARRAYSIZE(szCLSID));
-    CoTaskMemFree(pwszShellExt);
+  if (StringFromIID(CLSID_DIFF_EXT, &tmp_guid) == S_OK) {
+    wcstombs(class_id, tmp_guid, ARRAYSIZE(class_id));
+    CoTaskMemFree(tmp_guid);
 
-    LRESULT  lResult = NOERROR;
-    TCHAR    szSubKey[MAX_PATH];
+    LRESULT result = NOERROR;
+    TCHAR subkey[MAX_PATH];
 
-    REGSTRUCT ShExClsidEntries[] = {
+    REGSTRUCT entry[] = {
       {TEXT("CLSID\\%s\\InProcServer32"), 0, 0},
-      {TEXT("CLSID\\%s"), 0, 0}};
+      {TEXT("CLSID\\%s"), 0, 0}
+    };
   
-    for(unsigned int i = 0; (i < ARRAYSIZE(ShExClsidEntries)) && (lResult == NOERROR); i++) {
-      wsprintf(szSubKey, ShExClsidEntries[i].subkey, szCLSID);
-      lResult = RegDeleteKey(HKEY_CLASSES_ROOT, szSubKey);
+    for(unsigned int i = 0; (i < ARRAYSIZE(entry)) && (result == NOERROR); i++) {
+      wsprintf(subkey, entry[i].subkey, class_id);
+      result = RegDeleteKey(HKEY_CLASSES_ROOT, subkey);
     }
   
-    if(lResult == NOERROR) {
-      lResult = RegDeleteKey(HKEY_CLASSES_ROOT, TEXT("*\\shellex\\ContextMenuHandlers\\"SHELLEXNAME));
+    if(result == NOERROR) {
+      result = RegDeleteKey(HKEY_CLASSES_ROOT, TEXT("*\\shellex\\ContextMenuHandlers\\"SHELLEXNAME));
     
-      if(lResult == NOERROR) {
+      if(result == NOERROR) {
         //If running on NT, register the extension as approved.
         OSVERSIONINFO  osvi;
       
@@ -380,11 +404,11 @@ SERVER::do_unregister() {
           
           RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved"), 0, KEY_ALL_ACCESS, &key);
   
-          lResult = RegDeleteValue(key, szCLSID);
+          result = RegDeleteValue(key, class_id);
         
           RegCloseKey(key);
         
-          if(lResult == ERROR_SUCCESS) {
+          if(result == ERROR_SUCCESS) {
             ret = S_OK;
           }
         }

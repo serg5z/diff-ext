@@ -5,15 +5,17 @@
 #include <util/string.h>
 #include <log/file_sink.h>
 
+#include <windows.h>
+
 class SERVER {
   public:
     static SERVER* instance() {
-      static SERVER* instance = 0;
+      if(_instance == 0) {
+	_instance = new SERVER();
+        MessageBox(0, TEXT("new SERVER"), TEXT("info"), MB_OK);
+      }
       
-      if(instance == 0)
-	instance = new SERVER();
-      
-      return instance;
+      return _instance;
     }
   
   public:
@@ -43,6 +45,7 @@ class SERVER {
     LONG _refference_count;
     DEQUE<STRING>* _recent_files;
     FILE_SINK* _file_sink;
+    static SERVER* _instance;
 };
 
 #endif // __server_h__
