@@ -308,58 +308,7 @@ options_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_INITDIALOG:
       SetWindowLongPtr(dialog, DWLP_USER, lParam);
       ret = TRUE;
-      break;
-
-    case WM_GETMINMAXINFO: {
-        LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(dialog, DWLP_USER);
-        MINMAXINFO* min_max_info = (MINMAXINFO*)lParam;
-        RECT client;
-        WINDOWINFO info;
-
-        client.top = 0;
-        client.bottom = layout->height;
-        client.left = 0;
-        client.right = layout->width;
-
-        MapDialogRect(dialog, &client);
-        GetWindowInfo(dialog, &info);
-        AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);
-
-        min_max_info->ptMinTrackSize.x = client.right-client.left;
-        min_max_info->ptMinTrackSize.y = client.bottom-client.top;
-        ret = TRUE;
-      }
-      break;
-
-    case WM_MOVE: {
-        RECT rect;
-        
-        GetWindowRect(dialog, &rect);
-        window_placement->x = rect.left;
-        window_placement->y = rect.top;
-        window_placement->width = rect.right-rect.left;
-        window_placement->height = rect.bottom-rect.top;
-      }
-      break;
-      
-    case WM_SIZE: {
-        RECT rect;
-        
-/**/
-        layout(dialog);
-/* redraw them all*/
-        GetWindowRect(dialog, &rect);
-        window_placement->x = rect.left;
-        window_placement->y = rect.top;
-        window_placement->width = rect.right-rect.left;
-        window_placement->height = rect.bottom-rect.top;
-
-        InvalidateRect(dialog, 0, TRUE);
-        UpdateWindow(dialog);
-
-        ret = TRUE;
-      }
-      break;
+      break;  
   }
   
   return ret;
@@ -373,57 +322,6 @@ debug_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_INITDIALOG:
       SetWindowLongPtr(dialog, DWLP_USER, lParam);
       ret = TRUE;
-      break;
-
-    case WM_GETMINMAXINFO: {
-        LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(dialog, DWLP_USER);
-        MINMAXINFO* min_max_info = (MINMAXINFO*)lParam;
-        RECT client;
-        WINDOWINFO info;
-
-        client.top = 0;
-        client.bottom = layout->height;
-        client.left = 0;
-        client.right = layout->width;
-
-        MapDialogRect(dialog, &client);
-        GetWindowInfo(dialog, &info);
-        AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);
-
-        min_max_info->ptMinTrackSize.x = client.right-client.left;
-        min_max_info->ptMinTrackSize.y = client.bottom-client.top;
-        ret = TRUE;
-      }
-      break;
-
-    case WM_MOVE: {
-        RECT rect;
-        
-        GetWindowRect(dialog, &rect);
-        window_placement->x = rect.left;
-        window_placement->y = rect.top;
-        window_placement->width = rect.right-rect.left;
-        window_placement->height = rect.bottom-rect.top;
-      }
-      break;
-      
-    case WM_SIZE: {
-        RECT rect;
-        
-/**/
-        layout(dialog);
-/* redraw them all*/
-        GetWindowRect(dialog, &rect);
-        window_placement->x = rect.left;
-        window_placement->y = rect.top;
-        window_placement->width = rect.right-rect.left;
-        window_placement->height = rect.bottom-rect.top;
-
-        InvalidateRect(dialog, 0, TRUE);
-        UpdateWindow(dialog);
-
-        ret = TRUE;
-      }
       break;
   }
   
@@ -605,6 +503,7 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	    for(i = 0; i < sizeof(pages)/sizeof(pages[0]); i++) {
 	      if(i == page) {
 		SetWindowPos(pages[i], HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
+		layout(pages[i]);
 	      } else {
 	        ShowWindow(pages[i], FALSE);
 	      }

@@ -104,12 +104,12 @@ BEGIN
 		  WS_TABSTOP
     EDITTEXT      
                   ID_LOG_PATH, 
-                  7, 22, 152, 14, 
+                  7, 22, 159, 14, 
                   ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER
                   
     PUSHBUTTON    "Browse...",
                   ID_BROWSE, 
-                  163, 22, 50, 14
+                  170, 22, 50, 14
 END
 
 IDD_MAINDIALOG DIALOGEX
