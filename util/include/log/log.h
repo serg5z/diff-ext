@@ -9,14 +9,13 @@
 #ifndef __log_h__
 #define __log_h__
 
-#include <util/string.h>
 #include <util/cont/list.h>
 
 class LOG_SINK;
 class LOG_MESSAGE;
 
 class LOG {
-  typedef void (LOG_SINK::*log_function)(const STRING&) const;
+  typedef void (LOG_SINK::*LOG_FUNCTION)(const STRING&);
   
   public:
     LOG* instance() {
@@ -29,18 +28,22 @@ class LOG {
       return instance;
     }
     
-    void info(const LOG_MESSAGE& msg) const;
-    void warning(const LOG_MESSAGE& msg) const;
-    void error(const LOG_MESSAGE& msg) const;
-    void faluire(const LOG_MESSAGE& msg) const;
+    void debug(const LOG_MESSAGE& msg);
+    void info(const LOG_MESSAGE& msg);
+    void warning(const LOG_MESSAGE& msg);
+    void error(const LOG_MESSAGE& msg);
+    void faluire(const LOG_MESSAGE& msg);
+    
+    void add_sink(LOG_SINK* sink);
+    void remove_sink(LOG_SINK* sink);
     
   private:
     LOG() {}
     LOG(const LOG&) {}
       
-    void write_message(log_function func, const STRING& msg) const;
+    void write_message(LOG_FUNCTION func, const STRING& msg);
       
-    LIST<LOG_SINK*> 
+    LIST<LOG_SINK*> _sinks;
 };
 
-#endif __log_h__
+#endif // __log_h__
