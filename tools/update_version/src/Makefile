@@ -1,4 +1,4 @@
-BUILD ?= .
+BIN ?= .
 
 CXX  ?= g++.exe
 CC   ?= gcc.exe
@@ -6,14 +6,14 @@ AR ?= ar.exe -r
 WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
 
-CXXFLAGS += -I../../util/include
-CFLAGS += -g -I../../util/include
-LIBS :=  -lcomdlg32 -lcomctl32 -lversion
+CXXFLAGS += -g
+CFLAGS += -g
+LIBS :=  -lrx -lkernel32
 LDFLAGS += -mwindows
-RES  := diff_ext_setup.res
-DEFFILE = diff_ext.def
-STATICLIB = diff_ext.a
-EXPLIB = diff_ext.exp
+RES  := 
+DEFFILE = 
+STATICLIB = 
+EXPLIB = 
 
 SRC-CXX = $(wildcard *.cpp)
 SRC-C$ = $(wildcard *.c)
@@ -22,12 +22,10 @@ OBJ  := $(SRC-CXX:.cpp=.o) $(SRC-C:.c=.o)
 OBJ += $(RES)
 
 INCS :=
-PROJ := diff_ext_setup
-EXE  := $(BUILD)/$(PROJ).exe
+PROJ := update_version
+EXE  := $(BIN)/$(PROJ).exe
 
-LANG_RU := $(BUILD)/$(PROJ)1049.dll
-
-LANG := $(LANG_RU)
+LANG :=
 
 .PHONY: all all-before all-after clean clean-custom
 
@@ -41,7 +39,7 @@ all: .depend all-before $(EXE) $(LANG) all-after
 include .depend
 
 clean: clean-custom
-	${RM}  $(OBJ) $(EXE) ${RES} ${EXPLIB} $(STATICLIB) $(LANG) lang/$(PROJ)_ru.res
+	${RM}  $(OBJ) $(EXE) ${RES} ${EXPLIB} $(STATICLIB) $(LANG) 
 
 $(LANG_RU) : lang/$(PROJ)_ru.res
 	$(DLLWRAP) \
@@ -52,8 +50,8 @@ $(LANG_RU) : lang/$(PROJ)_ru.res
 	strip $@
 
 $(EXE): $(OBJ)
-	$(CC) $(OBJ) -o $@ $(LDFLAGS) $(LIBS)
-#	strip $@
+	$(CXX) $(OBJ) -o $@ $(LDFLAGS) $(LIBS)
+	strip $@
 
 .cpp.o:
 	$(CXX) -c $< -o $@ $(CXXFLAGS)

@@ -26,7 +26,7 @@ SRC-C = $(wildcard *.c)
 SRC-RC = $(wildcard *.rc)
 
 OBJ  := $(SRC-CXX:.cpp=.o) $(SRC-C:.c=.o)
-#RES  := $(SRC-RC:.rc=.res)
+RES  := $(SRC-RC:.rc=.res)
 OBJ += $(RES)
 
 INCS :=
@@ -48,11 +48,11 @@ all: .depend all-before $(DLL) $(LANG) all-after
 	
 include .depend
 
-all-before: $(SRC-RC)
-	$(UPDATE_VERSION) --input $< --output $<
+all-after: $(SRC-RC)
+	$(UPDATE_VERSION)  --input $< --output $<
 
 clean: clean-custom
-	${RM}  $(OBJ) $(DLL) ${RES} ${EXPLIB} $(STATICLIB) $(LANG) lang/$(PROJ)_ru.res
+	${RM}  $(OBJ) $(DLL) ${EXPLIB} $(STATICLIB) $(LANG) lang/$(PROJ)_ru.res
 
 $(LANG_RU) : lang/$(PROJ)_ru.res
 	$(DLLWRAP) \
@@ -78,6 +78,3 @@ $(DLL): $(OBJ)
 
 .rc.res:
 	$(WINDRES)  $< -I rc -o $@ -O coff -DMING
-
-#~ ${RES}:
-	#~ $(WINDRES)  diff_ext.rc -I rc -o $@ -O coff -DMING
