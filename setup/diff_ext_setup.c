@@ -113,7 +113,7 @@ InitializeApp(HWND dialog, WPARAM wParam, LPARAM lParam) {
   DLGTEMPLATE* dialog_template;
   LAYOUT* options_layout;
   LAYOUT* debug_layout;
-  
+  RECT rect;
   TCITEM item1;
   TCITEM item2;
 
@@ -235,6 +235,14 @@ InitializeApp(HWND dialog, WPARAM wParam, LPARAM lParam) {
   else {
     MoveWindow(dialog, window_placement->x, window_placement->y, window_placement->width, window_placement->height, TRUE);
   }
+  
+  GetClientRect(tab, &rect);
+
+  TabCtrl_AdjustRect(tab, FALSE, &rect);
+
+  MapWindowPoints(tab, dialog, (LPPOINT)&rect, 2);
+  
+  SetWindowPos(pages[0], HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
 }
 
 static void

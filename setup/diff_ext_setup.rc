@@ -154,10 +154,10 @@ BEGIN
 	  7, 7, 21, 20
     CTEXT "diff_ext", 
 	  201, 
-	  26, 7, 162, 8
+	  30, 7, 162, 8
     CTEXT "No version infornation available.", 
 	  ID_VERSION, 
-	  26, 22, 162, 8
+	  30, 22, 162, 8
     CTEXT "\251 2003-2004 Sergey Zorin. All rights reserved.", 
 	  202, 
 	  7, 37, 200, 8
