@@ -13,21 +13,46 @@
 
 MAIN_ICON ICON "zs.ico"
 
-IDD_MAINDIALOG DIALOG 70, 60, 195, 100
+IDD_MAINDIALOG DIALOG 
+70, 60, 195, 100
 STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "diff_ext setup"
 FONT 8, "Helv"
 CLASS "diff-ext-setup"
 BEGIN
-    GROUPBOX        	"Diff command", 			ID_GROUP, 5, 5, 185, 45
-    EDITTEXT        	ID_DIFF_COMMAND, 10, 15, 130, 12, ES_AUTOHSCROLL | WS_GROUP, WS_EX_CLIENTEDGE
-    PUSHBUTTON      	"Browse...",		ID_BROWSE, 145, 14, 40, 14
-    AUTOCHECKBOX	"can compare folders", 			ID_DIFF_DIRS, 10, 35, 90, 10
-    LTEXT           	"Language", 	104, 5, 55, 35, 12
-    COMBOBOX        	ID_LANGUAGE, 45, 53, 100, 130, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    DEFPUSHBUTTON   "OK", IDOK, 60, 80, 40, 14, WS_GROUP
-    PUSHBUTTON      	"Cancel", 		IDCANCEL, 105, 80, 40, 14
-    PUSHBUTTON      	"About", 		ID_ABOUT, 150, 80, 40, 14, WS_DISABLED
+    GROUPBOX      "Diff command", 			
+                  ID_GROUP, 
+                  5, 5, 185, 45
+    EDITTEXT      
+                  ID_DIFF_COMMAND, 
+                  10, 15, 130, 12, 
+                  ES_AUTOHSCROLL | WS_GROUP, 
+                  WS_EX_CLIENTEDGE
+    PUSHBUTTON    "Browse...",
+                  ID_BROWSE, 
+                  145, 14, 40, 14
+    AUTOCHECKBOX  "can compare folders",
+                  ID_DIFF_DIRS, 
+                  10, 35, 90, 10,
+                  WS_DISABLED
+    LTEXT         "Language",
+                  104, 
+                  5, 55, 35, 12
+    COMBOBOX      
+                  ID_LANGUAGE, 
+                  45, 53, 100, 130, 
+                  CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON "OK", 
+                  IDOK, 
+                  60, 80, 40, 14, 
+                  WS_GROUP
+    PUSHBUTTON    "Cancel",
+                  IDCANCEL, 
+                  105, 80, 40, 14
+    PUSHBUTTON    "About",
+                  ID_ABOUT, 
+                  150, 80, 40, 14, 
+                  WS_DISABLED
 END
 
 DLG_ABOUT DIALOG 105, 100, 178, 109
@@ -35,8 +60,12 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 8, "MS Sans Serif"
 BEGIN
-    PUSHBUTTON      "Ok", IDOK, 73, 89, 40, 14
-    LTEXT           "About diff-ext-setup", 201, 51, 6, 121, 76
+    PUSHBUTTON  "Ok", 
+                IDOK, 
+                73, 89, 40, 14
+    LTEXT       "About diff-ext-setup", 
+                201,
+                51, 6, 121, 76
 END
 
 ID_MAINDIALOG_LAYOUT RCDATA {

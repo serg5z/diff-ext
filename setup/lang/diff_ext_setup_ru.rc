@@ -15,21 +15,46 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 MAIN_ICON ICON "zs.ico"
 
-IDD_MAINDIALOG DIALOG 86, 69, 195, 100
+IDD_MAINDIALOG DIALOG 
+86, 69, 195, 100
 STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Установки diff_ext"
 FONT 8, "Helv"
 CLASS "diff-ext-setup"
 BEGIN
-    GROUPBOX        	"Программа сравнения", 	ID_GROUP, 5, 5, 185, 45
-    EDITTEXT        	ID_DIFF_COMMAND, 10, 15, 130, 12, ES_AUTOHSCROLL | WS_GROUP, WS_EX_CLIENTEDGE
-    PUSHBUTTON      	"Обзор...", 		ID_BROWSE, 145, 14, 40, 14
-    AUTOCHECKBOX    "может сравнивать директории", 	ID_DIFF_DIRS, 10, 35, 120, 10
-    LTEXT           	"Язык", 		104, 5, 55, 25, 12
-    COMBOBOX        	ID_LANGUAGE, 30, 53, 100, 130, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    DEFPUSHBUTTON   "OK", IDOK, 45, 80, 40, 14, WS_GROUP
-    PUSHBUTTON      	"Отмена", 		IDCANCEL, 90, 80, 40, 14
-    PUSHBUTTON      	"О программе", 	ID_ABOUT, 135, 80, 55, 14, WS_DISABLED
+    GROUPBOX      "Программа сравнения",
+                  ID_GROUP, 
+                  5, 5, 185, 45
+    EDITTEXT      
+                  ID_DIFF_COMMAND, 
+                  10, 15, 130, 12, 
+                  ES_AUTOHSCROLL | WS_GROUP, 
+                  WS_EX_CLIENTEDGE
+    PUSHBUTTON    "Обзор...",
+                  ID_BROWSE, 
+                  145, 14, 40, 14
+    AUTOCHECKBOX  "может сравнивать директории",
+                  ID_DIFF_DIRS, 
+                  10, 35, 120, 10,
+                  WS_DISABLED
+    LTEXT         "Язык",
+                  104, 
+                  5, 55, 25, 12
+    COMBOBOX      
+                  ID_LANGUAGE, 
+                  30, 53, 100, 130, 
+                  CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON "OK", 
+                  IDOK, 
+                  45, 80, 40, 14, 
+                  WS_GROUP
+    PUSHBUTTON    "Отмена",
+                  IDCANCEL,
+                  90, 80, 40, 14
+    PUSHBUTTON    "О программе",
+                  ID_ABOUT,
+                  135, 80, 55, 14,
+                  WS_DISABLED
 END
 
 DLG_ABOUT DIALOG 105, 100, 178, 109
