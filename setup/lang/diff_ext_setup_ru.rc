@@ -60,7 +60,7 @@ VS_VERSION_INFO VERSIONINFO
 main_icon ICON "de.ico"
 
 IDD_MAINDIALOG DIALOGEX 
-86, 69, 210, 100
+86, 69, 234, 101
 STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Установки diff_ext"
 FONT 8, "Helv"
@@ -68,66 +68,63 @@ CLASS "diff-ext-setup"
 BEGIN
     GROUPBOX      "Программа сравнения",
                   ID_GROUP, 
-                  5, 5, 200, 45
+                  7, 7, 219, 46
     EDITTEXT      
                   ID_DIFF_COMMAND, 
-                  10, 15, 145, 12, 
-                  ES_AUTOHSCROLL | WS_GROUP, 
-                  WS_EX_CLIENTEDGE
+                  14, 18, 150, 14, 
+                  ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+                  
     PUSHBUTTON    "Обзор...",
                   ID_BROWSE, 
-                  160, 14, 40, 14
+                  168, 18, 50, 14
     AUTOCHECKBOX  "может сравнивать директории",
                   ID_DIFF_DIRS, 
-                  10, 35, 120, 10,
+                  14, 36, 120, 10,
                   WS_DISABLED
     LTEXT         "Язык",
                   104, 
-                  5, 55, 25, 12
+		  7, 60, 25, 8
     COMBOBOX      
                   ID_LANGUAGE, 
-                  30, 53, 100, 130, 
+                  36, 59, 100, 130, 
                   CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON "OK", 
                   IDOK, 
-                  5, 80, 40, 14, 
+                  7, 80, 50, 14,
                   WS_GROUP
     PUSHBUTTON    "Отмена",
                   IDCANCEL,
-                  50, 80, 40, 14
+                  61, 80, 50, 14
     PUSHBUTTON    "Применить",
                   ID_APPLY,
-                  95, 80, 50, 14
+                  115, 80, 50, 14
     PUSHBUTTON    "О программе",
                   ID_ABOUT,
-                  150, 80, 55, 14
+                  172, 80, 55, 14
 END
 
 DLG_ABOUT DIALOGEX 
-10, 10, 214, 70
+10, 10, 214, 73
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "О программе diff_ext"
 FONT 8, "MS Shell Dlg"
 BEGIN
     DEFPUSHBUTTON "&Закрыть", 
 		  IDOK, 
-		  160, 52, 48, 14
+		  157, 52, 50, 14
 		  
-/*    PUSHBUTTON "View &Licence", IDA_LICENCE, 6, 52, 70, 14*/
-/*    PUSHBUTTON "Visit &Web Site", IDA_WEB, 84, 52, 70, 14*/
-   
     ICON  "main_icon", 
 	  203, 
-	  5, 5, 21, 20
+	  7, 7, 21, 20
     CTEXT "diff_ext", 
 	  201, 
-	  26, 6, 162, 8
+	  26, 7, 162, 8
     CTEXT "Информация о версии отсутствует.", 
 	  ID_VERSION, 
-	  26, 16, 162, 16
+	  26, 22, 162, 8
     CTEXT "\251 2003-2004 Сергей Зорин. Все права защищены.", 
 	  202, 
-	  5, 34, 204, 16
+	  7, 37, 200, 8
 END
 
 

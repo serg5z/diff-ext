@@ -60,7 +60,7 @@ VS_VERSION_INFO VERSIONINFO
 main_icon ICON "de.ico"
 
 IDD_MAINDIALOG DIALOGEX
-70, 60, 195, 100
+70, 60, 229, 101
 STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "diff_ext setup"
 FONT 8, "Helv"
@@ -68,66 +68,63 @@ CLASS "diff-ext-setup"
 BEGIN
     GROUPBOX      "Diff command", 			
                   ID_GROUP, 
-                  5, 5, 185, 45
+                  7, 7, 214, 46
     EDITTEXT      
                   ID_DIFF_COMMAND, 
-                  10, 15, 130, 12, 
-                  ES_AUTOHSCROLL | WS_GROUP, 
-                  WS_EX_CLIENTEDGE
+                  14, 18, 145, 14, 
+                  ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+                  
     PUSHBUTTON    "Browse...",
                   ID_BROWSE, 
-                  145, 14, 40, 14
+                  163, 18, 50, 14
     AUTOCHECKBOX  "can compare folders",
                   ID_DIFF_DIRS, 
-                  10, 35, 90, 10,
+                  14, 36, 90, 10,
                   WS_DISABLED
     LTEXT         "Language",
                   104, 
-                  5, 55, 35, 12
+                  7, 60, 35, 8
     COMBOBOX      
                   ID_LANGUAGE, 
-                  45, 53, 100, 130, 
+                  46, 59, 100, 130, 
                   CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON "OK", 
                   IDOK, 
-                  15, 80, 40, 14, 
+                  7, 80, 50, 14, 
                   WS_GROUP
     PUSHBUTTON    "Cancel",
                   IDCANCEL, 
-                  60, 80, 40, 14
+                  61, 80, 50, 14
     PUSHBUTTON    "Apply",
                   ID_APPLY, 
-                  105, 80, 40, 14
+                  115, 80, 50, 14
     PUSHBUTTON    "About",
                   ID_ABOUT, 
-                  150, 80, 40, 14
+                  172, 80, 50, 14
 END
 
 DLG_ABOUT DIALOGEX 
-10, 10, 214, 70
+10, 10, 214, 73
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About diff_ext"
 FONT 8, "MS Shell Dlg"
 BEGIN
     DEFPUSHBUTTON "&Close", 
 		  IDOK, 
-		  160, 52, 48, 14
+		  157, 52, 50, 14
 		  
-/*    PUSHBUTTON "View &Licence", IDA_LICENCE, 6, 52, 70, 14*/
-/*    PUSHBUTTON "Visit &Web Site", IDA_WEB, 84, 52, 70, 14*/
-   
     ICON  "main_icon", 
 	  203, 
-	  5, 5, 21, 20
+	  7, 7, 21, 20
     CTEXT "diff_ext", 
 	  201, 
-	  26, 6, 162, 8
+	  26, 7, 162, 8
     CTEXT "No version infornation available.", 
 	  ID_VERSION, 
-	  26, 16, 162, 16
+	  26, 22, 162, 8
     CTEXT "\251 2003-2004 Sergey Zorin. All rights reserved.", 
 	  202, 
-	  5, 34, 204, 16
+	  7, 37, 200, 8
 END
 
 ID_MAINDIALOG_LAYOUT RCDATA {
