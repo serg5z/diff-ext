@@ -167,7 +167,7 @@ create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
   DLGTEMPLATE* dialog;
   DLGITEMTEMPLATE* dialog_item;
   DWORD layout_resource_size;
-  int i;
+  unsigned int i;
   int n;
   int controls_count;
   LAYOUT_ITEM_LIST* prev;

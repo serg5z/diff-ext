@@ -5,8 +5,8 @@ export CC   := gcc.exe
 export AR := ar.exe -r
 export WINDRES := windres.exe
 export DLLWRAP = dllwrap.exe
-export CXXFLAGS := -g -ansi -pedantic -Wall -mno-cygwin
-export CFLAGS := -g -ansi -pedantic -Wall -mno-cygwin
+export CXXFLAGS := -g -ansi -pedantic -Wall -W -mno-cygwin
+export CFLAGS := -g -ansi -pedantic -Wall -W -mno-cygwin
 export LDFLAGS := -L$(LIB)
 
 all:

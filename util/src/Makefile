@@ -25,4 +25,4 @@ $(LIB): $(OBJ)
 	$(AR) $@ $< 
 
 .cpp.o:
-	$(CPP) -c $? -o $@ $(CXXFLAGS)
+	$(CXX) -c $? -o $@ $(CXXFLAGS)

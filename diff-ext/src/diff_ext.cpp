@@ -319,7 +319,7 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
 }
 
 STDMETHODIMP
-DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT FAR *reserved, LPSTR pszName, UINT cchMax) {
+DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT cchMax) {
   if (uFlags == GCS_HELPTEXT && cchMax > 35)
     lstrcpy(pszName, _T("nothing here yet."));
 

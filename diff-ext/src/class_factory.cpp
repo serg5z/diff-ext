@@ -72,6 +72,6 @@ CLASS_FACTORY::CreateInstance(IUnknown* outer, REFIID refiid, void** obj) {
 }
 
 STDMETHODIMP 
-CLASS_FACTORY::LockServer(BOOL fLock) {
+CLASS_FACTORY::LockServer(BOOL) {
   return NOERROR;
 }
