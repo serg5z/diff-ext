@@ -60,7 +60,7 @@ WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
     wc.lpfnWndProc = DefDlgProc;
     wc.cbWndExtra = DLGWINDOWEXTRA;
     wc.hInstance = instance;
-    wc.hIcon = LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON));
+    wc.hIcon = LoadIcon(resource, "main_icon");
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
     wc.lpszClassName = "diff-ext-setup";
