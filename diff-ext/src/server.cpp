@@ -115,7 +115,7 @@ SERVER::do_register() {
     HKEY     hKey;
     LRESULT  lResult = NOERROR;
     DWORD    dwDisp;
-    //get this DLL's path and file name
+
     GetModuleFileName(SERVER::instance()->handle(), szModule, ARRAYSIZE(szModule));
   
     // these entries have their %s's replaced with CLSID strings,
@@ -179,10 +179,10 @@ SERVER::do_register() {
             
             ret = S_OK;
           } else if (lResult == ERROR_ACCESS_DENIED) {
-              char msg[] = "Warning! You have unsuficient rights to write to a specific registry key.\n"
-                           "The application may work anyway, but it is adsvised to register this module "
-                           "again while having administrator rights.";
-              MessageBox(0, msg, "", MB_ICONEXCLAMATION);
+              TCHAR msg[] = TEXT("Warning! You have unsuficient rights to write to a specific registry key.\n")
+                           TEXT("The application may work anyway, but it is adsvised to register this module ")
+                           TEXT("again while having administrator rights.");
+              MessageBox(0, msg, TEXT("Warning"), MB_ICONEXCLAMATION);
               
               ret = S_OK;
           }

@@ -26,7 +26,7 @@ class SERVER {
     }
   
   private:
-    SERVER() {}
+    SERVER() : _refference_count(0) {}
     SERVER(const SERVER&) {}
       
   private:

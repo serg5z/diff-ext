@@ -83,11 +83,11 @@ DIFF_EXT::initialize_language() {
   HKEY key;
   DWORD language = 0;
   DWORD len;
-  char language_lib[MAX_PATH];
+  TCHAR language_lib[MAX_PATH];
 
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\DIFF_EXT\\", 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\DIFF_EXT\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     len = sizeof(DWORD);
-    RegQueryValueEx(key, "language", 0, NULL, (BYTE*)&language, &len);
+    RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &len);
 
     RegCloseKey(key);
 
@@ -99,9 +99,9 @@ DIFF_EXT::initialize_language() {
       }
       
       if(_language != 1033) {
-	GetModuleFileName(SERVER::instance()->handle(), language_lib, sizeof(language_lib)/sizeof(char*));
+	GetModuleFileName(SERVER::instance()->handle(), language_lib, sizeof(language_lib)/sizeof(language_lib[0]));
 	
-	sprintf(language_lib+strlen(language_lib)-4, "%ld.dll", language);
+	wsprintf(language_lib+strlen(language_lib)-4, "%ld.dll", language);
 	
 	_resource = LoadLibrary(language_lib);
 
@@ -172,10 +172,10 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
     position++;
 
     if(_n_files == 1) {
-      resource_string_length = LoadString(_resource, DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      resource_string_length = LoadString(_resource, DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
-	MessageBox(0, "Can not load 'DIFF_WITH_STR' string resource", "ERROR", MB_OK);
+	MessageBox(0, TEXT("Can not load 'DIFF_WITH_STR' string resource"), TEXT("ERROR"), MB_OK);
       }
       
       STRING str(resource_string);
@@ -201,10 +201,10 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
 
-      resource_string_length = LoadString(_resource, DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      resource_string_length = LoadString(_resource, DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
-	MessageBox(0, "Can not load 'DIFF_LATER_STR' string resource", "ERROR", MB_OK);
+	MessageBox(0, TEXT("Can not load 'DIFF_LATER_STR' string resource"), TEXT("ERROR"), MB_OK);
       }
       
       ZeroMemory(&item_info, sizeof(item_info));
@@ -239,10 +239,10 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
         n++;
       }
       
-      resource_string_length = LoadString(_resource, DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      resource_string_length = LoadString(_resource, DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
-	MessageBox(0, "Can not load 'DIFF_WITH_STR' string resource", "ERROR", MB_OK);
+	MessageBox(0, TEXT("Can not load 'DIFF_WITH_STR' string resource"), TEXT("ERROR"), MB_OK);
       }
       
       ZeroMemory(&item_info, sizeof(item_info));
@@ -255,10 +255,10 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
     } else if(_n_files == 2) {
-      resource_string_length = LoadString(_resource, DIFF_STR, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      resource_string_length = LoadString(_resource, DIFF_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
-	MessageBox(0, "Can not load 'DIFF_STR' string resource", "ERROR", MB_OK);
+	MessageBox(0, TEXT("Can not load 'DIFF_STR' string resource"), TEXT("ERROR"), MB_OK);
       }
       
       STRING str(resource_string); //= "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
@@ -326,10 +326,10 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
   
   if(uFlags == GCS_HELPTEXT) {
     if(idCmd == IDM_DIFF) {
-      resource_string_length = LoadString(_resource, DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      resource_string_length = LoadString(_resource, DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       lstrcpyn(pszName, resource_string, cchMax);
     } else if(idCmd == IDM_DIFF_WITH) {
-      resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       if(resource_string_length > 0) {
         if(!_recent_files.empty()) {
           char* file_name1 = _file_name1;
@@ -346,7 +346,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
         }
       }
     } else if(idCmd == IDM_DIFF_LATER) {
-      resource_string_length = LoadString(_resource, DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      resource_string_length = LoadString(_resource, DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       if(resource_string_length > 0) {
         char* file_name1 = _file_name1;
         char* message;
@@ -357,7 +357,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
         LocalFree(message);
       }
     } else if((idCmd >= IDM_DIFF_WITH_BASE) && (idCmd < IDM_DIFF_WITH_BASE+_recent_files.size())) {
-      resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       if(resource_string_length > 0) {
         if(!_recent_files.empty()) {
           unsigned int num = idCmd-IDM_DIFF_WITH_BASE;
@@ -393,12 +393,13 @@ DIFF_EXT::diff() {
   PROCESS_INFORMATION pi;
   HKEY key;
   DWORD length = MAX_PATH;
-  char command[MAX_PATH*3 + 6];
+  TCHAR command[MAX_PATH*3 + 6];
+  TCHAR tmp[MAX_PATH];
 
   ZeroMemory(command, sizeof(command));
 
-  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\DIFF_EXT", 0, KEY_READ, &key) == ERROR_SUCCESS) {
-    if (RegQueryValueEx(key, "diff", 0, 0, (BYTE *)command, &length) != ERROR_SUCCESS)
+  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\DIFF_EXT"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command, &length) != ERROR_SUCCESS)
       command[0] = '\0';
     else
       command[length] = '\0';
@@ -407,26 +408,22 @@ DIFF_EXT::diff() {
   } else {
     char* message;
 
-    FormatMessage(
-      FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-      0,
-      GetLastError(),
-      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-      (LPTSTR) &message,
-      0,
-      0
-    );
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
+      GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+      (LPTSTR) &message, 0, 0);
 
-    MessageBox(0, message, "GetLastError", MB_OK | MB_ICONINFORMATION);
+    MessageBox(0, message, TEXT("GetLastError"), MB_OK | MB_ICONINFORMATION);
 
     LocalFree(message);
   }
 
-  strcat(command," \"");
-  strncat(command,_file_name1, MAX_PATH-1);
-  strcat(command,"\" \"");
-  strncat(command,_file_name2, MAX_PATH-1);
-  strcat(command,"\"");
+  lstrcat(command," \"");
+  lstrcpyn(tmp, _file_name1, MAX_PATH);
+  lstrcat(command, tmp);
+  lstrcat(command,"\" \"");
+  lstrcpyn(tmp, _file_name2, MAX_PATH);
+  lstrcat(command, tmp);
+  lstrcat(command,"\"");
 
   //~ const char* s;
 
@@ -441,7 +438,14 @@ DIFF_EXT::diff() {
   si.cb = sizeof(si);
 
   if (CreateProcess(0, command, 0, 0, FALSE, 0, 0, 0, &si, &pi) == 0) {
-    MessageBox(_hwnd, "Error creating process: Check if differ is in your path!", "DIFF_EXT.dll error", MB_OK);
+    char* message;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
+      GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+      (LPTSTR) &message, 0, 0);
+    MessageBox(0, message, TEXT("GetLastError"), MB_OK | MB_ICONINFORMATION);
+
+    LocalFree(message);
+    MessageBox(_hwnd, TEXT("Error creating process: Check if differ is in your path!"), TEXT("diff_ext.dll error"), MB_OK);
   } else {
     CloseHandle( pi.hProcess );
     CloseHandle( pi.hThread );

@@ -32,9 +32,9 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
   HANDLE resource;
   LAYOUT* layout;
 
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext\\", 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     hlen = sizeof(DWORD);
-    RegQueryValueEx(key, "language", 0, NULL, (BYTE*)&language, &hlen);
+    RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &hlen);
 
     RegCloseKey(key);
 
@@ -97,82 +97,86 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
 static void
 InitializeApp(HWND hDlg,WPARAM wParam, LPARAM lParam) {
   HKEY key;
-  char command[MAX_PATH];
-  char home[MAX_PATH];
+  TCHAR command[MAX_PATH] = TEXT("");
+  TCHAR home[MAX_PATH] = TEXT(".");
   DWORD hlen;
+  HANDLE file;
+  WIN32_FIND_DATA file_info;
+  DWORD language = 1033;
+  TCHAR prefix[] = TEXT("diff_ext_setup");
+  TCHAR root[] = TEXT("????");
+  TCHAR suffix[] = TEXT(".dll");
+  TCHAR* locale_info;
+  int locale_info_size;
+  int curr = 0;
 
   ZeroMemory(command, MAX_PATH);
 
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext\\", 0, KEY_READ, &key) == ERROR_SUCCESS) {
-    HANDLE file;
-    WIN32_FIND_DATA file_info;
-    DWORD language;
-    char prefix[] = "diff_ext_setup";
-    char root[] = "????";
-    char suffix[] = ".dll";
-    TCHAR* locale_info;
-    int locale_info_size;
-    int curr = 0;
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 
     hlen = MAX_PATH;
-    RegQueryValueEx(key, "diff", 0, NULL, (BYTE*)command, &hlen);
+    RegQueryValueEx(key, TEXT("diff"), 0, NULL, (BYTE*)command, &hlen);
 
     hlen = sizeof(DWORD);
-    RegQueryValueEx(key, "language", 0, NULL, (BYTE*)&language, &hlen);
+    if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &hlen) != ERROR_SUCCESS) {
+      language = 1033;
+    }
 
     hlen = MAX_PATH;
-    RegQueryValueEx(key, "home", 0, NULL, (BYTE*)home, &hlen);
-
-    locale_info_size = GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, 0, 0);
-    locale_info = (TCHAR*)malloc(locale_info_size);
-    GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
-
-    SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
-    SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETITEMDATA, curr, 1033);
-
-    if(language == 1033)
-      SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
-
-    free(locale_info);
-    curr++;
-
-    strcat(home, "\\");
-    strcat(home, prefix);
-    strcat(home, root);
-    strcat(home, suffix);
-
-    file = FindFirstFile(home, &file_info);
-    if(file != INVALID_HANDLE_VALUE) {
-      BOOL stop = FALSE;
-
-      while(stop == FALSE) {
-        char* str = file_info.cFileName+sizeof(prefix)/sizeof(char)-1;
-        DWORD lang_id;
-
-        str[sizeof(root)/sizeof(char)-1] = 0;
-
-        lang_id = atoi(str);
-
-	locale_info_size = GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, 0, 0);
-	locale_info = (TCHAR*)malloc(locale_info_size);
-	GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
-
-	SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
-	SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETITEMDATA, curr, lang_id);
-
-        if(lang_id == language)
-          SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
-
-	free(locale_info);
-
-	stop = !FindNextFile(file, &file_info);
-	curr++;
-      }
-
-      FindClose(file);
+    if(RegQueryValueEx(key, TEXT("home"), 0, NULL, (BYTE*)home, &hlen) != ERROR_SUCCESS) {
+      lstrcpy(home, TEXT("."));
     }
 
     RegCloseKey(key);
+  }
+  
+  locale_info_size = GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, 0, 0);
+  locale_info = (TCHAR*)malloc(locale_info_size);
+  GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
+
+  SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
+  SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETITEMDATA, curr, 1033);
+
+  if(language == 1033)
+    SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
+
+  free(locale_info);
+  curr++;
+
+  lstrcat(home, "\\");
+  lstrcat(home, prefix);
+  lstrcat(home, root);
+  lstrcat(home, suffix);
+
+  file = FindFirstFile(home, &file_info);
+  if(file != INVALID_HANDLE_VALUE) {
+    BOOL stop = FALSE;
+
+    while(stop == FALSE) {
+      char* str = file_info.cFileName+sizeof(prefix)/sizeof(char)-1;
+      DWORD lang_id;
+
+      str[sizeof(root)/sizeof(char)-1] = 0;
+
+      lang_id = atoi(str);
+
+      locale_info_size = GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, 0, 0);
+      locale_info = (TCHAR*)malloc(locale_info_size);
+      GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
+
+      SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
+      SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETITEMDATA, curr, lang_id);
+
+      if(lang_id == language)
+        SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
+
+      free(locale_info);
+
+      stop = !FindNextFile(file, &file_info);
+      curr++;
+    }
+
+    FindClose(file);
   }
 
   SetDlgItemText(hDlg, ID_DIFF_COMMAND, command);
@@ -213,9 +217,9 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
 	    idx = SendDlgItemMessage(hwndDlg, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
 	    language = SendDlgItemMessage(hwndDlg, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
 
-            RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext\\", 0, KEY_SET_VALUE, &key);
-            RegSetValueEx(key, "diff", 0, REG_SZ, (const BYTE*)command, strlen(command));
-            RegSetValueEx(key, "language", 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
+            RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_SET_VALUE, &key);
+            RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, strlen(command));
+            RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
             RegCloseKey(key);
 
             EndDialog(hwndDlg,1);
@@ -230,19 +234,20 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case ID_BROWSE: {
             OPENFILENAME ofn;
-            char szFile[MAX_PATH] = "";
+            TCHAR szFile[MAX_PATH] = "";
             DWORD err;
 
             ZeroMemory(&ofn, sizeof(OPENFILENAME));
             ofn.lStructSize = sizeof(OPENFILENAME);
             ofn.hwndOwner = hwndDlg;
             ofn.lpstrFile = szFile;
-            ofn.nMaxFile = sizeof(szFile);
+            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
             ofn.lpstrFilter = "Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0";
             ofn.nFilterIndex = 1;
             ofn.lpstrFileTitle = NULL;
             ofn.nMaxFileTitle = 0;
             ofn.lpstrInitialDir = NULL;
+	    ofn.lpstrTitle = "Select file compare utility";
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 
             if(GetOpenFileName(&ofn) == TRUE)

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ *
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
+ *
+ */
+
 #include "layout.h"
 
 static const DWORD ANCOR_LEFT  =0x000001;
@@ -155,7 +163,7 @@ next_item(DLGITEMTEMPLATE* tpl) {
     current++;
   }
   
-  return (DLGITEMTEMPLATE*)(((DWORD)current+3) & ~(DWORD)3 );
+  return (DLGITEMTEMPLATE*)(((DWORD)current+3) & ~(DWORD)3);
 }
 
 static DLGITEMTEMPLATEEX*
@@ -197,7 +205,7 @@ next_extended_item(DLGITEMTEMPLATEEX* tpl) {
     current++;
   }
   
-  return (DLGITEMTEMPLATEEX*)(((DWORD)current+3) & ~(DWORD)3 );
+  return (DLGITEMTEMPLATEEX*)(((DWORD)current+3) & ~(DWORD)3);
 }
 
 LAYOUT*
