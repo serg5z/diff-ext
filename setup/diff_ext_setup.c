@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ *
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
+ *
+ */
+
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
@@ -302,7 +310,7 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
 
     RegCloseKey(key);
 
-    sprintf(language_lib, "diff_ext_setup%d.dll", language);
+    sprintf(language_lib, "diff_ext_setup%ld.dll", language);
   }
 
   resource = LoadLibrary(language_lib);

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ *
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
+ *
+ */
+
 #ifndef __BORLANDC__
 #include <windows.h>
 #endif
@@ -11,7 +19,7 @@
 1 MANIFEST "diff_ext_setup.manifest"
 #endif
 
-MAIN_ICON ICON "zs.ico"
+MAIN_ICON ICON "de.ico"
 
 IDD_MAINDIALOG DIALOG 
 70, 60, 195, 100

@@ -24,14 +24,29 @@ OBJ  := $(SRC-CPP:.cpp=.o) $(SRC-C:.c=.o)
 OBJ += $(RES)
 
 INCS :=
+PROJ := diff_ext
 DLL  := $(BUILD)/diff_ext.dll
+
+LANG_RU := $(BUILD)/$(PROJ)1049.dll
+
+LANG := $(LANG_RU)
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: all-before $(DLL) all-after
+.SUFFIXES: .rc .res
+
+all: all-before $(DLL) $(LANG) all-after
 
 clean: clean-custom
-	${RM}  $(OBJ) $(DLL) ${RES} ${EXPLIB} $(STATICLIB)
+	${RM}  $(OBJ) $(DLL) ${RES} ${EXPLIB} $(STATICLIB) $(LANG) lang/$(PROJ)_ru.res
+
+$(LANG_RU) : lang/$(PROJ)_ru.res
+	$(DLLWRAP) \
+	--mno-cygwin \
+	--def lang/$(PROJ)_lang.def \
+	--output-exp ${EXPLIB} \
+	$< -o $@
+	strip $@
 
 $(DLL): $(OBJ)
 	$(DLLWRAP) \
@@ -47,5 +62,8 @@ $(DLL): $(OBJ)
 .cpp.o:
 	$(CPP) -c $? -o $@ $(CXXFLAGS)
 
-${RES}:
-	$(WINDRES)  diff_ext.rc -I rc -o $@ -O coff -DMING
+.rc.res:
+	$(WINDRES)  $< -I rc -o $@ -O coff -DMING
+
+#~ ${RES}:
+	#~ $(WINDRES)  diff_ext.rc -I rc -o $@ -O coff -DMING

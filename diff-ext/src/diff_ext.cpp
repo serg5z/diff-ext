@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "diff_ext.h"
+#include "diff_ext_res.h"
 
 const int IDM_TEST_COMMAND=10;
 const int IDM_DIFF=20;
@@ -21,18 +22,25 @@ DEQUE<STRING> CShellExt::_recent_files(4);
 
 extern "C" void inc_cRefThisDLL();
 extern "C" void dec_cRefThisDLL();
+extern "C" HINSTANCE g_hmodThisDll;
 
 #define _T(x)  x
 
 // *********************** CShellExt *************************
-CShellExt::CShellExt() : _n_files(0), _file_name1(""), _file_name2(""), _ref_count(0L) {
+CShellExt::CShellExt() : _n_files(0), _file_name1(""), _file_name2(""), _language(1033), _ref_count(0L) {
   if(_recent_files.size() == 0)
     _recent_files = DEQUE<STRING>(8);
 
+  _resource = g_hmodThisDll;
+  
   inc_cRefThisDLL();
 }
 
 CShellExt::~CShellExt() {
+  if(_resource != g_hmodThisDll) {
+    FreeLibrary(_resource);
+  }
+  
   dec_cRefThisDLL();
 }
 
@@ -73,6 +81,45 @@ CShellExt::Release() {
   return ret;
 }
 
+void
+CShellExt::initialize_language() {
+  HKEY key;
+  DWORD language = 0;
+  DWORD len;
+  char language_lib[MAX_PATH];
+
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext\\", 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    len = sizeof(DWORD);
+    RegQueryValueEx(key, "language", 0, NULL, (BYTE*)&language, &len);
+
+    RegCloseKey(key);
+
+    if(language != _language) {
+      _language = language;
+      
+      if(_resource != g_hmodThisDll) {
+	FreeLibrary(_resource);
+      }
+      
+      if(_language != 1033) {
+	GetModuleFileName(g_hmodThisDll, language_lib, sizeof(language_lib)/sizeof(char*));
+	
+	sprintf(language_lib+strlen(language_lib)-4, "%ld.dll", language);
+	
+	_resource = LoadLibrary(language_lib);
+
+	if(_resource == 0) {
+	  _resource = g_hmodThisDll;
+	  _language = 1033;
+ 	}
+      }
+      else {
+	_resource = g_hmodThisDll;
+      }
+    }
+  }
+}
+
 STDMETHODIMP
 CShellExt::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY /*key not used*/) {
   FORMATETC format = {CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
@@ -87,12 +134,14 @@ CShellExt::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY
     TCHAR tmp[MAX_PATH];
     
     if(_n_files == 1) {
+      initialize_language();
       DragQueryFile(drop, 0, tmp, MAX_PATH);
 
       _file_name1 = STRING(tmp);
 
       ret = S_OK;
     } else if(_n_files == 2) {
+      initialize_language();
       DragQueryFile(drop, 1, tmp, MAX_PATH);
 
       _file_name1 = STRING(tmp);
@@ -110,6 +159,8 @@ CShellExt::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY
 
 STDMETHODIMP
 CShellExt::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*last_cmd not used*/, UINT flags) {
+  TCHAR resource_string[256];
+  int resource_string_length;
   HRESULT ret = MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, 0);
 
   if(!(flags & CMF_DEFAULTONLY)) {
@@ -124,12 +175,19 @@ CShellExt::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*la
     position++;
 
     if(_n_files == 1) {
-      STRING str = "Diff with: ";
+      resource_string_length = LoadString(_resource, DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      
+      if(resource_string_length == 0) {
+	MessageBox(0, "Can not load 'DIFF_WITH_STR' string resource", "ERROR", MB_OK);
+      }
+      
+      STRING str(resource_string);
       LPSTR c_str;
       UINT state = MFS_DISABLED;
 
       if(_recent_files.count() > 0) {
         state = MFS_ENABLED;
+	str += " ";
         str += _recent_files.front();
       }
 
@@ -146,13 +204,19 @@ CShellExt::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*la
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
 
+      resource_string_length = LoadString(_resource, DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      
+      if(resource_string_length == 0) {
+	MessageBox(0, "Can not load 'DIFF_LATER_STR' string resource", "ERROR", MB_OK);
+      }
+      
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
       item_info.fType = MFT_STRING;
       item_info.fState = MFS_ENABLED;
       item_info.wID = first_cmd + IDM_DIFF_LATER;
-      item_info.dwTypeData = "Diff later";
+      item_info.dwTypeData = resource_string;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
 
@@ -178,17 +242,29 @@ CShellExt::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*la
         n++;
       }
       
+      resource_string_length = LoadString(_resource, DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      
+      if(resource_string_length == 0) {
+	MessageBox(0, "Can not load 'DIFF_WITH_STR' string resource", "ERROR", MB_OK);
+      }
+      
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_SUBMENU | MIIM_TYPE | MIIM_STATE;
       item_info.fType = MFT_STRING;
       item_info.fState = state;
       item_info.hSubMenu = file_list;
-      item_info.dwTypeData = "Diff with";
+      item_info.dwTypeData = resource_string;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
     } else if(_n_files == 2) {
-      STRING str = "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
+      resource_string_length = LoadString(_resource, DIFF_STR, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      
+      if(resource_string_length == 0) {
+	MessageBox(0, "Can not load 'DIFF_STR' string resource", "ERROR", MB_OK);
+      }
+      
+      STRING str(resource_string); //= "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
       LPSTR c_str = str;
 
       ZeroMemory(&item_info, sizeof(item_info));
@@ -228,9 +304,7 @@ CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
 //~ char buf[256];
 //~ sprintf(buf, "id: %d", LOWORD(ici->lpVerb));
 //~ MessageBox(0, buf, "InvokeCommand", MB_OK);
-    if(LOWORD(ici->lpVerb) == IDM_TEST_COMMAND) {
-      MessageBox(_hwnd, "Hello World!!!", "Test command", MB_OK);
-    } else if(LOWORD(ici->lpVerb) == IDM_DIFF) {
+    if(LOWORD(ici->lpVerb) == IDM_DIFF) {
       diff();
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_WITH) {
       diff_with(0);

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ *
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
+ *
+ */
+
 #ifndef __BORLANDC__
 #include <windows.h>
 #endif
@@ -13,7 +21,7 @@
 
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
-MAIN_ICON ICON "zs.ico"
+MAIN_ICON ICON "de.ico"
 
 IDD_MAINDIALOG DIALOG 
 86, 69, 195, 100

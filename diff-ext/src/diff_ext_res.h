@@ -1,0 +1,3 @@
+#define  DIFF_STR 1001
+#define  DIFF_WITH_STR 1002
+#define  DIFF_LATER_STR 1003

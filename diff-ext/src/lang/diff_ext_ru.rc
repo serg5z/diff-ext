@@ -8,10 +8,12 @@
 
 #include <windows.h>
 
-#include "diff_ext_res.h"
+#include "../diff_ext_res.h"
 
 #define xstr(x) str(x)
 #define str(x) #x
+
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 0,8,0,0
@@ -58,7 +60,7 @@ VS_VERSION_INFO VERSIONINFO
 
 STRINGTABLE
 {
-  DIFF_STR "diff"
-  DIFF_WITH_STR "diff with"
-  DIFF_LATER_STR "diff later"
+  DIFF_STR "сравнить"
+  DIFF_WITH_STR "сравнить с"
+  DIFF_LATER_STR "сравнить позже"
 }

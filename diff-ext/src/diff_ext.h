@@ -42,12 +42,15 @@ class CShellExt : public IContextMenu, IShellExtInit {
     void diff_with(unsigned int num);
     void diff_later();
     STRING cut_to_length(STRING, int length = 43);
+    void initialize_language();
 
   private:
     UINT _n_files;
     STRING _file_name1;
     STRING _file_name2;
     static DEQUE<STRING> _recent_files;
+    HINSTANCE _resource;
+    DWORD _language;
     HWND _hwnd;
 
     ULONG  _ref_count;
