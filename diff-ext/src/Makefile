@@ -3,29 +3,30 @@
 # Can be used for Cygwin and MingW (MingW ignores -mno-cygwin)
 #
 BUILD ?= .
+UPDATE_VERSION ?= echo "Version has not been changed for this build."
 
 CXX  ?= g++.exe
 CC   ?= gcc.exe
 AR ?= ar.exe -r
 WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
-CXXFLAGS ?= -g -ansi -pedantic -Wall -mno-cygwin
-CFLAGS ?= -g -ansi -pedantic -Wall -mno-cygwin
+CXXFLAGS ?= -g -ansi -pedantic -Wall
+CFLAGS ?= -g -ansi -pedantic -Wall
 LDFLAGS ?= -L$(LIB)
 LIB ?= ../../lib
 
 CXXFLAGS += -I../../util/include
 LIBS :=  -lutil -luuid -luuid -lole32
-RES  := diff_ext.res
 DEFFILE = diff_ext.def
 STATICLIB = diff_ext.a
 EXPLIB = diff_ext.exp
 
 SRC-CXX = $(wildcard *.cpp)
 SRC-C = $(wildcard *.c)
-SRC-RC = $(wildcard *.c)
+SRC-RC = $(wildcard *.rc)
 
 OBJ  := $(SRC-CXX:.cpp=.o) $(SRC-C:.c=.o)
+#RES  := $(SRC-RC:.rc=.res)
 OBJ += $(RES)
 
 INCS :=
@@ -46,6 +47,9 @@ all: .depend all-before $(DLL) $(LANG) all-after
 	$(CXX) -M $(CXXFLAGS) $(SRC-C) $(SRC-RC) $(SRC-CXX) > .depend
 	
 include .depend
+
+all-before: $(SRC-RC)
+	$(UPDATE_VERSION) --input $< --output $<
 
 clean: clean-custom
 	${RM}  $(OBJ) $(DLL) ${RES} ${EXPLIB} $(STATICLIB) $(LANG) lang/$(PROJ)_ru.res
