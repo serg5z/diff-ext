@@ -44,6 +44,15 @@ Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: string; ValueName: home; Val
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: language; ValueData: 1033; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: log; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: log_level; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff_ext\history; Flags: uninsdeletekeyifempty uninsdeletevalue
+Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 1; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 2; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 3; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 4; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 5; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 6; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 7; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 8; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z; Flags: uninsdeletekeyifempty uninsdeletevalue
 
 ;Root: HKCR; Subkey: "*\shellex\ContextMenuHandlers\diff_ext"; ValueType: string; ValueName: ""; ValueData: "{{A0482097-C69D-4DEC-8AB6-D3A259ACC151}"; Flags: uninsdeletekey

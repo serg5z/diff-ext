@@ -195,7 +195,9 @@ SERVER::recent_files() {
       for(unsigned int i = 0; !stop && (no[i] != 0) && (i < history_size); i++) {
         len = MAX_PATH;
 	if(RegQueryValueEx(key, no[i], 0, 0, (BYTE*)file, &len) == ERROR_SUCCESS) {
-	  new_history->push_back(file);
+	  if(len > 0) {
+	    new_history->push_back(file);
+	  }
 	} else {
 	  stop = true;
 	  LPTSTR message;
