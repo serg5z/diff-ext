@@ -1,8 +1,9 @@
 #include <sys/types.h>
+#include <io.h>
 #include <rxposix.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <io.h>
+#include <string.h>
 
 /********************************************************************
 *command line args:                                                 *
@@ -43,55 +44,110 @@ usage(char* program_name) {
 void
 update_version(FILE* input, FILE* output) {
   char buffer[4096];
-  char* pattern ="[[:space:]]*FILEVERSION"
-    "[[:space:]]*\\([[:digit:]]*\\)[[:space:]]*,"
-    "[[:space:]]*\\([[:digit:]]*\\)[[:space:]]*,"
-    "[[:space:]]*\\([[:digit:]]*\\)[[:space:]]*,"
-    "[[:space:]]*\\([[:digit:]]*\\)[[:space:]]*";
+  char* fileversion_re_str =
+    /* 1 */ "\\(^[[:space:]]*FILEVERSION[[:space:]]*\\)"
+    /* 2 */ "\\([[:digit:]]*\\)"
+    /* 3 */ "\\([[:space:]]*,[[:space:]]*\\)"
+    /* 4 */ "\\([[:digit:]]*\\)"
+    /* 5 */ "\\([[:space:]]*,[[:space:]]*\\)"
+    /* 6 */ "\\([[:digit:]]*\\)"
+    /* 7 */ "\\([[:space:]]*,[[:space:]]*\\)"
+    /* 8 */ "\\([[:digit:]]*\\)"
+    /* 9 */ "\\([[:space:]]*$\\)";
+  char* productversion_re_str =
+    /* 1 */ "\\(^[[:space:]]*PRODUCTVERSION[[:space:]]*\\)"
+    /* 2 */ "\\([[:digit:]]*\\)"
+    /* 3 */ "\\([[:space:]]*,[[:space:]]*\\)"
+    /* 4 */ "\\([[:digit:]]*\\)"
+    /* 5 */ "\\([[:space:]]*,[[:space:]]*\\)"
+    /* 6 */ "\\([[:digit:]]*\\)"
+    /* 7 */ "\\([[:space:]]*,[[:space:]]*\\)"
+    /* 8 */ "\\([[:digit:]]*\\)"
+    /* 9 */ "\\([[:space:]]*$\\)";
   int ret;
-  regex_t re;
+  regex_t fileversion_re;
+  regex_t productversion_re;
+  int re_compiled = 1;
 
-  if ((ret=regcomp(&re, pattern, REG_ICASE )) != 0) {
-    regerror(ret, &re, buffer, sizeof(buffer));
-    fprintf(stderr, "inc_build: %s (%s)\n", buffer, pattern);
+  memset(&fileversion_re, 0, sizeof(regex_t));
+  memset(&productversion_re, 0, sizeof(regex_t));
+
+  regfree(&fileversion_re);
+  regfree(&productversion_re);
+
+  if ((ret=regcomp(&fileversion_re, fileversion_re_str, REG_ICASE )) != 0) {
+    regerror(ret, &fileversion_re, buffer, sizeof(buffer)/sizeof(buffer[0]));
+    fprintf(stderr, "update_version: %s (%s)\n", buffer, fileversion_re_str);
+    re_compiled = 0;
   }
-  else {
+  
+  if ((ret=regcomp(&productversion_re, productversion_re_str, REG_ICASE )) != 0) {
+    regerror(ret, &fileversion_re, buffer, sizeof(buffer)/sizeof(buffer[0]));
+    fprintf(stderr, "update_version: %s (%s)\n", buffer, productversion_re_str);
+    re_compiled = 0;
+  }
+  
+  if(re_compiled) {
+    int major = -1;
+    int minor = -1;
+    int patch = -1;
+    int build = -1;
+    
     while(fgets(buffer, 4096, input)) {
-      regmatch_t version[5];
-      if((ret = regexec(&re, buffer, 5, version, 0)) == 0) {
-	char tmp[8];
-	int major;
-	int minor;
-	int patch;
-	int build;
+      regmatch_t version[10];
+      if((regexec(&fileversion_re, buffer, 10, version, 0) == 0) || 
+	 (regexec(&productversion_re, buffer, 10, version, 0) == 0)) {
+	char tmp[8] = "";
+	char space[5][4096] = {"", "", "", "", ""};
+	int new_build;
 	
-	if(version[1].rm_so > 0) {
-	  strncpy(tmp, buffer+version[1].rm_so, min(version[1].rm_eo-version[1].rm_so, 8));
-	  major = atoi(tmp);
+	if(version[1].rm_so >= 0) { /* may be 0 for the first one */
+	  strncpy(space[0], buffer+version[1].rm_so, min(version[1].rm_eo-version[1].rm_so, 4096));
 	}
 	if(version[2].rm_so > 0) {
+	  memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
 	  strncpy(tmp, buffer+version[2].rm_so, min(version[2].rm_eo-version[2].rm_so, 8));
-	  minor = atoi(tmp);
+	  major = atoi(tmp);
 	}
 	if(version[3].rm_so > 0) {
-	  strncpy(tmp, buffer+version[3].rm_so, min(version[3].rm_eo-version[3].rm_so, 8));
-	  patch = atoi(tmp);
+	  strncpy(space[1], buffer+version[3].rm_so, min(version[3].rm_eo-version[3].rm_so, 4096));
 	}
 	if(version[4].rm_so > 0) {
+	  memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
 	  strncpy(tmp, buffer+version[4].rm_so, min(version[4].rm_eo-version[4].rm_so, 8));
+	  minor = atoi(tmp);
+	}
+	if(version[5].rm_so > 0) {
+	  strncpy(space[2], buffer+version[5].rm_so, min(version[5].rm_eo-version[5].rm_so, 4096));
+	}
+	if(version[6].rm_so > 0) {
+	  memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
+	  strncpy(tmp, buffer+version[6].rm_so, min(version[6].rm_eo-version[6].rm_so, 8));
+	  patch = atoi(tmp);
+	}
+	if(version[7].rm_so > 0) {
+	  strncpy(space[3], buffer+version[7].rm_so, min(version[7].rm_eo-version[7].rm_so, 4096));
+	}
+	if(version[8].rm_so > 0) {
+	  memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
+	  strncpy(tmp, buffer+version[8].rm_so, min(version[8].rm_eo-version[8].rm_so, 8));
 	  build = atoi(tmp);
 	}
+	if(version[9].rm_so > 0) {
+	  strncpy(space[4], buffer+version[9].rm_so, min(version[9].rm_eo-version[9].rm_so, 4096));
+	}
 	
-	build++;
+	new_build = build+1;
 	
-	fprintf(output, "FILEVERSION %d, %d, %d, %d\n", major, minor, patch, build);
+	fprintf(output, "%s%d%s%d%s%d%s%d%s", space[0], major, space[1], minor, space[2], patch, space[3], new_build, space[4]);
       } else {
 	fputs(buffer, output);
       }
     }
-    
-    regfree(&re);
   }
+  
+  regfree(&fileversion_re);
+  regfree(&productversion_re);
 }
 
 int
@@ -145,8 +201,8 @@ main(int argc, char** argv) {
   
   if((input != 0) && (output != 0)) {    
     if((strcmp(input_name, output_name) == 0) && (strcmp(input_name, "-") != 0)) {
-      char template_name[] = "iv_XXXXXX";
-      char* tmp_name = mktemp(template_name);
+/*      char template_name[] = "iv_XXXXXX"; // was used with mktemp() */
+      char* tmp_name = tmpnam(0);
       int ret;
       
       ret = rename(input_name, tmp_name);

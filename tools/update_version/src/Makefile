@@ -1,4 +1,5 @@
 BIN ?= .
+CFLAGS ?= -g -ansi -pedantic -Wall -W
 
 CXX  ?= g++.exe
 CC   ?= gcc.exe
@@ -41,17 +42,9 @@ include .depend
 clean: clean-custom
 	${RM}  $(OBJ) $(EXE) ${RES} ${EXPLIB} $(STATICLIB) $(LANG) 
 
-$(LANG_RU) : lang/$(PROJ)_ru.res
-	$(DLLWRAP) \
-	--mno-cygwin \
-	--def lang/$(PROJ)_lang.def \
-	--output-exp ${EXPLIB} \
-	$< -o $@
-	strip $@
-
 $(EXE): $(OBJ)
 	$(CXX) $(OBJ) -o $@ $(LDFLAGS) $(LIBS)
-	strip $@
+#	strip $@
 
 .cpp.o:
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
