@@ -37,6 +37,10 @@ class LIST {
           return _next;
         }
 
+        const LIST<T>::NODE* next() const {
+          return _next;
+        }
+
       public:
         T data() {
           return _data;

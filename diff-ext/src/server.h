@@ -1,7 +1,7 @@
 #ifndef __server_h__
 #define __server_h__
 
-#include <util/cont/deque.h>
+#include <util/cont/list.h>
 #include <util/string.h>
 #include <log/file_sink.h>
 
@@ -33,7 +33,7 @@ class SERVER {
       return _refference_count;
     }
     
-    DEQUE<STRING>* recent_files();
+    LIST<STRING>* recent_files();
     
     void save_history() const;
   
@@ -43,7 +43,7 @@ class SERVER {
       
   private:
     LONG _refference_count;
-    DEQUE<STRING>* _recent_files;
+    LIST<STRING>* _recent_files;
     FILE_SINK* _file_sink;
     static SERVER* _instance;
 };

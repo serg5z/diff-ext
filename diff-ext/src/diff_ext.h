@@ -13,7 +13,7 @@
 #include <windowsx.h>
 #include <shlobj.h>
 
-#include <util/cont/deque.h>
+#include <util/cont/list.h>
 #include <util/string.h>
 
 // this is the actual OLE Shell context menu handler
@@ -46,7 +46,7 @@ class DIFF_EXT : public IContextMenu, IShellExtInit {
     UINT _n_files;
     STRING _file_name1;
     STRING _file_name2;
-    DEQUE<STRING>* _recent_files;
+    LIST<STRING>* _recent_files;
     HINSTANCE _resource;
     DWORD _language;
     HWND _hwnd;

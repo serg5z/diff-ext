@@ -38,7 +38,7 @@ typedef struct {
 }
 REGSTRUCT, *LPREGSTRUCT;
 
-static SERVER* SERVER::_instance = 0;
+SERVER* SERVER::_instance = 0;
 static HINSTANCE server_instance; // Handle to this DLL itself.
 
 DEFINE_GUID(CLSID_DIFF_EXT, 0xA0482097, 0xC69D, 0x4DEC, 0x8A, 0xB6, 0xD3, 0xA2, 0x59, 0xAC, 0xC1, 0x51);
@@ -60,8 +60,9 @@ STDAPI
 DllCanUnloadNow(void) {
   HRESULT ret = S_FALSE;
   
-  if(SERVER::instance()->refference_count() == 0)
+  if(SERVER::instance()->refference_count() == 0) {
     ret = S_OK;
+  }
   
   return ret;
 }
@@ -69,7 +70,8 @@ DllCanUnloadNow(void) {
 extern "C" int APIENTRY
 DllMain(HINSTANCE instance, DWORD reason, LPVOID /* reserved */) {
   char str[1024];
-  sprintf(str, "instance: %x; reason: %d", instance, reason);
+  char* reason_string[] = {"DLL_PROCESS_DETACH", "DLL_PROCESS_ATTACH", "DLL_THREAD_ATTACH", "DLL_THREAD_DETACH"};
+  sprintf(str, "instance: %x; reason: '%s'", instance, reason_string[reason]);
   MessageBox(0, str, TEXT("Info"), MB_OK);  
   switch (reason) {
     case DLL_PROCESS_ATTACH:
@@ -162,7 +164,7 @@ SERVER::release() {
   InterlockedDecrement(&_refference_count);
 }
 
-DEQUE<STRING>*
+LIST<STRING>*
 SERVER::recent_files() {
   HKEY key;
   DWORD history_size = 8;
@@ -179,18 +181,18 @@ SERVER::recent_files() {
     history_size = max_history_size;
   }
 
-  DEQUE<STRING>* new_history = new DEQUE<STRING>(history_size);
+  LIST<STRING>* new_history = new LIST<STRING>();
   
   if(_recent_files != 0) {
     unsigned int n = history_size;
-    DEQUE<STRING>::CURSOR i = _recent_files->begin();
+    LIST<STRING>::ITERATOR i(*_recent_files);
 
     if(n > _recent_files->count()) {
       n = _recent_files->count();
     }
     
-    while((!_recent_files->done(i)) && (n > 0)) {
-      new_history->push_back((*i));
+    while((!i.done()) && (n > 0)) {
+      new_history->append((*i)->data());
       i++;
       n--;
     }
@@ -208,7 +210,7 @@ SERVER::recent_files() {
 	  //~ sprintf(str, "SERVER::recent_files: len=%d", len);
 	  //~ LOG::instance()->debug(LOG_MESSAGE(str));
 	  if(len > 0) {
-	    new_history->push_back(file);
+	    new_history->append(file);
 	  }
 	} else {
 	  stop = true;
@@ -234,16 +236,16 @@ SERVER::save_history() const {
       len = MAX_PATH;
       int n = 0;
       
-      DEQUE<STRING>::CURSOR i = _recent_files->begin();
+      LIST<STRING>::ITERATOR i(*_recent_files);
       
-      while(!_recent_files->done(i)) {
-	STRING str = (*i);
+      while(!i.done()) {
+	STRING str = (*i)->data();
 	LPSTR c_str = str;
-	if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, (*i).length()) != ERROR_SUCCESS) {
+	if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, str.length()) != ERROR_SUCCESS) {
           TRACE trace(__func__, __FILE__, __LINE__, 4);
           HKEY history_entry;
           if(RegCreateKeyEx(key, no[n], 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &history_entry, 0) == ERROR_SUCCESS) {
-            if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, (*i).length()) != ERROR_SUCCESS) {
+            if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, str.length()) != ERROR_SUCCESS) {
               LPTSTR message;
               FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
                 GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language

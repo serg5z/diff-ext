@@ -212,10 +212,11 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 
       if(_recent_files->count() > 0) {
 	TRACE trace(__func__, __FILE__, __LINE__);
-	
+	LIST<STRING>::ITERATOR i(*_recent_files);
+        
         state = MFS_ENABLED;
 	str += " '";
-        str += cut_to_length(_recent_files->front());
+        str += cut_to_length((*i)->data());
 	str += "'";
       }
 
@@ -254,13 +255,13 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 
       HMENU file_list = CreateMenu();
 
-      DEQUE<STRING>::CURSOR i = _recent_files->begin();
+      LIST<STRING>::ITERATOR i(*_recent_files);
 
       int n = 0;
-      while(!_recent_files->done(i)) {
+      while(!i.done()) {
 	TRACE trace(__func__, __FILE__, __LINE__);
 	
-        str = cut_to_length(_recent_files->item(i));
+        str = cut_to_length((*i)->data());
         c_str = str;
 
         ZeroMemory(&item_info, sizeof(item_info));
@@ -335,7 +336,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
     InsertMenuItem(menu, position, TRUE, &item_info);
     position++;
 
-    ret = MAKE_HRESULT(SEVERITY_SUCCESS, 0, USHORT(IDM_DIFF_WITH_BASE+_recent_files->size()+1));
+    ret = MAKE_HRESULT(SEVERITY_SUCCESS, 0, USHORT(IDM_DIFF_WITH_BASE+_recent_files->count()+1));
   }
 
   return ret;
@@ -359,7 +360,7 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_LATER) {
       TRACE trace(__func__, __FILE__, __LINE__, 4);
       diff_later();
-    } else if((LOWORD(ici->lpVerb) >= IDM_DIFF_WITH_BASE) && (LOWORD(ici->lpVerb) < IDM_DIFF_WITH_BASE+_recent_files->size())) {
+    } else if((LOWORD(ici->lpVerb) >= IDM_DIFF_WITH_BASE) && (LOWORD(ici->lpVerb) < IDM_DIFF_WITH_BASE+_recent_files->count())) {
       TRACE trace(__func__, __FILE__, __LINE__, 4);
       diff_with(LOWORD(ici->lpVerb)-IDM_DIFF_WITH_BASE);
     } else {
@@ -398,8 +399,9 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
     } else if(idCmd == IDM_DIFF_WITH) {
       TRACE trace(__func__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
+        LIST<STRING>::ITERATOR i(*_recent_files);
 	LPSTR file_name1 = _file_name1;
-	LPSTR file_name2 = _recent_files->front();
+	LPSTR file_name2 = (*i)->data();
 	LPSTR message;
 	LPSTR args[] = {file_name1, file_name2};
 
@@ -441,7 +443,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
       FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
       lstrcpyn(pszName, message, cchMax);
       LocalFree(message);
-    } else if((idCmd >= IDM_DIFF_WITH_BASE) && (idCmd < IDM_DIFF_WITH_BASE+_recent_files->size())) {
+    } else if((idCmd >= IDM_DIFF_WITH_BASE) && (idCmd < IDM_DIFF_WITH_BASE+_recent_files->count())) {
       TRACE trace(__func__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
 	resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
@@ -457,11 +459,11 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	unsigned int num = idCmd-IDM_DIFF_WITH_BASE;
 	LPSTR file_name1 = _file_name1;
 	
-	DEQUE<STRING>::CURSOR i = _recent_files->begin();
+	LIST<STRING>::ITERATOR i(*_recent_files);
 	for(unsigned int j = 0; j < num; j++)
 	  i++;
       
-	LPSTR file_name2 = _recent_files->item(i);
+	LPSTR file_name2 = (*i)->data();
 	LPSTR message;
 	LPSTR args[] = {file_name1, file_name2};
 
@@ -578,12 +580,12 @@ DIFF_EXT::diff_with(unsigned int num) {
   TRACE trace(__func__, __FILE__, __LINE__);
   //~ STRING str = "diff "+_file_name1+" and "+_recent_files->at(num);
   //~ MessageBox(_hwnd, str, "command", MB_OK);
-  DEQUE<STRING>::CURSOR i = _recent_files->begin();
+  LIST<STRING>::ITERATOR i(*_recent_files);
   for(unsigned int j = 0; j < num; j++) {
     i++;
   }
 
-  _file_name2 = _recent_files->item(i);
+  _file_name2 = (*i)->data();
 
   diff();
 }
@@ -594,21 +596,26 @@ DIFF_EXT::diff_later() {
   //~ FILE* f = fopen("d:/DIFF_EXT.log", "a");
   //~ MessageBox(_hwnd, "diff later", "command", MB_OK);
   bool found = false;
-  DEQUE<STRING>::CURSOR current = _recent_files->begin();
+  LIST<STRING>::ITERATOR i(*_recent_files);
   
-  while(!current.done() && !found) {
-    if((*current) == _file_name1) {
+  while(!i.done() && !found) {
+    if((*i)->data() == _file_name1) {
       found = true;
+      _recent_files->unlink((*i));
+    } else {
+      i++;
     }
-    current++;
   }
 
   if(!found) {
+/* TODO!    
     if(_recent_files->full()) {
       _recent_files->pop_back();
     }
-
-    _recent_files->push_front(_file_name1);
+*/
+    _recent_files->prepend(_file_name1);
+  } else {
+    _recent_files->prepend((*i));
   }
   //~ fprintf(f, "added file %s; new size: %d\n", _file_name1, _recent_files->size());
 
