@@ -1,0 +1,40 @@
+/* Wedit generated resource file */
+#ifndef __BORLANDC__
+#include <windows.h>
+#endif
+#include "../diff_ext_setup_res.h"
+
+#ifndef __LCC__
+1 MANIFEST "diff_ext_setup.manifest"
+#endif
+
+IDD_MAINDIALOG DIALOG 86, 69, 195, 100
+STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "diff-ext-setup"
+FONT 8, "Helv"
+BEGIN
+    GROUPBOX        "Diff command", ID_GROUP, 5, 5, 185, 27
+    EDITTEXT        ID_DIFF_COMMAND, 10, 15, 130, 12, ES_AUTOHSCROLL | WS_GROUP, WS_EX_CLIENTEDGE
+    PUSHBUTTON      "ќбзор...", ID_BROWSE, 145, 14, 40, 14
+    DEFPUSHBUTTON   "OK", IDOK, 60, 65, 40, 14, WS_GROUP
+    PUSHBUTTON      "ќтмена", IDCANCEL, 105, 65, 40, 14
+    PUSHBUTTON      "ќ прогоамме", ID_ABOUT, 150, 65, 40, 14, WS_DISABLED
+    COMBOBOX        ID_LANGUAGE, 40, 35, 100, 130, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "язык", 104, 5, 36, 35, 12
+    AUTOCHECKBOX    "diff может сравнивать директории", ID_DIFF_DIRS, 5, 55, 130, 10
+END
+
+DLG_ABOUT DIALOG 105, 100, 178, 109
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Ok", IDOK, 73, 89, 40, 14
+    LTEXT           "About diff-ext-setup", 201, 51, 6, 121, 76
+END
+
+ID_MAINDIALOG_LAYOUT RCDATA {
+  106L, 
+    -45L, -20L, ANCOR_RIGHT | ANCOR_BOTTOM,
+    -5L, -5L, ANCOR_RIGHT | ANCOR_BOTTOM
+}

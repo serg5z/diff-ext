@@ -2,13 +2,151 @@
 #include <windowsx.h>
 #include <commctrl.h>
 #include <string.h>
+#include <stdio.h>
 #include "diff_ext_setup_res.h"
 
+/*
+const DWORD ANCOR_LEFT  =0x000001;
+const DWORD ANCOR_TOP   =0x000002;
+const DWORD ANCOR_RIGHT =0x000004;
+const DWORD ANCOR_BOTTOM=0x000008;
+*/
+
+typedef struct {
+  int x;
+  int y;
+  DWORD anchor;
+} LAYOUT_COORD;
+
+typedef struct {
+  DWORD id;
+  LAYOUT_COORD top_left;
+  LAYOUT_COORD bottom_right;
+} LAYOUT_ITEM;
+
+typedef struct LAYOUT_ITEM_LIST {
+  LAYOUT_ITEM item;
+  struct LAYOUT_ITEM_LIST* next;
+} LAYOUT_ITEM_LIST;
+
+LAYOUT_ITEM_LIST* dialog_layout_root;
+HANDLE resource;
+
 static BOOL CALLBACK DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
+
+static void
+init_layout() {
+  HGLOBAL layout_table_handle;
+  HRSRC resource_handle;
+  LAYOUT_ITEM* layout_table;
+  DWORD resource_size;
+  int i;
+  LAYOUT_ITEM_LIST* prev;
+  
+  dialog_layout_root = (LAYOUT_ITEM_LIST*)malloc(sizeof(LAYOUT_ITEM_LIST));
+  prev  = dialog_layout_root;
+    
+  resource_handle = FindResource(resource, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT), RT_RCDATA);
+  layout_table_handle = LoadResource(resource, resource_handle);
+  resource_size = SizeofResource(resource, resource_handle);
+  layout_table = (LAYOUT_ITEM*)LockResource(layout_table_handle);
+  
+  for(i = 0; i < resource_size/sizeof(LAYOUT_ITEM); i++) {
+    LAYOUT_ITEM_LIST* item = (LAYOUT_ITEM_LIST*)malloc(sizeof(LAYOUT_ITEM_LIST));
+    
+    item->item.id = layout_table[i].id;
+    item->item.top_left.x = layout_table[i].top_left.x;
+    item->item.top_left.y = layout_table[i].top_left.y;
+    item->item.top_left.anchor = layout_table[i].top_left.anchor;
+    
+    item->item.bottom_right.x = layout_table[i].bottom_right.x;
+    item->item.bottom_right.y = layout_table[i].bottom_right.y;
+    item->item.bottom_right.anchor = layout_table[i].bottom_right.anchor;
+    
+    prev->next = item;
+    prev = item;
+    prev->next = 0;
+  }
+  
+  FreeResource(layout_table_handle);
+}
+
+static void
+layout(HWND hwndDlg) {
+  LAYOUT_ITEM_LIST* current = dialog_layout_root->next;
+  RECT dialog_rect;
+  HWND current_control;
+  
+  GetClientRect(hwndDlg, &dialog_rect);
+  
+  while(current != 0) {
+    RECT rect;
+    LAYOUT_ITEM* item = &(current->item);
+    int x;
+    int y;
+    int w;
+    int h;
+    
+    current_control = GetDlgItem(hwndDlg, item->id);
+
+    rect.left = item->top_left.x;
+    rect.top = item->top_left.y;
+    rect.right = item->bottom_right.x;
+    rect.bottom = item->bottom_right.y;
+    
+    MapDialogRect(hwndDlg, &rect);
+
+    if(item->top_left.anchor & ANCOR_RIGHT) {
+      rect.left += dialog_rect.right;
+    }
+
+    if(item->top_left.anchor & ANCOR_LEFT) {
+      rect.left += dialog_rect.left;
+    }
+
+    if(item->top_left.anchor & ANCOR_TOP) {
+      rect.top += dialog_rect.top;
+    }
+
+    if(item->top_left.anchor & ANCOR_BOTTOM) {
+      rect.top += dialog_rect.bottom;
+    }
+
+    if(item->bottom_right.anchor & ANCOR_RIGHT) {
+      rect.right += dialog_rect.right;
+    }
+
+    if(item->bottom_right.anchor & ANCOR_LEFT) {
+      rect.right += dialog_rect.left;
+    }
+
+    if(item->bottom_right.anchor & ANCOR_TOP) {
+      rect.bottom += dialog_rect.top;
+    }
+
+    if(item->bottom_right.anchor & ANCOR_BOTTOM) {
+      rect.bottom += dialog_rect.bottom;
+    }
+
+    w = rect.right-rect.left;
+    h = rect.bottom-rect.top;
+    x = rect.left;
+    y = rect.top;
+
+    MoveWindow(current_control, x, y, w, h, FALSE);
+    
+    current = current->next;
+  }
+}
 
 int APIENTRY
 WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
   WNDCLASS wc;
+  HRESULT ret;
+  HKEY key;
+  DWORD language = 0;
+  DWORD hlen;
+  char language_lib[MAX_PATH];
 
   memset(&wc,0,sizeof(wc));
   wc.lpfnWndProc = DefDlgProc;
@@ -19,28 +157,133 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
   wc.lpszClassName = "diff-ext-setup";
   RegisterClass(&wc);
 
+  SetThreadLocale(MAKELCID(MAKELANGID(LANG_RUSSIAN, SUBLANG_DEFAULT), SORT_DEFAULT));
   InitCommonControls();
 
-  return DialogBox(hinst, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC) DialogFunc);
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext\\", 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    hlen = sizeof(DWORD);
+    RegQueryValueEx(key, "language", 0, NULL, (BYTE*)&language, &hlen);
+
+    RegCloseKey(key);
+
+    sprintf(language_lib, "diff_ext_setup%d.dll\0", language);
+  }
+
+  resource = LoadLibrary(language_lib);
+
+  if(resource == NULL)
+    resource = hinst;
+
+  ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC) DialogFunc);
+/*
+  {
+    char* message;
+
+    FormatMessage(
+      FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+      0,
+      GetLastError(),
+      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+      (LPTSTR) &message,
+      0,
+      0
+    );
+
+    MessageBox(0, message, "GetLastError", MB_OK | MB_ICONINFORMATION);
+
+    LocalFree(message);
+  }
+*/
+  FreeLibrary(resource);
+
+  return ret;
 }
 
 static void
 InitializeApp(HWND hDlg,WPARAM wParam, LPARAM lParam) {
   HKEY key;
   char command[MAX_PATH];
+  char home[MAX_PATH];
   DWORD hlen;
 
   ZeroMemory(command, MAX_PATH);
 
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext\\", 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    HANDLE file;
+    WIN32_FIND_DATA file_info;
+    DWORD language;
+    char prefix[] = "diff-ext-setup";
+    char root[] = "????";
+    char suffix[] = ".dll";
+    TCHAR* locale_info;
+    int locale_info_size;
+    int curr = 0;
+
     hlen = MAX_PATH;
     RegQueryValueEx(key, "diff", 0, NULL, (BYTE*)command, &hlen);
+
+    hlen = sizeof(DWORD);
+    RegQueryValueEx(key, "language", 0, NULL, (BYTE*)&language, &hlen);
+
+    hlen = MAX_PATH;
+    RegQueryValueEx(key, "home", 0, NULL, (BYTE*)home, &hlen);
+
+    locale_info_size = GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, 0, 0);
+    locale_info = (TCHAR*)malloc(locale_info_size);
+    GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
+
+    SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
+    SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETITEMDATA, curr, 1033);
+
+    if(language == 1033)
+      SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
+
+    free(locale_info);
+    curr++;
+
+    strcat(home, "\\");
+    strcat(home, prefix);
+    strcat(home, root);
+    strcat(home, suffix);
+
+    file = FindFirstFile(home, &file_info);
+    if(file != INVALID_HANDLE_VALUE) {
+      BOOL stop = FALSE;
+
+      while(stop == FALSE) {
+        char* str = file_info.cFileName+sizeof(prefix)/sizeof(char)-1;
+        DWORD lang_id;
+
+        str[sizeof(root)/sizeof(char)-1] = 0;
+
+        lang_id = atoi(str);
+
+	locale_info_size = GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, 0, 0);
+	locale_info = (TCHAR*)malloc(locale_info_size);
+	GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
+
+	SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
+	SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETITEMDATA, curr, lang_id);
+
+        if(lang_id == language)
+          SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
+
+	free(locale_info);
+
+	stop = !FindNextFile(file, &file_info);
+	curr++;
+      }
+
+      FindClose(file);
+    }
 
     RegCloseKey(key);
   }
 
   SetDlgItemText(hDlg, ID_DIFF_COMMAND, command);
   SendDlgItemMessage(hDlg, ID_DIFF_COMMAND, EM_SETLIMITTEXT, MAX_PATH, 0);
+  
+  init_layout();
 }
 
 static BOOL CALLBACK
@@ -64,31 +307,36 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           }
           break;
-          
+
         case IDOK: {
-	    HKEY key;
-	    char command[MAX_PATH];
+            HKEY key;
+            char command[MAX_PATH];
+	    LRESULT language;
+	    LRESULT idx;
 
-  	    GetDlgItemText(hwndDlg, ID_DIFF_COMMAND, command, MAX_PATH);
+            GetDlgItemText(hwndDlg, ID_DIFF_COMMAND, command, MAX_PATH);
+	    idx = SendDlgItemMessage(hwndDlg, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
+	    language = SendDlgItemMessage(hwndDlg, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
 
-	    RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext\\", 0, KEY_SET_VALUE, &key);
-	    RegSetValueEx(key, "diff", 0, REG_SZ, (const BYTE*)command, strlen(command));
-	    RegCloseKey(key);
+            RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext\\", 0, KEY_SET_VALUE, &key);
+            RegSetValueEx(key, "diff", 0, REG_SZ, (const BYTE*)command, strlen(command));
+            RegSetValueEx(key, "language", 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
+            RegCloseKey(key);
 
-	    EndDialog(hwndDlg,1);
-	    ret = TRUE;
-	  }
-	  break;
+            EndDialog(hwndDlg,1);
+            ret = TRUE;
+          }
+          break;
 
         case IDCANCEL:
           EndDialog(hwndDlg,0);
           ret = TRUE;
-	  break;
+          break;
 
         case ID_BROWSE: {
             OPENFILENAME ofn;
             char szFile[MAX_PATH] = "";
-	    DWORD err;
+            DWORD err;
 
             ZeroMemory(&ofn, sizeof(OPENFILENAME));
             ofn.lStructSize = sizeof(OPENFILENAME);
@@ -108,144 +356,37 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
             err = CommDlgExtendedError();
 
             ret = TRUE;
-	  }
-	  break;
+          }
+          break;
       }
       break;
 
     case WM_GETMINMAXINFO: {
         MINMAXINFO* min_max_info = (MINMAXINFO*)lParam;
-	RECT client;
-	WINDOWINFO info;
+        RECT client;
+        WINDOWINFO info;
 
-	client.top = 0;
-	client.bottom = 85;
-	client.left = 0;
-	client.right = 195;
+        client.top = 0;
+        client.bottom = 95;
+        client.left = 0;
+        client.right = 195;
 
         MapDialogRect(hwndDlg, &client);
-	GetWindowInfo(hwndDlg, &info);
-	AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);
+        GetWindowInfo(hwndDlg, &info);
+        AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);
 
-	min_max_info->ptMinTrackSize.x = client.right-client.left;
-	min_max_info->ptMinTrackSize.y = client.bottom-client.top;
+        min_max_info->ptMinTrackSize.x = client.right-client.left;
+        min_max_info->ptMinTrackSize.y = client.bottom-client.top;
         ret = TRUE;
       }
       break;
 
     case WM_SIZE: {
-        WORD width = LOWORD(lParam);
-        WORD height = HIWORD(lParam);
-	RECT rect;
-	int x;
-	int y;
-	int w;
-	int h;
-
-	HWND hwnd_item;
-
-        hwnd_item = GetDlgItem(hwndDlg, ID_ABOUT);
-
-	GetWindowRect(hwnd_item, &rect);
-
-	rect.left = -45;
-	rect.top = -20;
-	rect.right = -5;
-	rect.bottom = -5;
-
-	MapDialogRect(hwndDlg, &rect);
-
-	w = rect.right-rect.left;
-	h = rect.bottom-rect.top;
-	x = width+rect.left;
-	y = height+rect.top;
-
-	MoveWindow(hwnd_item, x, y, w, h, FALSE);
-
-        hwnd_item = GetDlgItem(hwndDlg, IDCANCEL);
-
-	rect.left = -90;
-	rect.top = -20;
-	rect.right = -50;
-	rect.bottom = -5;
-
-	MapDialogRect(hwndDlg, &rect);
-
-	w = rect.right-rect.left;
-	h = rect.bottom-rect.top;
-	x = width+rect.left;
-	y = height+rect.top;
-
-	MoveWindow(hwnd_item, x, y, w, h, FALSE);
-
-        hwnd_item = GetDlgItem(hwndDlg, IDOK);
-
-	rect.left = -135;
-	rect.top = -20;
-	rect.right = -95;
-	rect.bottom = -5;
-
-	MapDialogRect(hwndDlg, &rect);
-
-	w = rect.right-rect.left;
-	h = rect.bottom-rect.top;
-	x = width+rect.left;
-	y = height+rect.top;
-
-	MoveWindow(hwnd_item, x, y, w, h, FALSE);
-
-        hwnd_item = GetDlgItem(hwndDlg, ID_GROUP);
-
-	rect.left = 5;
-	rect.top = 5;
-	rect.right = -5;
-	rect.bottom = 32;
-
-	MapDialogRect(hwndDlg, &rect);
-
-	w = width-(rect.left-rect.right);
-	h = rect.bottom-rect.top;
-	x = rect.left;
-	y = rect.top;
-
-	MoveWindow(hwnd_item, x, y, w, h, FALSE);
-
-        hwnd_item = GetDlgItem(hwndDlg, ID_DIFF_COMMAND);
-
-	rect.left = 10;
-	rect.top = 15;
-	rect.right = -55;
-	rect.bottom = 27;
-
-	MapDialogRect(hwndDlg, &rect);
-
-	w = width-(rect.left-rect.right);
-	h = rect.bottom-rect.top;
-	x = rect.left;
-	y = rect.top;
-
-	MoveWindow(hwnd_item, x, y, w, h, FALSE);
-
-        hwnd_item = GetDlgItem(hwndDlg, ID_BROWSE);
-
-	rect.left = -50;
-	rect.top = 15;
-	rect.right = -10;
-	rect.bottom = 27;
-
-	MapDialogRect(hwndDlg, &rect);
-
-	w = rect.right-rect.left;
-	h = rect.bottom-rect.top;
-	x = width+rect.left;
-	y = rect.top;
-
-	MoveWindow(hwnd_item, x, y, w, h, FALSE);
-
 /**/
+        layout(hwndDlg);
 /* redraw them all*/
-	InvalidateRect(hwndDlg, 0, TRUE);
-	UpdateWindow(hwndDlg);
+        InvalidateRect(hwndDlg, 0, TRUE);
+        UpdateWindow(hwndDlg);
 
         ret = TRUE;
       }

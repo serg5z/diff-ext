@@ -4,6 +4,12 @@
 #
 BUILD ?= .
 
+CPP  ?= g++.exe
+CC   ?= gcc.exe
+AR ?= ar.exe -r
+WINDRES ?= windres.exe
+DLLWRAP ?= dllwrap.exe
+
 CXXFLAGS += -I../../util/include
 LIBS :=  -lutil -luuid -luuid -lole32
 RES  := diff_ext.res
@@ -29,7 +35,7 @@ clean: clean-custom
 
 $(DLL): $(OBJ)
 	$(DLLWRAP) \
-                --mno-cygwin \
+		--mno-cygwin \
 		--def $(DEFFILE) \
 		--output-exp ${EXPLIB} \
 		--driver-name c++ -L/usr/local/lib -L/usr/lib/mingw \
