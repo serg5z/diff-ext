@@ -29,31 +29,28 @@ LOG::failure(const LOG_MESSAGE& msg) {
 
 void 
 LOG::add_sink(LOG_SINK* sink) {
-  _sinks.add(sink);
+  _sinks.append(sink);
 }
 
 void 
 LOG::remove_sink(LOG_SINK* sink) {
-  LIST<LOG_SINK*>::NODE* current = _sinks.begin();
+  LIST<LOG_SINK*>::ITERATOR i(_sinks);
   
-  while(!_sinks.is_last(current)) {
+  while(!i.done()) {
+    LIST<LOG_SINK*>::NODE* current = (*i);
+    i++;
     if(current->data() == sink) {
-      LIST<LOG_SINK*>::NODE* tmp = current;
       _sinks.remove(current);
-      current = current->next();
-      delete tmp;
-    } else {
-      current = current->next();
     }
   }  
 }
 
 void 
 LOG::write_message(LOG_FUNCTION func, const LOG_MESSAGE& msg) {
-  LIST<LOG_SINK*>::NODE* current = _sinks.begin();
+  LIST<LOG_SINK*>::ITERATOR i(_sinks);
   
-  while(!_sinks.is_last(current)) {
-    (current->data()->*func)(msg);
-    current = current->next();
+  while(!i.done()) {
+    ((*i)->data()->*func)(msg);
+    i++;
   }  
 }

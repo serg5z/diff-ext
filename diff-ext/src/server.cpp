@@ -144,7 +144,7 @@ SERVER::~SERVER() {
   if(_file_sink != 0) {
     delete _file_sink;
   }
-  MessageBox(0, TEXT("~SERVER"), TEXT("info"), MB_OK);
+//  MessageBox(0, TEXT("~SERVER"), TEXT("info"), MB_OK);
 }
 
 HINSTANCE 
