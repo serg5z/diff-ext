@@ -13,6 +13,7 @@
 #define	ID_BROWSE	105L
 #define	ID_ABOUT	106L
 #define	ID_DIFF_DIRS	107L
+#define      ID_APPLY	108L
 #define	DLG_ABOUT	200
 #define	IDS_HELPMENU	2010
 #define	MAIN_ICON 1

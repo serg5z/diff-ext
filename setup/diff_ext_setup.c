@@ -16,12 +16,21 @@
 
 #include "diff_ext_setup_res.h"
 
+typedef struct  {
+  int x;
+  int y;
+  int w;
+  int h;
+} WINDOW_POSITION;
+
+WINDOW_POSITION* last_position = 0;
+
 static BOOL CALLBACK DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int APIENTRY
 WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
   WNDCLASS wc;
-  HRESULT ret;
+  HRESULT exit = ID_APPLY;
   HKEY key;
   DWORD language = 0;
   DWORD hlen;
@@ -32,66 +41,51 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
   HANDLE resource;
   LAYOUT* layout;
 
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
-    hlen = sizeof(DWORD);
-    RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &hlen);
-
-    RegCloseKey(key);
-
-    sprintf(language_lib, "diff_ext_setup%ld.dll", language);
+  while(exit == ID_APPLY) {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+      hlen = sizeof(DWORD);
+      RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &hlen);
+  
+      RegCloseKey(key);
+  
+      sprintf(language_lib, "diff_ext_setup%ld.dll", language);
+    }
+  
+    resource = LoadLibrary(language_lib);
+  
+    if(resource == NULL)
+      resource = hinst;
+  
+    memset(&wc,0,sizeof(wc));
+    wc.lpfnWndProc = DefDlgProc;
+    wc.cbWndExtra = DLGWINDOWEXTRA;
+    wc.hInstance = hinst;
+    wc.hIcon = LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON));
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
+    wc.lpszClassName = "diff-ext-setup";
+    UnregisterClass(wc.lpszClassName, hinst);
+    RegisterClass(&wc);
+  
+    SetThreadLocale(LOCALE_USER_DEFAULT);
+    InitCommonControls();
+  
+    resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), RT_DIALOG);
+    dialog_handle = LoadResource(resource, resource_handle);
+    dialog = (DLGTEMPLATE*)LockResource(dialog_handle);
+  
+    layout = create_layout(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
+  /*  can not do because have to specify hinst as module instance and load dialog from translated resource only dll...
+    ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)DialogFunc);
+  */  
+    exit = DialogBoxIndirectParam(hinst, dialog, NULL, (DLGPROC)DialogFunc, (LPARAM)layout);
+  
+    FreeResource(dialog);
+    FreeLibrary(resource);
+    free(layout);
   }
-
-  resource = LoadLibrary(language_lib);
-
-  if(resource == NULL)
-    resource = hinst;
-
-  memset(&wc,0,sizeof(wc));
-  wc.lpfnWndProc = DefDlgProc;
-  wc.cbWndExtra = DLGWINDOWEXTRA;
-  wc.hInstance = hinst;
-  wc.hIcon = LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON));
-  wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-  wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
-  wc.lpszClassName = "diff-ext-setup";
-  RegisterClass(&wc);
-
-  SetThreadLocale(LOCALE_USER_DEFAULT);
-  InitCommonControls();
-
-  resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), RT_DIALOG);
-  dialog_handle = LoadResource(resource, resource_handle);
-  dialog = (DLGTEMPLATE*)LockResource(dialog_handle);
-
-  layout = create_layout(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
-/*  can not do because have to specify hinst as module instance and load dialog from translated resource only dll...
-  ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)DialogFunc);
-*/  
-  ret = DialogBoxIndirectParam(hinst, dialog, NULL, (DLGPROC)DialogFunc, (LPARAM)layout);
-
-  FreeResource(dialog);
-/*
-  {
-    char* message;
-
-    FormatMessage(
-      FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-      0,
-      GetLastError(),
-      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-      (LPTSTR) &message,
-      0,
-      0
-    );
-
-    MessageBox(0, message, "GetLastError", MB_OK | MB_ICONINFORMATION);
-
-    LocalFree(message);
-  }
-*/
-  FreeLibrary(resource);
-
-  return ret;
+  
+  return exit;
 }
 
 static void
@@ -183,6 +177,10 @@ InitializeApp(HWND hDlg,WPARAM wParam, LPARAM lParam) {
   SendDlgItemMessage(hDlg, ID_DIFF_COMMAND, EM_SETLIMITTEXT, MAX_PATH, 0);
   
   SetWindowLongPtr(hDlg, DWLP_USER, lParam);
+  
+  if(last_position != 0) {
+    MoveWindow(hDlg, last_position->x, last_position->y, last_position->w, last_position->h, TRUE);
+  }
 }
 
 static BOOL CALLBACK
@@ -207,12 +205,24 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           break;
 
+        case ID_APPLY:
         case IDOK: {
             HKEY key;
-            char command[MAX_PATH];
+            TCHAR command[MAX_PATH];
 	    LRESULT language;
+	    LRESULT old_language;
 	    LRESULT idx;
+	    DWORD hlen;
 
+	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+	      hlen = sizeof(DWORD);
+	      if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&old_language, &hlen) != ERROR_SUCCESS) {
+		old_language = 1033;
+	      }
+
+	      RegCloseKey(key);
+	    }
+	    
             GetDlgItemText(hwndDlg, ID_DIFF_COMMAND, command, MAX_PATH);
 	    idx = SendDlgItemMessage(hwndDlg, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
 	    language = SendDlgItemMessage(hwndDlg, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
@@ -222,13 +232,16 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
             RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
             RegCloseKey(key);
 
-            EndDialog(hwndDlg,1);
+	    if((LOWORD(wParam) == IDOK) || (language != old_language)) {
+	      EndDialog(hwndDlg,LOWORD(wParam));
+	    }
+	    
             ret = TRUE;
           }
           break;
 
         case IDCANCEL:
-          EndDialog(hwndDlg,0);
+          EndDialog(hwndDlg,IDCANCEL);
           ret = TRUE;
           break;
 
@@ -282,12 +295,41 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       break;
 
+    case WM_MOVE: {
+        RECT rect;
+        if(last_position == 0) {
+	  last_position = (WINDOW_POSITION*)malloc(sizeof(WINDOW_POSITION));
+	}
+	
+	GetWindowRect(hwndDlg, &rect);
+	
+	last_position->x = rect.left;
+	last_position->y = rect.top;
+	last_position->w = rect.right - rect.left;
+	last_position->h = rect.bottom - rect.top;
+
+        ret = TRUE;
+      }
+      break;
+      
     case WM_SIZE: {
+        RECT rect;
 /**/
         layout(hwndDlg);
 /* redraw them all*/
         InvalidateRect(hwndDlg, 0, TRUE);
         UpdateWindow(hwndDlg);
+      
+        if(last_position == 0) {
+	  last_position = (WINDOW_POSITION*)malloc(sizeof(WINDOW_POSITION));
+	}
+	
+	GetWindowRect(hwndDlg, &rect);
+	
+	last_position->x = rect.left;
+	last_position->y = rect.top;
+	last_position->w = rect.right - rect.left;
+	last_position->h = rect.bottom - rect.top;
 
         ret = TRUE;
       }

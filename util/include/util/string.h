@@ -9,6 +9,8 @@
 #ifndef __string_h__
 #define __string_h__
 
+#include <windows.h>
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -20,12 +22,12 @@ class STRING {
   public:
     STRING(const STRING& s) {
       _str = new char[s.length()+1];
-      strcpy(_str, s);
+      lstrcpy(_str, s);
     }
     
-    STRING(const char* str = "") {
+    STRING(const TCHAR* str = "") {
       _str = new char[strlen(str)+1];
-      strcpy(_str, str);
+      lstrcpy(_str, str);
     }
     
     ~STRING() {
@@ -34,16 +36,16 @@ class STRING {
     
     STRING& operator=(const STRING& s) {
       delete[] _str;
-      _str = new char[s.length()+1];
-      strcpy(_str, s);
+      _str = new TCHAR[s.length()+1];
+      lstrcpy(_str, s);
       return *this;
     }
     
-    operator char*() {
+    operator TCHAR*() {
       return _str;
     }
     
-    operator const char*() const {
+    operator const TCHAR*() const {
       return _str;
     }
     
@@ -61,7 +63,7 @@ class STRING {
       if((from >= 0) && (from < to) && (to <= length())) {
         int new_len = to - from + 1;
         char* new_str = new char[new_len+1];
-        strncpy(new_str, &_str[from], new_len);
+        lstrcpyn(new_str, &_str[from], new_len);
         new_str[new_len] = 0;
         
         tmp = new_str;
@@ -72,14 +74,14 @@ class STRING {
     }
     
     bool operator ==(const STRING& s) const {
-      return (strcmp(_str, s) == 0);
+      return (lstrcmp(_str, s) == 0);
     }
     
     STRING& operator +=(const STRING& s) {
-      char* str = new char[strlen(_str)+s.length()+1];
+      TCHAR* str = new TCHAR[lstrlen(_str)+s.length()+1];
 
-      strcpy(str, _str);
-      strcat(str, s);
+      lstrcpy(str, _str);
+      lstrcat(str, s);
       
       delete[] _str;
       
@@ -89,7 +91,7 @@ class STRING {
     }
     
   private:
-    char* _str;
+    TCHAR* _str;
 };
 
 STRING operator+(const STRING& s1, const STRING& s2);
