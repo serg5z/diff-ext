@@ -21,8 +21,6 @@ const int IDM_DIFF_WITH_BASE=50;
 
 DEQUE<STRING> DIFF_EXT::_recent_files(4);
 
-extern "C" void dec_cRefThisDLL();
-
 #define _T(x)  x
 
 // *********************** DIFF_EXT *************************
