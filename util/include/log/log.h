@@ -15,10 +15,10 @@ class LOG_SINK;
 class LOG_MESSAGE;
 
 class LOG {
-  typedef void (LOG_SINK::*LOG_FUNCTION)(const STRING&);
+  typedef void (LOG_SINK::*LOG_FUNCTION)(const LOG_MESSAGE&);
   
   public:
-    LOG* instance() {
+    static LOG* instance() {
       static LOG* instance = 0;
       
       if(instance == 0) {
@@ -32,7 +32,7 @@ class LOG {
     void info(const LOG_MESSAGE& msg);
     void warning(const LOG_MESSAGE& msg);
     void error(const LOG_MESSAGE& msg);
-    void faluire(const LOG_MESSAGE& msg);
+    void failure(const LOG_MESSAGE& msg);
     
     void add_sink(LOG_SINK* sink);
     void remove_sink(LOG_SINK* sink);
@@ -41,7 +41,7 @@ class LOG {
     LOG() {}
     LOG(const LOG&) {}
       
-    void write_message(LOG_FUNCTION func, const STRING& msg);
+    void write_message(LOG_FUNCTION func, const LOG_MESSAGE& msg);
       
     LIST<LOG_SINK*> _sinks;
 };

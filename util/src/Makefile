@@ -1,12 +1,13 @@
 BUILD ?= .
+LIB ?= .
 
 CPP  ?= g++.exe
 CC   ?= gcc.exe
-AR ?= ar.exe -r
+AR ?= ar.exe 
 WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
 
-CXXFLAGS += -I../../util/include
+CXXFLAGS += -g -I../../util/include
 CFLAGS += -g -I../../util/include
 LDFLAGS += -mwindows
 
@@ -20,15 +21,15 @@ EXPLIB :=
 SRC-CXX = $(wildcard *.cpp)
 SRC-C$ = $(wildcard *.c)
 
-OBJ  := $(SRC-CPP:.cpp=.o) $(SRC-C:.c=.o)
+OBJ  := $(SRC-CXX:.cpp=.o) $(SRC-C:.c=.o)
 
 INCS :=
-LIB := $(LIB)/libutil.a
+LIBRARY := $(LIB)/libutil.a
 DLL  := 
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: .depend all-before $(LIB) all-after
+all: .depend all-before $(LIBRARY) all-after
 
 .depend: Makefile $(SRC-C) $(SRC-RC) $(SRC-CXX)
 	$(CXX) -M $(CXXFLAGS) $(SRC-C) $(SRC-RC) $(SRC-CXX) > .depend
@@ -36,10 +37,10 @@ all: .depend all-before $(LIB) all-after
 include .depend
 
 clean: clean-custom
-	${RM}  $(OBJ) $(LIB) ${RES} ${EXPLIB} $(STATICLIB)
+	${RM}  $(OBJ) $(LIBRARY) ${RES} ${EXPLIB} $(STATICLIB)
 
-$(LIB): $(OBJ)
-	$(AR) $@ $< 
+$(LIBRARY): $(OBJ)
+	$(AR) -r $@ $(OBJ)
 
 .cpp.o:
 	$(CXX) -c $< -o $@ $(CXXFLAGS)

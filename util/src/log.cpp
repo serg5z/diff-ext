@@ -1,39 +1,44 @@
-#include "log/log_message.h"
-#include "log/log_sink.h"
-#include "log/log.h"
+#include <log/log_message.h>
+#include <log/log_sink.h>
+#include <log/log.h>
 
 void 
-debug(const LOG_MESSAGE& msg) {
+LOG::debug(const LOG_MESSAGE& msg) {
+  write_message(&LOG_SINK::debug, msg);
 }
 
 void 
-info(const LOG_MESSAGE& msg) {
+LOG::info(const LOG_MESSAGE& msg) {
+  write_message(&LOG_SINK::info, msg);
 }
 
 void 
-warning(const LOG_MESSAGE& msg) {
+LOG::warning(const LOG_MESSAGE& msg) {
+  write_message(&LOG_SINK::warning, msg);
 }
 
 void 
-error(const LOG_MESSAGE& msg) {
+LOG::error(const LOG_MESSAGE& msg) {
+  write_message(&LOG_SINK::error, msg);
 }
 
 void 
-faluire(const LOG_MESSAGE& msg) {
+LOG::failure(const LOG_MESSAGE& msg) {
+  write_message(&LOG_SINK::failure, msg);
 }
 
 void 
-add_sink(LOG_SINK* sink) {
+LOG::add_sink(LOG_SINK* sink) {
   _sinks.add(sink);
 }
 
 void 
-remove_sink(LOG_SINK* sink) {
-  LIST<int>::NODE* current = _sinks.begin();
+LOG::remove_sink(LOG_SINK* sink) {
+  LIST<LOG_SINK*>::NODE* current = _sinks.begin();
   
   while(!_sinks.is_last(current)) {
     if(current->data() == sink) {
-      LIST<int>::NODE* tmp = current;
+      LIST<LOG_SINK*>::NODE* tmp = current;
       _sinks.remove(current);
       current = current->next();
       delete tmp;
@@ -44,11 +49,11 @@ remove_sink(LOG_SINK* sink) {
 }
 
 void 
-write_message(LOG_FUNCTION func, const STRING& msg) {
-  LIST<int>::NODE* current = _sinks.begin();
+LOG::write_message(LOG_FUNCTION func, const LOG_MESSAGE& msg) {
+  LIST<LOG_SINK*>::NODE* current = _sinks.begin();
   
   while(!_sinks.is_last(current)) {
-    current->*func(msg);
+    (current->data()->*func)(msg);
     current = current->next();
   }  
 }

@@ -9,6 +9,8 @@
 #ifndef __log_sink__
 #define __log_sink__
 
+class LOG_MESSAGE;
+
 class LOG_SINK {
   public:
     virtual ~LOG_SINK() {
@@ -18,7 +20,7 @@ class LOG_SINK {
     virtual void info(const LOG_MESSAGE& msg) = 0;
     virtual void warning(const LOG_MESSAGE& msg) = 0;
     virtual void error(const LOG_MESSAGE& msg) = 0;
-    virtual void faluire(const LOG_MESSAGE& msg) = 0;
+    virtual void failure(const LOG_MESSAGE& msg) = 0;
 };
 
 #endif // __log_sink__

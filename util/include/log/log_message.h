@@ -16,6 +16,16 @@ class LOG_MESSAGE {
     LOG_MESSAGE(STRING message, unsigned int log_level = 0) : _message(message), _log_level(log_level) {
     }
     
+    LOG_MESSAGE(const LOG_MESSAGE& msg) : _message(msg._message), _log_level(msg._log_level) {
+    }
+    
+    LOG_MESSAGE& operator=(const LOG_MESSAGE& msg) {
+      _message = msg._message;
+      _log_level = msg._log_level;
+      
+      return *this;
+    }
+    
     unsigned int log_level() const {
       return _log_level;
     }

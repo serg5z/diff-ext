@@ -21,12 +21,12 @@ class STRING {
   
   public:
     STRING(const STRING& s) {
-      _str = new char[s.length()+1];
+      _str = new TCHAR[s.length()+1];
       lstrcpy(_str, s);
     }
     
     STRING(const TCHAR* str = "") {
-      _str = new char[strlen(str)+1];
+      _str = new TCHAR[lstrlen(str)+1];
       lstrcpy(_str, str);
     }
     
@@ -62,7 +62,7 @@ class STRING {
       
       if((from >= 0) && (from < to) && (to <= length())) {
         int new_len = to - from + 1;
-        char* new_str = new char[new_len+1];
+        TCHAR* new_str = new TCHAR[new_len+1];
         lstrcpyn(new_str, &_str[from], new_len);
         new_str[new_len] = 0;
         
