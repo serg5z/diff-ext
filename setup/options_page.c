@@ -184,12 +184,12 @@ options_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             ofn.hwndOwner = dialog;
             ofn.lpstrFile = szFile;
             ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
-            ofn.lpstrFilter = "Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0";
+            ofn.lpstrFilter = TEXT("Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0");
             ofn.nFilterIndex = 1;
             ofn.lpstrFileTitle = NULL;
             ofn.nMaxFileTitle = 0;
             ofn.lpstrInitialDir = NULL;
-	    ofn.lpstrTitle = "Select file compare utility";
+	    ofn.lpstrTitle = TEXT("Select file compare utility");
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
 
             if(GetOpenFileName(&ofn) == TRUE) {

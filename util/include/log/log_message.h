@@ -35,8 +35,8 @@ class LOG_MESSAGE {
     }
     
   private:
-    unsigned int _log_level;
     STRING _message;
+    unsigned int _log_level;
 };
 
 #endif // __log_message_h__

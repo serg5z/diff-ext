@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ *
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
+ *
+ */
+
+IDD_ABOUT DIALOGEX 
+10, 10, 214, 73
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "О программе diff_ext"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON "&Закрыть", 
+		  IDOK, 
+		  157, 52, 50, 14
+		  
+    ICON  "main_icon", 
+	  203, 
+	  7, 7, 21, 20
+    CTEXT "diff_ext", 
+	  201, 
+	  30, 7, 162, 8
+    CTEXT "Информация о версии отсутствует.", 
+	  ID_VERSION, 
+	  30, 22, 162, 8
+    CTEXT "\251 2003-2004 Сергей Зорин. Все права защищены.", 
+	  202, 
+	  7, 37, 200, 8
+END

@@ -51,9 +51,9 @@ create_debug_page(HANDLE resource, HWND parent) {
     
     page->apply = apply;
     
-    layout = create_layout(resource, MAKEINTRESOURCE(IDD_DEBUG), MAKEINTRESOURCE(ID_DEBUG_LAYOUT));
+    layout = create_layout(resource, MAKEINTRESOURCE(IDD_LOGGING), MAKEINTRESOURCE(ID_LOGGING_LAYOUT));
     
-    resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_DEBUG), RT_DIALOG);
+    resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_LOGGING), RT_DIALOG);
     dialog_handle = LoadResource(resource, resource_handle);
     dialog_template = (DLGTEMPLATE*)LockResource(dialog_handle);
   
@@ -67,10 +67,67 @@ create_debug_page(HANDLE resource, HWND parent) {
 }
 
 static void
-init(HWND dialog, WPARAM not_used, LPARAM l_param) {
-  HWND button = GetDlgItem(dialog, ID_LOG_LEVEL_BUTTON);
+enable_logging(HWND dialog) {
+  HWND item;
   
-  SendMessage(button, UDM_SETRANGE, 0, (LPARAM) MAKELONG (20, 0));
+  item = GetDlgItem(dialog, ID_BROWSE);
+  EnableWindow(item, TRUE);
+  item = GetDlgItem(dialog, ID_LOG_PATH);
+  EnableWindow(item, TRUE);
+  item = GetDlgItem(dialog, ID_LOG_LEVEL_LABEL);
+  EnableWindow(item, TRUE);
+  item = GetDlgItem(dialog, ID_LOG_LEVEL_BUTTON);
+  EnableWindow(item, TRUE);
+  item = GetDlgItem(dialog, ID_LOG_LEVEL);
+  EnableWindow(item, TRUE);
+}
+
+static void
+disable_logging(HWND dialog) {
+  HWND item;
+  
+  item = GetDlgItem(dialog, ID_BROWSE);
+  EnableWindow(item, FALSE);
+  item = GetDlgItem(dialog, ID_LOG_PATH);
+  EnableWindow(item, FALSE);
+  item = GetDlgItem(dialog, ID_LOG_LEVEL_LABEL);
+  EnableWindow(item, FALSE);
+  item = GetDlgItem(dialog, ID_LOG_LEVEL_BUTTON);
+  EnableWindow(item, FALSE);
+  item = GetDlgItem(dialog, ID_LOG_LEVEL);
+  EnableWindow(item, FALSE);
+}
+
+static void
+init(HWND dialog, WPARAM not_used, LPARAM l_param) {
+  HWND log_level_button = GetDlgItem(dialog, ID_LOG_LEVEL_BUTTON);
+  HKEY key;
+  TCHAR log_path[MAX_PATH] = TEXT("");
+  LRESULT enabled = 0;
+    
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    DWORD hlen = MAX_PATH;
+  
+    RegQueryValueEx(key, TEXT("log_file"), 0, NULL, (BYTE*)log_path, &hlen);
+
+    hlen = sizeof(DWORD);
+    if(RegQueryValueEx(key, TEXT("log"), 0, NULL, (BYTE*)(&enabled), &hlen) != ERROR_SUCCESS) {
+      enabled = 0;
+    }
+
+    RegCloseKey(key);
+  }
+  
+  if(enabled == 1) {
+    CheckDlgButton(dialog, ID_ENABLE_LOGGING, BST_CHECKED);
+    enable_logging(dialog);
+  } else {
+    CheckDlgButton(dialog, ID_ENABLE_LOGGING, BST_UNCHECKED);
+    disable_logging(dialog);
+  }
+  
+  SetDlgItemText(dialog, ID_LOG_PATH, log_path);
+  SendMessage(log_level_button, UDM_SETRANGE, 0, (LPARAM) MAKELONG (20, 0));
   
   SetWindowLongPtr(dialog, DWLP_USER, l_param);
 }
@@ -89,17 +146,9 @@ debug_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
       switch(LOWORD(w_param)) {
 	case ID_ENABLE_LOGGING:
 	  if(IsDlgButtonChecked(dialog, ID_ENABLE_LOGGING)) {
-	    HWND item;
-	    item = GetDlgItem(dialog, ID_BROWSE);
-	    EnableWindow(item, TRUE);
-	    item = GetDlgItem(dialog, ID_LOG_PATH);
-	    EnableWindow(item, TRUE);
+	    enable_logging(dialog);
 	  } else {
-	    HWND item;
-	    item = GetDlgItem(dialog, ID_BROWSE);
-	    EnableWindow(item, FALSE);
-	    item = GetDlgItem(dialog, ID_LOG_PATH);
-	    EnableWindow(item, FALSE);
+	    disable_logging(dialog);
 	  }
 	  break;
 
@@ -112,12 +161,12 @@ debug_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             ofn.hwndOwner = dialog;
             ofn.lpstrFile = szFile;
             ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
-            ofn.lpstrFilter = "Log files (*.log)\0*.LOG\0All (*.*)\0*.*\0";
+            ofn.lpstrFilter = TEXT("Log files (*.log)\0*.LOG\0All (*.*)\0*.*\0");
             ofn.nFilterIndex = 1;
             ofn.lpstrFileTitle = NULL;
             ofn.nMaxFileTitle = 0;
             ofn.lpstrInitialDir = NULL;
-	    ofn.lpstrTitle = "Select file compare utility";
+	    ofn.lpstrTitle = TEXT("Select log file");
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
 
             if(GetOpenFileName(&ofn) == TRUE) {

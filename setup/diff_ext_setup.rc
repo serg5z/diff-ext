@@ -21,8 +21,8 @@
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,8
- PRODUCTVERSION 1,0,0,8
+ FILEVERSION 1,0,0,11
+ PRODUCTVERSION 1,0,0,11
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -58,76 +58,13 @@ VS_VERSION_INFO VERSIONINFO
 
 main_icon ICON "de.ico"
 
-IDD_OPTIONS DIALOGEX
-0, 0, 228, 75
-STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK | WS_CLIPSIBLINGS //| WS_CLIPCHILDREN
-FONT 8, "Helv"
-EXSTYLE WS_EX_CONTROLPARENT
-BEGIN
-    GROUPBOX      "Diff command", 			
-                  ID_GROUP, 
-                  7, 7, 214, 46,
-		  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
-    EDITTEXT      
-                  ID_DIFF_COMMAND, 
-                  14, 18, 145, 14, 
-                  ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
-                  
-    PUSHBUTTON    "Browse...",
-                  ID_BROWSE, 
-                  163, 18, 50, 14
-    AUTOCHECKBOX  "Can compare folders",
-                  ID_DIFF_DIRS, 
-                  14, 36, 90, 10,
-                  WS_DISABLED
-    LTEXT         "Language",
-                  104, 
-                  7, 60, 35, 8
-    COMBOBOX      
-                  ID_LANGUAGE, 
-                  46, 59, 100, 130, 
-                  CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-END
-
-IDD_DEBUG DIALOGEX
-0, 0, 228, 75
-STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK //| WS_CLIPCHILDREN
-FONT 8, "Helv"
-EXSTYLE WS_EX_CONTROLPARENT
-BEGIN
-    AUTOCHECKBOX  "Enable logging",
-                  ID_ENABLE_LOGGING, 
-                  7, 7, 90, 10,
-		  WS_TABSTOP
-    EDITTEXT      
-                  ID_LOG_PATH, 
-                  7, 22, 159, 14, 
-                  ES_AUTOHSCROLL | WS_VISIBLE | WS_BORDER | WS_DISABLED
-                  
-    PUSHBUTTON    "Browse...",
-                  ID_BROWSE, 
-                  170, 22, 50, 14,
-		  WS_DISABLED
-                  
-    LTEXT  "Log level",
-                  113, 
-                  7, 43, 35, 8
-                  
-    EDITTEXT  "Enable logging",
-                  ID_LOG_LEVEL, 
-                  49, 43, 40, 12,
-                  ES_AUTOHSCROLL | ES_NUMBER | WS_GROUP | WS_TABSTOP
-                  
-    CONTROL         "", 
-                  ID_LOG_LEVEL_BUTTON, 
-                  "msctls_updown32", 
-                  0xb6, 
-                  89, 43, 20, 12
-END
+#include "options.dlg"
+#include "logging.dlg"
+#include "about.dlg"
 
 IDD_MAINDIALOG DIALOGEX
 70, 60, 242, 129
-STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME //| WS_CLIPCHILDREN
+STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_CLIPCHILDREN
 CAPTION "diff_ext setup"
 FONT 8, "Helv"
 CLASS "diff-ext-setup"
@@ -152,30 +89,6 @@ BEGIN
                   186, 108, 50, 14
 END
 
-DLG_ABOUT DIALOGEX 
-10, 10, 214, 73
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About diff_ext"
-FONT 8, "MS Shell Dlg"
-BEGIN
-    DEFPUSHBUTTON "&Close", 
-	  IDOK, 
-	  157, 52, 50, 14
-		  
-    ICON  "main_icon", 
-	  203, 
-	  7, 7, 21, 20
-    CTEXT "diff_ext", 
-	  201, 
-	  30, 7, 162, 8
-    CTEXT "No version infornation available.", 
-	  ID_VERSION, 
-	  30, 22, 162, 8
-    CTEXT "\251 2003-2004 Sergey Zorin. All rights reserved.", 
-	  202, 
-	  7, 37, 200, 8
-END
-
 ID_MAINDIALOG_LAYOUT RCDATA {
   ID_TAB, /* ID_TAB */
     3L, /* ANCOR_LEFT | ANCOR_TOP */
@@ -194,23 +107,8 @@ ID_MAINDIALOG_LAYOUT RCDATA {
     12L /* ANCOR_RIGHT | ANCOR_BOTTOM */
 }
 
-ID_DEBUG_LAYOUT RCDATA {
-  ID_BROWSE, /*ID_BROWSE*/ 
-    6L, /* ANCOR_RIGHT | ANCOR_TOP */
-    6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  ID_LOG_PATH, /*ID_LOG_PATH*/ 
-    3L, /* ANCOR_LEFT | ANCOR_TOP */
-    6L /* ANCOR_RIGHT | ANCOR_TOP */
-}
-
-ID_OPTIONS_LAYOUT RCDATA {
-  ID_GROUP, /*ID_GROUP*/ 
-    3L, /* ANCOR_LEFT | ANCOR_TOP */
-    6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  ID_DIFF_COMMAND, /*ID_DIFF_COMMAND*/ 
-    3L, /* ANCOR_LEFT | ANCOR_TOP */
-    6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  ID_BROWSE, /*ID_BROWSE*/ 
-    6L, /* ANCOR_RIGHT | ANCOR_TOP */
-    6L /* ANCOR_RIGHT | ANCOR_TOP */
+STRINGTABLE
+{
+  OPTIONS_STR "Options"
+  LOGGING_STR "Logging"
 }

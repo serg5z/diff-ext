@@ -23,9 +23,10 @@ typedef struct {
   int height;
 } WINDOW_PLACEMENT;
 
-static BOOL CALLBACK DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
+static BOOL CALLBACK main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
 extern PAGE* create_options_page(HANDLE resource, HWND parent);
 extern PAGE* create_debug_page(HANDLE resource, HWND parent);
+extern void about(HANDLE resource, HWND parent);
 
 static HANDLE resource;
 static WINDOW_PLACEMENT* window_placement = 0;
@@ -80,9 +81,9 @@ WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
   
     layout = create_layout(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
   /*  can not do because have to specify hinst as module instance and load dialog from translated resource only dll...
-    ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)DialogFunc);
+    ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)main_dialog_func);
   */  
-    exit = DialogBoxIndirectParam(instance, dialog, NULL, (DLGPROC)DialogFunc, (LPARAM)layout);
+    exit = DialogBoxIndirectParam(instance, dialog, NULL, (DLGPROC)main_dialog_func, (LPARAM)layout);
   
     FreeResource(dialog);
     FreeLibrary(resource);
@@ -93,12 +94,15 @@ WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
 }
 
 static void
-InitializeApp(HWND dialog, WPARAM w_param, LPARAM l_param) {
+init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   HWND tab = GetDlgItem(dialog, ID_TAB);
   RECT rect;
   TCITEM item1;
   TCITEM item2;
   HMODULE uxtheme_library = LoadLibrary(TEXT("uxtheme.dll"));
+  TCHAR page_1_label[32];
+  TCHAR page_2_label[32];
+  int resource_string_length;
 
   pages[0] = create_options_page(resource, dialog);
   pages[1] = create_debug_page(resource, dialog);
@@ -107,7 +111,7 @@ InitializeApp(HWND dialog, WPARAM w_param, LPARAM l_param) {
     FARPROC EnableThemeDialogTexture = GetProcAddress(uxtheme_library, "EnableThemeDialogTexture");
     
     if(EnableThemeDialogTexture != 0) {
-      int i;
+      unsigned int i;
       const int ETDT_DISABLE = 1;
       const int ETDT_ENABLE = 2;
       const int ETDT_USETABTEXTURE = 4;
@@ -121,12 +125,36 @@ InitializeApp(HWND dialog, WPARAM w_param, LPARAM l_param) {
   ZeroMemory(&item1, sizeof(TCITEM));
   ZeroMemory(&item2, sizeof(TCITEM));
 
+  resource_string_length = LoadString(resource, OPTIONS_STR, page_1_label, sizeof(page_1_label)/sizeof(page_1_label[0]));
+  
+  if(resource_string_length == 0) {
+    HMODULE instance = GetModuleHandle(0);
+    resource_string_length = LoadString(instance, OPTIONS_STR, page_1_label, sizeof(page_1_label)/sizeof(page_1_label[0]));
+    
+    if(resource_string_length == 0) {
+      lstrcpy(page_1_label, TEXT("Options"));
+      MessageBox(0, TEXT("Can not load 'OPTIONS_STR' string resource"), TEXT("ERROR"), MB_OK);
+    }
+  }
+  
   item1.mask = TCIF_TEXT | TCIF_PARAM;
-  item1.pszText = "page #1";
+  item1.pszText = page_1_label;
   item1.lParam = (LPARAM)0;
 
+  resource_string_length = LoadString(resource, LOGGING_STR, page_2_label, sizeof(page_2_label)/sizeof(page_2_label[0]));
+  
+  if(resource_string_length == 0) {
+    HMODULE instance = GetModuleHandle(0);
+    resource_string_length = LoadString(instance, LOGGING_STR, page_2_label, sizeof(page_2_label)/sizeof(page_2_label[0]));
+    
+    if(resource_string_length == 0) {
+      lstrcpy(page_2_label, TEXT("Logging"));
+      MessageBox(0, TEXT("Can not load 'LOGGING_STR' string resource"), TEXT("ERROR"), MB_OK);
+    }
+  }
+  
   item2.mask = TCIF_TEXT | TCIF_PARAM;
-  item2.pszText = "page #2";
+  item2.pszText = page_2_label;
   item2.lParam = (LPARAM)0;
 
   TabCtrl_InsertItem(tab, 1, &item1);
@@ -152,77 +180,23 @@ InitializeApp(HWND dialog, WPARAM w_param, LPARAM l_param) {
   TabCtrl_AdjustRect(tab, FALSE, &rect);
   MapWindowPoints(tab, dialog, (LPPOINT)&rect, 2);  
   SetWindowPos(pages[0]->page, HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
-}
-
-static void
-InitializeVersion(HWND dialog, WPARAM w_param, LPARAM l_param) {
-  DWORD file_versioninfo_size;
-  DWORD version_handle;
-  TCHAR path[MAX_PATH];
-  
-  GetModuleFileName(resource, path, sizeof(path)/sizeof(path[0]));
-  file_versioninfo_size = GetFileVersionInfoSize(path, &version_handle);
-  
-  if(file_versioninfo_size > 0) {
-    void* file_versioninfo = malloc(file_versioninfo_size);
-    struct {WORD language; WORD codepage;}* translations;
-    UINT length = 0;
-    TCHAR version_block[] = TEXT("\\StringFileInfo\\12341234\\ProductVersion");
-    TCHAR* product_version;
-    
-    GetFileVersionInfo(path, 0, file_versioninfo_size, file_versioninfo);
-    
-    VerQueryValue(file_versioninfo, "\\VarFileInfo\\Translation", (void**)&translations, &length);
-    
-    if(length > 0) {
-      wsprintf(version_block, TEXT("\\StringFileInfo\\%04x%04x\\ProductVersion"), translations[0].language, translations[0].codepage);
-      
-      VerQueryValue(file_versioninfo, version_block, (void**)&product_version, &length);
-      
-      if(length > 0) {
-	SetDlgItemText(dialog, ID_VERSION, product_version);
-      }
-    }
-    
-    free(file_versioninfo);
-  }
+  layout(pages[0]->page);
 }
 
 static BOOL CALLBACK
-AboutDialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
-  BOOL ret = FALSE;
-
-  switch (msg) {
-    case WM_INITDIALOG:
-      InitializeVersion(dialog,wParam,lParam);
-      ret = TRUE;
-      break;
-    
-    case WM_COMMAND:
-      if(LOWORD(wParam) == IDOK) {
-	EndDialog(dialog, 1);
-	ret = TRUE;
-      }
-      break;
-  }
-  
-  return ret;
-}
-
-static BOOL CALLBACK
-DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
+main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
   BOOL ret = FALSE;
 
   switch(msg) {
     case WM_INITDIALOG:
-      InitializeApp(dialog,wParam,lParam);
+      init(dialog,wParam,lParam);
       ret = TRUE;
       break;
 
     case WM_COMMAND:
       switch(LOWORD(wParam)) {
 	case ID_ABOUT:
-	  DialogBox(resource, MAKEINTRESOURCE(DLG_ABOUT), dialog, AboutDialogFunc);
+	  about(resource, dialog);
 	  break;
 	
         case ID_APPLY:
@@ -231,7 +205,7 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	    LRESULT language = 1033;
 	    LRESULT old_language = 1033;
 	    DWORD hlen;
-	    int i;
+	    unsigned int i;
 
 	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 	      hlen = sizeof(DWORD);
@@ -326,7 +300,7 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
         window_placement->height = rect.bottom-rect.top;
 
 /*	RedrawWindow(dialog, 0, 0, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW);*/
-/*        InvalidateRect(dialog, 0, TRUE);*/
+        InvalidateRect(dialog, 0, TRUE);
 
 	ret = TRUE;
       }
@@ -338,7 +312,7 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if(data->code == TCN_SELCHANGE) {
 	  if(data->idFrom == ID_TAB) {
 	    int page = TabCtrl_GetCurSel(data->hwndFrom);
-	    int i;
+	    unsigned int i;
 	    RECT rect;
 
 	    GetClientRect(data->hwndFrom, &rect);
