@@ -16,7 +16,9 @@
   #define MANIFEST 24
   #endif
 
+/* disable it untill I can fix styling problem with tab pages
 1 MANIFEST "diff_ext_setup.manifest"
+*/
 #endif
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -63,7 +65,7 @@ IDD_OPTIONS DIALOGEX
 0, 0, 228, 75
 STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK
 FONT 8, "Helv"
-EXSTYLE WS_EX_CONTROLPARENT | WS_EX_TRANSPARENT
+EXSTYLE WS_EX_CONTROLPARENT
 BEGIN
     GROUPBOX      "Diff command", 			
                   ID_GROUP, 
@@ -90,6 +92,26 @@ BEGIN
                   CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
+IDD_DEBUG DIALOGEX
+0, 0, 228, 75
+STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK
+FONT 8, "Helv"
+EXSTYLE WS_EX_CONTROLPARENT
+BEGIN
+    AUTOCHECKBOX  "Enable debug",
+                  ID_ENABLE_DEBUG, 
+                  7, 7, 90, 10,
+		  WS_TABSTOP
+    EDITTEXT      
+                  ID_LOG_PATH, 
+                  7, 22, 152, 14, 
+                  ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER
+                  
+    PUSHBUTTON    "Browse...",
+                  ID_BROWSE, 
+                  163, 22, 50, 14
+END
+
 IDD_MAINDIALOG DIALOGEX
 70, 60, 242, 129
 STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
@@ -97,34 +119,10 @@ CAPTION "diff_ext setup"
 FONT 8, "Helv"
 CLASS "diff-ext-setup"
 BEGIN
-/*
-    GROUPBOX      "Diff command", 			
-                  ID_GROUP, 
-                  7, 7, 214, 46
-    EDITTEXT      
-                  ID_DIFF_COMMAND, 
-                  14, 18, 145, 14, 
-                  ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
-                  
-    PUSHBUTTON    "Browse...",
-                  ID_BROWSE, 
-                  163, 18, 50, 14
-    AUTOCHECKBOX  "Can compare folders",
-                  ID_DIFF_DIRS, 
-                  14, 36, 90, 10,
-                  WS_DISABLED
-    LTEXT         "Language",
-                  104, 
-                  7, 60, 35, 8
-    COMBOBOX      
-                  ID_LANGUAGE, 
-                  46, 59, 100, 130, 
-                  CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-*/
     CONTROL         "", 
 		  ID_TAB, 
 		  "SysTabControl32", 
-		  WS_TABSTOP, 
+		  WS_TABSTOP | WS_CLIPSIBLINGS, 
 		  6, 6, 228, 98
     DEFPUSHBUTTON "OK", 
                   IDOK, 
@@ -166,10 +164,10 @@ BEGIN
 END
 
 ID_MAINDIALOG_LAYOUT RCDATA {
-  110L, /* ID_TAB */
+  ID_TAB, /* ID_TAB */
     3L, /* ANCOR_LEFT | ANCOR_TOP */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
-  106L, /*ID_ABOUT*/
+  ID_ABOUT, /*ID_ABOUT*/
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
   2L, /*IDCANCEL*/ 
@@ -178,16 +176,19 @@ ID_MAINDIALOG_LAYOUT RCDATA {
   1L, /*IDOK*/ 
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
-  108L, /*ID_APPLY*/ 
+  ID_APPLY, /*ID_APPLY*/ 
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
-  103L, /*ID_GROUP*/ 
+  ID_GROUP, /*ID_GROUP*/ 
     3L, /* ANCOR_LEFT | ANCOR_TOP */
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  102L, /*ID_DIFF_COMMAND*/ 
+  ID_DIFF_COMMAND, /*ID_DIFF_COMMAND*/ 
     3L, /* ANCOR_LEFT | ANCOR_TOP */
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  105L, /*ID_BROWSE*/ 
+  ID_BROWSE, /*ID_BROWSE*/ 
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
+    6L, /* ANCOR_RIGHT | ANCOR_TOP */
+  ID_LOG_PATH, /*ID_LOG_PATH*/ 
+    3L, /* ANCOR_LEFT | ANCOR_TOP */
     6L /* ANCOR_RIGHT | ANCOR_TOP */
 }

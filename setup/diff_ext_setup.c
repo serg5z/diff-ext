@@ -5,6 +5,7 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
+#define SIDEBYSIDE_COMMONCONTROLS 1
 
 #include <windows.h>
 #include <windowsx.h>
@@ -25,6 +26,7 @@ typedef struct {
 
 static BOOL CALLBACK DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
 static BOOL CALLBACK options_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
+static BOOL CALLBACK debug_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
 
 static HANDLE resource;
 static WINDOW_PLACEMENT* window_placement = 0;
@@ -109,26 +111,26 @@ InitializeApp(HWND dialog, WPARAM wParam, LPARAM lParam) {
   HGLOBAL dialog_handle;
   HRSRC resource_handle;
   DLGTEMPLATE* dialog_template;
-  LAYOUT* layout;
+  LAYOUT* options_layout;
+  LAYOUT* debug_layout;
   
   TCITEM item1;
   TCITEM item2;
+
+  options_layout = create_layout(resource, MAKEINTRESOURCE(IDD_OPTIONS), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
+  debug_layout = create_layout(resource, MAKEINTRESOURCE(IDD_DEBUG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
 
   resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_OPTIONS), RT_DIALOG);
   dialog_handle = LoadResource(resource, resource_handle);
   dialog_template = (DLGTEMPLATE*)LockResource(dialog_handle);
 
-  layout = create_layout(resource, MAKEINTRESOURCE(IDD_OPTIONS), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
-/*  can not do because have to specify hinst as module instance and load dialog from translated resource only dll...
-  ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)DialogFunc);
-*/  
-/*
-  exit = DialogBoxIndirectParam(instance, dialog, NULL, (DLGPROC)DialogFunc, (LPARAM)layout);
-  
-  pages[0] = CreateDialog(resource, MAKEINTRESOURCE(IDD_OPTIONS), dialog, options_func);
-*/
-  pages[0] = CreateDialogIndirectParam(resource, dialog_template, dialog, (DLGPROC)options_func, (LPARAM)layout);
-  pages[1] = CreateDialogIndirectParam(resource, dialog_template, dialog, (DLGPROC)options_func, (LPARAM)layout);
+  pages[0] = CreateDialogIndirectParam(resource, dialog_template, dialog, (DLGPROC)options_func, (LPARAM)options_layout);
+
+  resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_DEBUG), RT_DIALOG);
+  dialog_handle = LoadResource(resource, resource_handle);
+  dialog_template = (DLGTEMPLATE*)LockResource(dialog_handle);
+
+  pages[1] = CreateDialogIndirectParam(resource, dialog_template, dialog, (DLGPROC)debug_func, (LPARAM)debug_layout);
   
   printf("%d\n", GetLastError());
   
@@ -349,7 +351,72 @@ options_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         ret = TRUE;
       }
-      break;      
+      break;
+  }
+  
+  return ret;
+}
+  
+static BOOL CALLBACK
+debug_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
+  BOOL ret = FALSE;
+
+  switch (msg) {
+    case WM_INITDIALOG:
+      SetWindowLongPtr(dialog, DWLP_USER, lParam);
+      ret = TRUE;
+      break;
+
+    case WM_GETMINMAXINFO: {
+        LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(dialog, DWLP_USER);
+        MINMAXINFO* min_max_info = (MINMAXINFO*)lParam;
+        RECT client;
+        WINDOWINFO info;
+
+        client.top = 0;
+        client.bottom = layout->height;
+        client.left = 0;
+        client.right = layout->width;
+
+        MapDialogRect(dialog, &client);
+        GetWindowInfo(dialog, &info);
+        AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);
+
+        min_max_info->ptMinTrackSize.x = client.right-client.left;
+        min_max_info->ptMinTrackSize.y = client.bottom-client.top;
+        ret = TRUE;
+      }
+      break;
+
+    case WM_MOVE: {
+        RECT rect;
+        
+        GetWindowRect(dialog, &rect);
+        window_placement->x = rect.left;
+        window_placement->y = rect.top;
+        window_placement->width = rect.right-rect.left;
+        window_placement->height = rect.bottom-rect.top;
+      }
+      break;
+      
+    case WM_SIZE: {
+        RECT rect;
+        
+/**/
+        layout(dialog);
+/* redraw them all*/
+        GetWindowRect(dialog, &rect);
+        window_placement->x = rect.left;
+        window_placement->y = rect.top;
+        window_placement->width = rect.right-rect.left;
+        window_placement->height = rect.bottom-rect.top;
+
+        InvalidateRect(dialog, 0, TRUE);
+        UpdateWindow(dialog);
+
+        ret = TRUE;
+      }
+      break;
   }
   
   return ret;
