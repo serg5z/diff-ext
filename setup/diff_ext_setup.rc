@@ -77,7 +77,7 @@ BEGIN
     PUSHBUTTON    "Browse...",
                   ID_BROWSE, 
                   163, 18, 50, 14
-    AUTOCHECKBOX  "can compare folders",
+    AUTOCHECKBOX  "Can compare folders",
                   ID_DIFF_DIRS, 
                   14, 36, 90, 10,
                   WS_DISABLED

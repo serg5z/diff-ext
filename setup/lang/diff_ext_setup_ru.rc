@@ -77,7 +77,7 @@ BEGIN
     PUSHBUTTON    "Обзор...",
                   ID_BROWSE, 
                   168, 18, 50, 14
-    AUTOCHECKBOX  "может сравнивать директории",
+    AUTOCHECKBOX  "Может сравнивать директории",
                   ID_DIFF_DIRS, 
                   14, 36, 120, 10,
                   WS_DISABLED
