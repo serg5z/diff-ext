@@ -5,6 +5,10 @@
 #include "diff_ext_setup_res.h"
 
 #ifndef __LCC__
+  #ifdef __MINGW32__
+  #define MANIFEST 24
+  #endif
+
 1 MANIFEST "diff_ext_setup.manifest"
 #endif
 
