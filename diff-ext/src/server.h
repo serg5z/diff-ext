@@ -12,7 +12,7 @@ class SERVER {
     static SERVER* instance() {
       if(_instance == 0) {
 	_instance = new SERVER();
-        MessageBox(0, TEXT("new SERVER"), TEXT("info"), MB_OK);
+//        MessageBox(0, TEXT("new SERVER"), TEXT("info"), MB_OK);
       }
       
       return _instance;
@@ -48,6 +48,7 @@ class SERVER {
   private:
     LONG _refference_count;
     DLIST<STRING>* _recent_files;
+    unsigned int _history_size;
     FILE_SINK* _file_sink;
     static SERVER* _instance;
 };

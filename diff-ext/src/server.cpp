@@ -181,9 +181,7 @@ SERVER::recent_files() {
     history_size = max_history_size;
   }
   
-  if(history_size < 0) {
-    history_size = 8;
-  }
+  _history_size = history_size;
 
   DLIST<STRING>* new_history = new DLIST<STRING>();
   

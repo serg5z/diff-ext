@@ -610,11 +610,10 @@ DIFF_EXT::diff_later() {
   }
 
   if(!found) {
-/* TODO!    
-    if(_recent_files->full()) {
-      _recent_files->pop_back();
+    if(_recent_files->count() == SERVER::instance()->history_size()) {
+      DLIST<STRING>::ITERATOR t = _recent_files->tail();
+      _recent_files->remove(t);
     }
-*/
     _recent_files->prepend(_file_name1);
   } else {
     _recent_files->prepend(node);
