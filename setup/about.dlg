@@ -16,7 +16,7 @@ BEGIN
 	  IDOK, 
 	  157, 52, 50, 14
 		  
-    ICON  "main_icon", 
+    ICON  MAIN_ICON, 
 	  203, 
 	  7, 7, 21, 20
     CTEXT "diff_ext", 

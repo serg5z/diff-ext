@@ -160,7 +160,7 @@ debug_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
 
         case ID_BROWSE: {
             OPENFILENAME ofn;
-            TCHAR log_path[MAX_PATH] = "";
+            TCHAR log_path[MAX_PATH] = TEXT("");
 
             ZeroMemory(&ofn, sizeof(OPENFILENAME));
             ofn.lStructSize = sizeof(OPENFILENAME);

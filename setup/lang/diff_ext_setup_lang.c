@@ -1,8 +1,8 @@
 #include <windows.h>
 
-int APIENTRY __declspec(dllexport)
+BOOL WINAPI
 DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved) {
-  switch (fdwReason)
+  switch (dwReason)
   {
     case DLL_PROCESS_ATTACH:
       break;

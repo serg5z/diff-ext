@@ -31,7 +31,7 @@ BEGIN
                   7, 45, 95, 8,
 		  WS_DISABLED
                   
-    EDITTEXT  "",
+    EDITTEXT  
                   ID_LOG_LEVEL, 
                   105, 43, 30, 12,
                   ES_AUTOHSCROLL | ES_NUMBER | ES_RIGHT | WS_GROUP | WS_TABSTOP | WS_DISABLED

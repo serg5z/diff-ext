@@ -31,17 +31,18 @@ BEGIN
                   7, 45, 35, 8,
 		  WS_DISABLED
                   
-    EDITTEXT  "",
+    EDITTEXT  
                   ID_LOG_LEVEL, 
                   45, 43, 30, 12,
                   ES_AUTOHSCROLL | ES_NUMBER | ES_RIGHT | WS_GROUP | WS_TABSTOP | WS_DISABLED
                   
-    CONTROL "", 
+    CONTROL "",
                   ID_LOG_LEVEL_BUTTON, 
-                  "msctls_updown32", 
+                  UPDOWN_CLASS, 
                   0xb6, 
                   89, 43, 15, 12,
 		  WS_DISABLED
+		  
 END
 
 ID_LOGGING_LAYOUT RCDATA {

@@ -39,7 +39,7 @@ WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
   HKEY key;
   DWORD language = 0;
   DWORD hlen;
-  char language_lib[MAX_PATH];
+  TCHAR language_lib[MAX_PATH];
   HGLOBAL dialog_handle;
   HRSRC resource_handle;
   DLGTEMPLATE* dialog;
@@ -65,10 +65,10 @@ WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
     wc.lpfnWndProc = DefDlgProc;
     wc.cbWndExtra = DLGWINDOWEXTRA;
     wc.hInstance = instance;
-    wc.hIcon = LoadIcon(resource, "main_icon");
+    wc.hIcon = LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON));
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
-    wc.lpszClassName = "diff-ext-setup";
+    wc.lpszClassName = TEXT("diff-ext-setup");
     UnregisterClass(wc.lpszClassName, instance);
     RegisterClass(&wc);
   

@@ -67,4 +67,4 @@ $(EXE): $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)
 
 .rc.res:
-	$(WINDRES)  $< -I rc -o $@ -O coff -DMING
+	$(WINDRES)  $< -J rc -o $@ -O coff -DMING

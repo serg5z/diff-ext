@@ -68,7 +68,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   HKEY key;
   TCHAR command[MAX_PATH] = TEXT("");
   TCHAR home[MAX_PATH] = TEXT(".");
-  LRESULT language = 1033;
+  DWORD language = 1033;
   HANDLE file;
   WIN32_FIND_DATA file_info;
   TCHAR prefix[] = TEXT("diff_ext_setup");
@@ -107,7 +107,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
   }
 
-  free(locale_info);
+  free(locale_info); 
   curr++;
 
   lstrcat(home, "\\");
@@ -120,12 +120,16 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     BOOL stop = FALSE;
 
     while(stop == FALSE) {
-      char* str = file_info.cFileName+sizeof(prefix)/sizeof(char)-1;
+      TCHAR* str = file_info.cFileName+sizeof(prefix)/sizeof(prefix[0])-1;
       DWORD lang_id;
 
-      str[sizeof(root)/sizeof(char)-1] = 0;
+      str[sizeof(root)/sizeof(root[0])-1] = 0;
 
-      lang_id = atoi(str);
+#ifdef UNICODE
+      lang_id = _wtoi(str);
+#else
+	  lang_id = atoi(str);
+#endif
 
       locale_info_size = GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, 0, 0);
       locale_info = (TCHAR*)malloc(locale_info_size);
@@ -179,7 +183,7 @@ options_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
 
         case ID_BROWSE: {
             OPENFILENAME ofn;
-            TCHAR szFile[MAX_PATH] = "";
+            TCHAR szFile[MAX_PATH] = TEXT("");
 
             ZeroMemory(&ofn, sizeof(OPENFILENAME));
             ofn.lStructSize = sizeof(OPENFILENAME);

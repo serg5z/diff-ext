@@ -8,21 +8,20 @@
 
 #ifndef __BORLANDC__
 #include <windows.h>
+#include <commctrl.h>
 #endif
 #include "diff_ext_setup.rh"
 
 #ifndef __LCC__
-  #ifdef __MINGW32__
   #define MANIFEST 24
-  #endif
 
 1 MANIFEST "diff_ext_setup.manifest"
 #endif
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,3,0,82
- PRODUCTVERSION 1,3,0,82
+ FILEVERSION 1,3,0,89
+ PRODUCTVERSION 1,3,0,89
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -56,7 +55,7 @@ VS_VERSION_INFO VERSIONINFO
     }
 }
 
-main_icon ICON "de.ico"
+MAIN_ICON ICON "de.ico"
 
 #include "options.dlg"
 #include "logging.dlg"
