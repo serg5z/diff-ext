@@ -325,7 +325,8 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
         window_placement->width = rect.right-rect.left;
         window_placement->height = rect.bottom-rect.top;
 
-	RedrawWindow(dialog, 0, 0, RDW_ALLCHILDREN | RDW_INVALIDATE);
+/*	RedrawWindow(dialog, 0, 0, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW);*/
+        InvalidateRect(dialog, 0, TRUE);
 
 	ret = TRUE;
       }

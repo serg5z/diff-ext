@@ -5,6 +5,9 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
+#include <windows.h>
+#include <commctrl.h>
+
 #include "layout.h"
 #include "page.h"
 
@@ -65,6 +68,10 @@ create_debug_page(HANDLE resource, HWND parent) {
 
 static void
 init(HWND dialog, WPARAM not_used, LPARAM l_param) {
+  HWND button = GetDlgItem(dialog, ID_LOG_LEVEL_BUTTON);
+  
+  SendMessage(button, UDM_SETRANGE, 0, (LPARAM) MAKELONG (20, 0));
+  
   SetWindowLongPtr(dialog, DWLP_USER, l_param);
 }
 

@@ -1,4 +1,5 @@
 BUILD ?= .
+UPDATE_VERSION ?= ../bin/update_version
 
 CXX  ?= g++.exe
 CC   ?= gcc.exe
@@ -7,7 +8,7 @@ WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
 
 CXXFLAGS += -g -I../../util/include
-CFLAGS += -Wall -ansi -g -I../../util/include
+CFLAGS += -Wall -ansi -pedantic -g -I../../util/include
 LIBS :=  -lcomdlg32 -lcomctl32 -lversion
 LDFLAGS += -mwindows
 RES  := diff_ext_setup.res
@@ -17,6 +18,7 @@ EXPLIB = diff_ext.exp
 
 SRC-CXX = $(wildcard *.cpp)
 SRC-C$ = $(wildcard *.c)
+SRC-RC = $(wildcard *.rc)
 
 OBJ  := $(SRC-CXX:.cpp=.o) $(SRC-C:.c=.o)
 OBJ += $(RES)
@@ -39,6 +41,9 @@ all: .depend all-before $(EXE) $(LANG) all-after
 	$(CXX) -M $(CXXFLAGS) $(SRC-C) $(SRC-RC) $(SRC-CXX) > .depend
 	
 include .depend
+
+all-after: $(SRC-RC)
+	$(UPDATE_VERSION)  --input $< --output $<
 
 clean: clean-custom
 	${RM}  $(OBJ) $(EXE) ${RES} ${EXPLIB} $(STATICLIB) $(LANG) lang/$(PROJ)_ru.res

@@ -40,7 +40,7 @@ clean: clean-custom
 	${RM}  $(OBJ) $(LIBRARY) ${RES} ${EXPLIB} $(STATICLIB)
 
 $(LIBRARY): $(OBJ)
-	$(AR) -r $@ $(OBJ)
+	$(AR) $@ $(OBJ)
 
 .cpp.o:
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
