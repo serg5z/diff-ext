@@ -9,7 +9,7 @@
 #ifndef __BORLANDC__
 #include <windows.h>
 #endif
-#include "../diff_ext_setup_res.h"
+#include "../diff_ext_setup.rh"
 
 #ifndef __LCC__
   #ifdef __MINGW32__
@@ -24,7 +24,7 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 MAIN_ICON ICON "de.ico"
 
 IDD_MAINDIALOG DIALOGEX 
-86, 69, 195, 100
+86, 69, 210, 100
 STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Установки diff_ext"
 FONT 8, "Helv"
@@ -32,15 +32,15 @@ CLASS "diff-ext-setup"
 BEGIN
     GROUPBOX      "Программа сравнения",
                   ID_GROUP, 
-                  5, 5, 185, 45
+                  5, 5, 200, 45
     EDITTEXT      
                   ID_DIFF_COMMAND, 
-                  10, 15, 130, 12, 
+                  10, 15, 145, 12, 
                   ES_AUTOHSCROLL | WS_GROUP, 
                   WS_EX_CLIENTEDGE
     PUSHBUTTON    "Обзор...",
                   ID_BROWSE, 
-                  145, 14, 40, 14
+                  160, 14, 40, 14
     AUTOCHECKBOX  "может сравнивать директории",
                   ID_DIFF_DIRS, 
                   10, 35, 120, 10,
@@ -54,14 +54,17 @@ BEGIN
                   CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON "OK", 
                   IDOK, 
-                  45, 80, 40, 14, 
+                  5, 80, 40, 14, 
                   WS_GROUP
     PUSHBUTTON    "Отмена",
                   IDCANCEL,
-                  90, 80, 40, 14
+                  50, 80, 40, 14
+    PUSHBUTTON    "Применить",
+                  ID_APPLY,
+                  95, 80, 50, 14
     PUSHBUTTON    "О программе",
                   ID_ABOUT,
-                  135, 80, 55, 14,
+                  150, 80, 55, 14,
                   WS_DISABLED
 END
 
@@ -80,6 +83,9 @@ ID_MAINDIALOG_LAYOUT RCDATA {
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
   2L, /*IDCANCEL*/ 
+    12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
+    12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
+  108L, /*ID_APPLY*/ 
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
   1L, /*IDOK*/ 

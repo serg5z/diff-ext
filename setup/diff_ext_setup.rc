@@ -9,7 +9,7 @@
 #ifndef __BORLANDC__
 #include <windows.h>
 #endif
-#include "diff_ext_setup_res.h"
+#include "diff_ext_setup.rh"
 
 #ifndef __LCC__
   #ifdef __MINGW32__
@@ -52,10 +52,13 @@ BEGIN
                   CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON "OK", 
                   IDOK, 
-                  60, 80, 40, 14, 
+                  15, 80, 40, 14, 
                   WS_GROUP
     PUSHBUTTON    "Cancel",
                   IDCANCEL, 
+                  60, 80, 40, 14
+    PUSHBUTTON    "Apply",
+                  ID_APPLY, 
                   105, 80, 40, 14
     PUSHBUTTON    "About",
                   ID_ABOUT, 
@@ -85,6 +88,9 @@ ID_MAINDIALOG_LAYOUT RCDATA {
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
   1L, /*IDOK*/ 
+    12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
+    12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
+  108L, /*ID_APPLY*/ 
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
   103L, /*ID_GROUP*/ 

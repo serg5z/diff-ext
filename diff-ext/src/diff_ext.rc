@@ -14,8 +14,8 @@
 #define str(x) #x
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,8,0,0
- PRODUCTVERSION 0,8,0,0
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x3L
@@ -30,17 +30,17 @@ VS_VERSION_INFO VERSIONINFO
     {
         BLOCK "040904b0"
         {
-            VALUE "Comments", "Developed using COM architecture!\0"
+            VALUE "Comments", "\0"
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diff shell extension\0"
-            VALUE "FileVersion", "0, 8, 0, 0\0"
+            VALUE "FileVersion", "1, 0, 0, 0\0"
             VALUE "InternalName", "diff shell extension\0"
-            VALUE "LegalCopyright", "Copyright © 2003 Sergey Zorin\0"
-            VALUE "LegalTrademarks", "Sergey Zorin's diff Context Menu Extension\0"
+            VALUE "LegalCopyright", "Copyright © 2003, 2004 Sergey Zorin\0"
+            VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "diff_ext.dll\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "Sergey Zorin's diff Context Menu Extension\0"
-            VALUE "ProductVersion", "0, 8, 0, 0\0"
+            VALUE "ProductName", "Diff Context Menu Extension\0"
+            VALUE "ProductVersion", "1, 0, 0, 0\0"
 
 #if defined(__GNUC__)
             VALUE "SpecialBuild", "Build With " "MingW " xstr(__GNUC__) "." xstr(__GNUC_MINOR__) "." xstr(__GNUC_PATCHLEVEL__)  " on " __DATE__ " " __TIME__ "\0"
