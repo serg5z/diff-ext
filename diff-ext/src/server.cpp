@@ -17,6 +17,9 @@
 #include <objbase.h>
 #include <initguid.h>
 
+#include <log/log.h>
+#include <log/file_sink.h>
+
 #include "server.h"
 #include "class_factory.h"
 
@@ -98,9 +101,40 @@ DllUnregisterServer() {
   return SERVER::instance()->do_unregister();
 }
 
+SERVER::SERVER()  : _refference_count(0), _recent_files(0), _file_sink(0) {
+  HKEY key;
+  TCHAR log_path[MAX_PATH] = TEXT("");
+  LRESULT enabled = 0;
+  LRESULT level = 1;
+    
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    DWORD hlen = MAX_PATH;
+  
+    RegQueryValueEx(key, TEXT("log_file"), 0, NULL, (BYTE*)log_path, &hlen);
+    RegQueryValueEx(key, TEXT("log_level"), 0, NULL, (BYTE*)(&level), &hlen);
+
+    hlen = sizeof(DWORD);
+    if(RegQueryValueEx(key, TEXT("log"), 0, NULL, (BYTE*)(&enabled), &hlen) != ERROR_SUCCESS) {
+      enabled = 0;
+    }
+
+    RegCloseKey(key);
+  }
+  
+  if(enabled == 1) {
+    _file_sink = new FILE_SINK(log_path, level);
+    
+    LOG::instance()->add_sink(_file_sink);
+  }
+}
+
 SERVER::~SERVER() {
   if(_recent_files != 0) {
     delete _recent_files;
+  }
+  
+  if(_file_sink != 0) {
+    delete _file_sink;
   }
 }
 
@@ -162,7 +196,6 @@ SERVER::recent_files() {
         len = MAX_PATH;
 	if(RegQueryValueEx(key, no[i], 0, 0, (BYTE*)file, &len) == ERROR_SUCCESS) {
 	  new_history->push_back(file);
-MessageBox(0, file, "read", MB_OK);	  
 	} else {
 	  stop = true;
 	  LPTSTR message;

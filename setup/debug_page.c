@@ -26,14 +26,17 @@ apply(PAGE* page) {
   HKEY key;
   TCHAR log_path[MAX_PATH];
   LRESULT enabled = 0;
+  UINT level;
   
   GetDlgItemText(page->page, ID_LOG_PATH, log_path, MAX_PATH);
+  level = GetDlgItemInt(page->page, ID_LOG_LEVEL, 0, FALSE);
   if(IsDlgButtonChecked(page->page, ID_ENABLE_LOGGING)) {
     enabled = 1;
   }
 
   RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_SET_VALUE, &key);
   RegSetValueEx(key, TEXT("log_file"), 0, REG_SZ, (const BYTE*)log_path, lstrlen(log_path));
+  RegSetValueEx(key, TEXT("log_level"), 0, REG_DWORD, (const BYTE*)&level, sizeof(level));
   RegSetValueEx(key, TEXT("log"), 0, REG_DWORD, (const BYTE*)&enabled, sizeof(enabled));
   RegCloseKey(key);
 }
@@ -104,11 +107,13 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   HKEY key;
   TCHAR log_path[MAX_PATH] = TEXT("");
   LRESULT enabled = 0;
+  LRESULT level = 1;
     
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     DWORD hlen = MAX_PATH;
   
     RegQueryValueEx(key, TEXT("log_file"), 0, NULL, (BYTE*)log_path, &hlen);
+    RegQueryValueEx(key, TEXT("log_level"), 0, NULL, (BYTE*)(&level), &hlen);
 
     hlen = sizeof(DWORD);
     if(RegQueryValueEx(key, TEXT("log"), 0, NULL, (BYTE*)(&enabled), &hlen) != ERROR_SUCCESS) {
@@ -127,6 +132,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   }
   
   SetDlgItemText(dialog, ID_LOG_PATH, log_path);
+  SetDlgItemInt(dialog, ID_LOG_LEVEL, level, FALSE);
   SendMessage(log_level_button, UDM_SETRANGE, 0, (LPARAM) MAKELONG (20, 0));
   
   SetWindowLongPtr(dialog, DWLP_USER, l_param);

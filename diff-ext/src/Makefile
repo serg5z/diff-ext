@@ -3,7 +3,7 @@
 # Can be used for Cygwin and MingW (MingW ignores -mno-cygwin)
 #
 BUILD ?= .
-UPDATE_VERSION ?= echo "Version has not been changed for this build."
+UPDATE_VERSION ?= ../../bin/update_version
 
 CXX  ?= g++.exe
 CC   ?= gcc.exe

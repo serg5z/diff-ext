@@ -31,7 +31,7 @@ BEGIN
                   7, 45, 35, 8,
 		  WS_DISABLED
                   
-    EDITTEXT  "Enable logging",
+    EDITTEXT  "",
                   ID_LOG_LEVEL, 
                   45, 43, 30, 12,
                   ES_AUTOHSCROLL | ES_NUMBER | ES_RIGHT | WS_GROUP | WS_TABSTOP | WS_DISABLED
