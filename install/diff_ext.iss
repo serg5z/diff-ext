@@ -9,7 +9,7 @@ DefaultDirName={pf}\Z\diff_ext
 DefaultGroupName=Z\diff_ext
 DisableProgramGroupPage=false
 OutputDir=.
-OutputBaseFilename=diff_ext-1.0
+OutputBaseFilename=diff_ext-1.1
 
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
 ; MinVersion=4,3.51
@@ -38,9 +38,12 @@ Name: {group}\Uninstall diff-ext; Filename: {uninstallexe}
 Filename: {app}\diff_ext_setup.exe
 
 [Registry]
+Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: string; ValueName: log_file; ValueData: <path to log>; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: string; ValueName: diff; ValueData: <path to diff>; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: string; ValueName: home; ValueData: {app}; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: language; ValueData: 1033; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: log; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: log_level; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z; Flags: uninsdeletekeyifempty uninsdeletevalue
 
 ;Root: HKCR; Subkey: "*\shellex\ContextMenuHandlers\diff_ext"; ValueType: string; ValueName: ""; ValueData: "{{A0482097-C69D-4DEC-8AB6-D3A259ACC151}"; Flags: uninsdeletekey

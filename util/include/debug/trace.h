@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ *
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
+ *
+ */
 #ifndef __trace_h__
 #define __trace_h__
 
@@ -8,7 +15,7 @@
 
 class TRACE {
   public:
-    TRACE(const char* function, const char* file, unsigned int line, unsigned int level = 0) : _function(function), _file(file), _line(line), _level(level) {
+    TRACE(const char* function, const char* file, unsigned int line, unsigned int level = 3) : _function(function), _file(file), _line(line), _level(level) {
       char* msg = _message;
       
       for(unsigned int i = 0; i < _indent; i++) {

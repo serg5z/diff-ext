@@ -5,13 +5,19 @@
 BUILD ?= .
 UPDATE_VERSION ?= ../../bin/update_version
 
+DEBUG ?= 
 CXX  ?= g++.exe
 CC   ?= gcc.exe
 AR ?= ar.exe -r
 WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
-CXXFLAGS ?= -g -ansi -pedantic -Wall
-CFLAGS ?= -g -ansi -pedantic -Wall
+ifdef DEBUG
+  CXXFLAGS ?= -g -ansi -pedantic -Wall
+  CFLAGS ?= -g -ansi -pedantic -Wall
+else
+  CXXFLAGS ?= -ansi -pedantic -Wall
+  CFLAGS ?= -ansi -pedantic -Wall
+endif
 LDFLAGS ?= -L$(LIB)
 LIB ?= ../../lib
 
@@ -43,6 +49,13 @@ LANG := $(LANG_RU)
 
 all: .depend all-before $(DLL) $(LANG) all-after
 
+debug:
+	$(MAKE) DEBUG=YES
+
+release:
+	$(MAKE) 
+	strip $(DLL) $(LANG)
+
 .depend: Makefile $(SRC-C) $(SRC-RC) $(SRC-CXX)
 	$(CXX) -M $(CXXFLAGS) $(SRC-C) $(SRC-RC) $(SRC-CXX) > .depend
 	
@@ -60,7 +73,6 @@ $(LANG_RU) : lang/$(PROJ)_ru.res
 	--def lang/$(PROJ)_lang.def \
 	--output-exp ${EXPLIB} \
 	$< -o $@
-#	strip $@
 
 $(DLL): $(OBJ)
 	$(DLLWRAP) \
@@ -71,7 +83,6 @@ $(DLL): $(OBJ)
 		--implib $(STATICLIB) \
 		$(OBJ) $(LDFLAGS) $(LIBS) \
 		-o $@
-#	strip $@
 
 .cpp.o:
 	$(CXX) -c $< -o $@ $(CXXFLAGS)

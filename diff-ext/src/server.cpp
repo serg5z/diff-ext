@@ -105,7 +105,7 @@ SERVER::SERVER()  : _refference_count(0), _recent_files(0), _file_sink(0) {
   HKEY key;
   TCHAR log_path[MAX_PATH] = TEXT("");
   LRESULT enabled = 0;
-  LRESULT level = 1;
+  LRESULT level = 0;
     
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     DWORD hlen = MAX_PATH;
@@ -192,7 +192,7 @@ SERVER::recent_files() {
       TCHAR file[MAX_PATH];
       bool stop = false;
       
-      for(int i = 0; !stop && (no[i] != 0) && (i < history_size); i++) {
+      for(unsigned int i = 0; !stop && (no[i] != 0) && (i < history_size); i++) {
         len = MAX_PATH;
 	if(RegQueryValueEx(key, no[i], 0, 0, (BYTE*)file, &len) == ERROR_SUCCESS) {
 	  new_history->push_back(file);
