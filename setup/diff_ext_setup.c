@@ -297,7 +297,7 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	    language = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
 
             RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_SET_VALUE, &key);
-            RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, strlen(command));
+            RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, lstrlen(command));
             RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
             RegCloseKey(key);
 
