@@ -1,5 +1,5 @@
 [Setup]
-Compression=lzma
+Compression=lzma/normal
 SolidCompression=yes
 AppName=diff_ext
 AppId=A0482097-C69D-4DEC-8AB6-D3A259ACC151
