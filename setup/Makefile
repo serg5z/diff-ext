@@ -8,7 +8,7 @@ DLLWRAP ?= dllwrap.exe
 
 CXXFLAGS += -I../../util/include
 CFLAGS += -g -I../../util/include
-LIBS :=  -lcomdlg32 -lcomctl32
+LIBS :=  -lcomdlg32 -lcomctl32 -lversion
 LDFLAGS += -mwindows
 RES  := diff_ext_setup.res
 DEFFILE = diff_ext.def

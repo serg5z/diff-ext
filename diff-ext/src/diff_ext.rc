@@ -13,41 +13,36 @@
 #define xstr(x) str(x)
 #define str(x) #x
 
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 1,0,0,0
  PRODUCTVERSION 1,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
- FILEFLAGS 0x3L
+ FILEFLAGS VS_FF_DEBUG
 #else
- FILEFLAGS 0x2L
+ FILEFLAGS 0L
 #endif
- FILEOS 0x4L
+ FILEOS VOS_NT_WINDOWS32
  FILETYPE VFT_DLL
- FILESUBTYPE 0x0L
+ FILESUBTYPE VFT_UNKNOWN
 {
     BLOCK "StringFileInfo"
     {
         BLOCK "040904b0"
         {
-            VALUE "Comments", "\0"
+            VALUE "Comments", ""
             VALUE "CompanyName", ""
-            VALUE "FileDescription", "diff shell extension\0"
-            VALUE "FileVersion", "1, 0, 0, 0\0"
-            VALUE "InternalName", "diff shell extension\0"
-            VALUE "LegalCopyright", "Copyright © 2003, 2004 Sergey Zorin\0"
-            VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "diff_ext.dll\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "Diff Context Menu Extension\0"
-            VALUE "ProductVersion", "1, 0, 0, 0\0"
-
-#if defined(__GNUC__)
-            VALUE "SpecialBuild", "Build With " "MingW " xstr(__GNUC__) "." xstr(__GNUC_MINOR__) "." xstr(__GNUC_PATCHLEVEL__)  " on " __DATE__ " " __TIME__ "\0"
-#else
-            VALUE "SpecialBuild", "Unknown compiler\0"
-
-#endif
+            VALUE "FileDescription", "diff shell extension"
+            VALUE "FileVersion", "Release 1.0"
+            VALUE "InternalName", "diff shell extension"
+            VALUE "LegalCopyright", "Copyright © 2003, 2004 Sergey Zorin"
+            VALUE "LegalTrademarks", ""
+            VALUE "OriginalFilename", "diff_ext.dll"
+            VALUE "PrivateBuild", ""
+            VALUE "ProductName", "Diff Context Menu Extension"
+            VALUE "ProductVersion", "Release 1.0"
         }
     }
     BLOCK "VarFileInfo"

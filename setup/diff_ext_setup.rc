@@ -19,7 +19,45 @@
 1 MANIFEST "diff_ext_setup.manifest"
 #endif
 
-MAIN_ICON ICON "de.ico"
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#else
+ FILEFLAGS 0L
+#endif
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE VFT_UNKNOWN
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "040904b0"
+        {
+            VALUE "Comments", ""
+            VALUE "CompanyName", ""
+            VALUE "FileDescription", "diff shell extension setup"
+            VALUE "FileVersion", "Release 1.0"
+            VALUE "InternalName", "diff shell extension setup"
+            VALUE "LegalCopyright", "Copyright © 2003, 2004 Sergey Zorin"
+            VALUE "LegalTrademarks", ""
+            VALUE "OriginalFilename", "diff_ext_setup.exe"
+            VALUE "PrivateBuild", ""
+            VALUE "ProductName", "Diff Context Menu Extension"
+            VALUE "ProductVersion", "Release 1.0"
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x409, 1200
+    }
+}
+
+main_icon ICON "de.ico"
 
 IDD_MAINDIALOG DIALOGEX
 70, 60, 195, 100
@@ -62,22 +100,34 @@ BEGIN
                   105, 80, 40, 14
     PUSHBUTTON    "About",
                   ID_ABOUT, 
-                  150, 80, 40, 14, 
-                  WS_DISABLED
+                  150, 80, 40, 14
 END
 
-DLG_ABOUT DIALOGEX
-105, 100, 178, 109
-STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
-CAPTION "About"
-FONT 8, "MS Sans Serif"
+DLG_ABOUT DIALOGEX 
+140, 40, 214, 70
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About diff_ext"
+FONT 8, "MS Shell Dlg"
 BEGIN
-    PUSHBUTTON  "Ok", 
-                IDOK, 
-                73, 89, 40, 14
-    LTEXT       "About diff-ext-setup", 
-                201,
-                51, 6, 121, 76
+    DEFPUSHBUTTON "&Close", 
+		  IDOK, 
+		  160, 52, 48, 14
+		  
+/*    PUSHBUTTON "View &Licence", IDA_LICENCE, 6, 52, 70, 14*/
+/*    PUSHBUTTON "Visit &Web Site", IDA_WEB, 84, 52, 70, 14*/
+   
+    ICON  "main_icon", 
+	  203, 
+	  5, 5, 21, 20
+    CTEXT "diff_ext", 
+	  201, 
+	  26, 6, 162, 8
+    CTEXT "No version infornation available.", 
+	  ID_VERSION, 
+	  26, 16, 162, 16
+    CTEXT "\251 2003-2004 Sergey Zorin. All rights reserved.", 
+	  202, 
+	  5, 34, 204, 16
 END
 
 ID_MAINDIALOG_LAYOUT RCDATA {

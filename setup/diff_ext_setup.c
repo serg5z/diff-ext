@@ -14,21 +14,22 @@
 
 #include "layout.h"
 
-#include "diff_ext_setup_res.h"
+#include "diff_ext_setup.rh"
 
-typedef struct  {
+typedef struct {
   int x;
   int y;
-  int w;
-  int h;
-} WINDOW_POSITION;
+  int width;
+  int height;
+} WINDOW_PLACEMENT;
 
-WINDOW_POSITION* last_position = 0;
+static BOOL CALLBACK DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
 
-static BOOL CALLBACK DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
+static HANDLE resource;
+static WINDOW_PLACEMENT* window_placement = 0;
 
 int APIENTRY
-WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
+WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
   WNDCLASS wc;
   HRESULT exit = ID_APPLY;
   HKEY key;
@@ -38,7 +39,6 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
   HGLOBAL dialog_handle;
   HRSRC resource_handle;
   DLGTEMPLATE* dialog;
-  HANDLE resource;
   LAYOUT* layout;
 
   while(exit == ID_APPLY) {
@@ -54,17 +54,17 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
     resource = LoadLibrary(language_lib);
   
     if(resource == NULL)
-      resource = hinst;
+      resource = instance;
   
     memset(&wc,0,sizeof(wc));
     wc.lpfnWndProc = DefDlgProc;
     wc.cbWndExtra = DLGWINDOWEXTRA;
-    wc.hInstance = hinst;
+    wc.hInstance = instance;
     wc.hIcon = LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON));
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
     wc.lpszClassName = "diff-ext-setup";
-    UnregisterClass(wc.lpszClassName, hinst);
+    UnregisterClass(wc.lpszClassName, instance);
     RegisterClass(&wc);
   
     SetThreadLocale(LOCALE_USER_DEFAULT);
@@ -78,7 +78,7 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
   /*  can not do because have to specify hinst as module instance and load dialog from translated resource only dll...
     ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)DialogFunc);
   */  
-    exit = DialogBoxIndirectParam(hinst, dialog, NULL, (DLGPROC)DialogFunc, (LPARAM)layout);
+    exit = DialogBoxIndirectParam(instance, dialog, NULL, (DLGPROC)DialogFunc, (LPARAM)layout);
   
     FreeResource(dialog);
     FreeLibrary(resource);
@@ -89,7 +89,7 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
 }
 
 static void
-InitializeApp(HWND hDlg,WPARAM wParam, LPARAM lParam) {
+InitializeApp(HWND dialog, WPARAM wParam, LPARAM lParam) {
   HKEY key;
   TCHAR command[MAX_PATH] = TEXT("");
   TCHAR home[MAX_PATH] = TEXT(".");
@@ -128,11 +128,11 @@ InitializeApp(HWND hDlg,WPARAM wParam, LPARAM lParam) {
   locale_info = (TCHAR*)malloc(locale_info_size);
   GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
 
-  SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
-  SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETITEMDATA, curr, 1033);
+  SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
+  SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETITEMDATA, curr, 1033);
 
   if(language == 1033)
-    SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
+    SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
 
   free(locale_info);
   curr++;
@@ -158,11 +158,11 @@ InitializeApp(HWND hDlg,WPARAM wParam, LPARAM lParam) {
       locale_info = (TCHAR*)malloc(locale_info_size);
       GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
 
-      SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
-      SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETITEMDATA, curr, lang_id);
+      SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
+      SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETITEMDATA, curr, lang_id);
 
       if(lang_id == language)
-        SendDlgItemMessage(hDlg, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
+        SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
 
       free(locale_info);
 
@@ -173,33 +173,102 @@ InitializeApp(HWND hDlg,WPARAM wParam, LPARAM lParam) {
     FindClose(file);
   }
 
-  SetDlgItemText(hDlg, ID_DIFF_COMMAND, command);
-  SendDlgItemMessage(hDlg, ID_DIFF_COMMAND, EM_SETLIMITTEXT, MAX_PATH, 0);
+  SetDlgItemText(dialog, ID_DIFF_COMMAND, command);
+  SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, MAX_PATH, 0);
   
-  SetWindowLongPtr(hDlg, DWLP_USER, lParam);
+  SetWindowLongPtr(dialog, DWLP_USER, lParam);
   
-  if(last_position != 0) {
-    MoveWindow(hDlg, last_position->x, last_position->y, last_position->w, last_position->h, TRUE);
+  if(window_placement == 0) {
+    RECT rect;
+    window_placement = (WINDOW_PLACEMENT*)malloc(sizeof(WINDOW_PLACEMENT));
+    
+    GetWindowRect(dialog, &rect);
+    window_placement->x = rect.left;
+    window_placement->y = rect.top;
+    window_placement->width = rect.right-rect.left;
+    window_placement->height = rect.bottom-rect.top;
+  }
+  else {
+    MoveWindow(dialog, window_placement->x, window_placement->y, window_placement->width, window_placement->height, TRUE);
+  }
+}
+
+static void
+InitializeVersion(HWND dialog, WPARAM w_param, LPARAM l_param) {
+  DWORD file_versioninfo_size;
+  DWORD version_handle;
+  TCHAR path[MAX_PATH];
+  
+  GetModuleFileName(resource, path, sizeof(path)/sizeof(path[0]));
+  file_versioninfo_size = GetFileVersionInfoSize(path, &version_handle);
+  
+  if(file_versioninfo_size > 0) {
+    void* file_versioninfo = malloc(file_versioninfo_size);
+    struct {WORD language; WORD codepage;}* translations;
+    UINT length = 0;
+    TCHAR version_block[] = TEXT("\\StringFileInfo\\12341234\\ProductVersion");
+    TCHAR* product_version;
+    
+    GetFileVersionInfo(path, 0, file_versioninfo_size, file_versioninfo);
+    
+    VerQueryValue(file_versioninfo, "\\VarFileInfo\\Translation", (void**)&translations, &length);
+    
+    if(length > 0) {
+      wsprintf(version_block, TEXT("\\StringFileInfo\\%04x%04x\\ProductVersion"), translations[0].language, translations[0].codepage);
+      
+      VerQueryValue(file_versioninfo, version_block, (void**)&product_version, &length);
+      
+      if(length > 0) {
+	SetDlgItemText(dialog, ID_VERSION, product_version);
+      }
+    }
+    
+    free(file_versioninfo);
   }
 }
 
 static BOOL CALLBACK
-DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
+AboutDialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
   BOOL ret = FALSE;
 
   switch (msg) {
     case WM_INITDIALOG:
-      InitializeApp(hwndDlg,wParam,lParam);
+      InitializeVersion(dialog,wParam,lParam);
+      ret = TRUE;
+      break;
+    
+    case WM_COMMAND:
+      if(LOWORD(wParam) == IDOK) {
+	EndDialog(dialog, 1);
+	ret = TRUE;
+      }
+      break;
+  }
+  
+  return ret;
+}
+
+static BOOL CALLBACK
+DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
+  BOOL ret = FALSE;
+
+  switch(msg) {
+    case WM_INITDIALOG:
+      InitializeApp(dialog,wParam,lParam);
       ret = TRUE;
       break;
 
     case WM_COMMAND:
-      switch (LOWORD(wParam)) {
+      switch(LOWORD(wParam)) {
+	case ID_ABOUT:
+	  DialogBox(resource, MAKEINTRESOURCE(DLG_ABOUT), dialog, AboutDialogFunc);
+	  break;
+	
         case ID_DIFF_COMMAND: {
             static int first = 1;
             if((first != 0) && (HIWORD(wParam) == EN_SETFOCUS)) {
-              SendDlgItemMessage(hwndDlg, ID_DIFF_COMMAND, EM_SETSEL, 0, 0);
-              SendDlgItemMessage(hwndDlg, ID_DIFF_COMMAND, EM_SETMARGINS, EC_RIGHTMARGIN, MAKELPARAM(0, 30));
+              SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETSEL, 0, 0);
+              SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETMARGINS, EC_RIGHTMARGIN, MAKELPARAM(0, 30));
               first = 0;
             }
           }
@@ -223,9 +292,9 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
 	      RegCloseKey(key);
 	    }
 	    
-            GetDlgItemText(hwndDlg, ID_DIFF_COMMAND, command, MAX_PATH);
-	    idx = SendDlgItemMessage(hwndDlg, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
-	    language = SendDlgItemMessage(hwndDlg, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
+            GetDlgItemText(dialog, ID_DIFF_COMMAND, command, MAX_PATH);
+	    idx = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
+	    language = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
 
             RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_SET_VALUE, &key);
             RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, strlen(command));
@@ -233,7 +302,7 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
             RegCloseKey(key);
 
 	    if((LOWORD(wParam) == IDOK) || (language != old_language)) {
-	      EndDialog(hwndDlg,LOWORD(wParam));
+	      EndDialog(dialog, LOWORD(wParam));
 	    }
 	    
             ret = TRUE;
@@ -241,7 +310,7 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
           break;
 
         case IDCANCEL:
-          EndDialog(hwndDlg,IDCANCEL);
+          EndDialog(dialog, IDCANCEL);
           ret = TRUE;
           break;
 
@@ -252,7 +321,7 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             ZeroMemory(&ofn, sizeof(OPENFILENAME));
             ofn.lStructSize = sizeof(OPENFILENAME);
-            ofn.hwndOwner = hwndDlg;
+            ofn.hwndOwner = dialog;
             ofn.lpstrFile = szFile;
             ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
             ofn.lpstrFilter = "Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0";
@@ -264,7 +333,7 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 
             if(GetOpenFileName(&ofn) == TRUE)
-              SetDlgItemText(hwndDlg, ID_DIFF_COMMAND, ofn.lpstrFile);
+              SetDlgItemText(dialog, ID_DIFF_COMMAND, ofn.lpstrFile);
 
             err = CommDlgExtendedError();
 
@@ -275,7 +344,7 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
 
     case WM_GETMINMAXINFO: {
-        LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(hwndDlg, DWLP_USER);
+        LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(dialog, DWLP_USER);
         MINMAXINFO* min_max_info = (MINMAXINFO*)lParam;
         RECT client;
         WINDOWINFO info;
@@ -285,8 +354,8 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
         client.left = 0;
         client.right = layout->width;
 
-        MapDialogRect(hwndDlg, &client);
-        GetWindowInfo(hwndDlg, &info);
+        MapDialogRect(dialog, &client);
+        GetWindowInfo(dialog, &info);
         AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);
 
         min_max_info->ptMinTrackSize.x = client.right-client.left;
@@ -297,46 +366,36 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     case WM_MOVE: {
         RECT rect;
-        if(last_position == 0) {
-	  last_position = (WINDOW_POSITION*)malloc(sizeof(WINDOW_POSITION));
-	}
-	
-	GetWindowRect(hwndDlg, &rect);
-	
-	last_position->x = rect.left;
-	last_position->y = rect.top;
-	last_position->w = rect.right - rect.left;
-	last_position->h = rect.bottom - rect.top;
-
-        ret = TRUE;
+        
+        GetWindowRect(dialog, &rect);
+        window_placement->x = rect.left;
+        window_placement->y = rect.top;
+        window_placement->width = rect.right-rect.left;
+        window_placement->height = rect.bottom-rect.top;
       }
       break;
       
     case WM_SIZE: {
         RECT rect;
+        
 /**/
-        layout(hwndDlg);
+        layout(dialog);
 /* redraw them all*/
-        InvalidateRect(hwndDlg, 0, TRUE);
-        UpdateWindow(hwndDlg);
-      
-        if(last_position == 0) {
-	  last_position = (WINDOW_POSITION*)malloc(sizeof(WINDOW_POSITION));
-	}
-	
-	GetWindowRect(hwndDlg, &rect);
-	
-	last_position->x = rect.left;
-	last_position->y = rect.top;
-	last_position->w = rect.right - rect.left;
-	last_position->h = rect.bottom - rect.top;
+        GetWindowRect(dialog, &rect);
+        window_placement->x = rect.left;
+        window_placement->y = rect.top;
+        window_placement->width = rect.right-rect.left;
+        window_placement->height = rect.bottom-rect.top;
+
+        InvalidateRect(dialog, 0, TRUE);
+        UpdateWindow(dialog);
 
         ret = TRUE;
       }
       break;
 
     case WM_CLOSE:
-      EndDialog(hwndDlg,0);
+      EndDialog(dialog,0);
       ret = TRUE;
       break;
   }
