@@ -83,6 +83,7 @@ Section "Uninstall"
 
   ; Remove files and uninstaller
   Delete /REBOOTOK $INSTDIR\diff_ext.dll
+  Delete $INSTDIR\diff_ext_setup.exe
   Delete $INSTDIR\LICENSE
   Delete $INSTDIR\uninstall.exe
 
