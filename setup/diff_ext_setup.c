@@ -24,9 +24,11 @@ typedef struct {
 } WINDOW_PLACEMENT;
 
 static BOOL CALLBACK DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
+static BOOL CALLBACK options_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
 
 static HANDLE resource;
 static WINDOW_PLACEMENT* window_placement = 0;
+static pages[2];
 
 int APIENTRY
 WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
@@ -103,7 +105,47 @@ InitializeApp(HWND dialog, WPARAM wParam, LPARAM lParam) {
   TCHAR* locale_info;
   int locale_info_size;
   int curr = 0;
+  HWND tab = GetDlgItem(dialog, ID_TAB);
+  HGLOBAL dialog_handle;
+  HRSRC resource_handle;
+  DLGTEMPLATE* dialog_template;
+  LAYOUT* layout;
+  
+  TCITEM item1;
+  TCITEM item2;
 
+  resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_OPTIONS), RT_DIALOG);
+  dialog_handle = LoadResource(resource, resource_handle);
+  dialog_template = (DLGTEMPLATE*)LockResource(dialog_handle);
+
+  layout = create_layout(resource, MAKEINTRESOURCE(IDD_OPTIONS), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
+/*  can not do because have to specify hinst as module instance and load dialog from translated resource only dll...
+  ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)DialogFunc);
+*/  
+/*
+  exit = DialogBoxIndirectParam(instance, dialog, NULL, (DLGPROC)DialogFunc, (LPARAM)layout);
+  
+  pages[0] = CreateDialog(resource, MAKEINTRESOURCE(IDD_OPTIONS), dialog, options_func);
+*/
+  pages[0] = CreateDialogIndirectParam(resource, dialog_template, dialog, (DLGPROC)options_func, (LPARAM)layout);
+  pages[1] = CreateDialogIndirectParam(resource, dialog_template, dialog, (DLGPROC)options_func, (LPARAM)layout);
+  
+  printf("%d\n", GetLastError());
+  
+  ZeroMemory(&item1, sizeof(TCITEM));
+  ZeroMemory(&item2, sizeof(TCITEM));
+
+  item1.mask = TCIF_TEXT | TCIF_PARAM;
+  item1.pszText = "page #1";
+  item1.lParam = (LPARAM)0;
+
+  item2.mask = TCIF_TEXT | TCIF_PARAM;
+  item2.pszText = "page #2";
+  item2.lParam = (LPARAM)0;
+
+  TabCtrl_InsertItem(tab, 1, &item1);
+  TabCtrl_InsertItem(tab, 2, &item2);
+  
   ZeroMemory(command, MAX_PATH);
 
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
@@ -249,6 +291,71 @@ AboutDialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 static BOOL CALLBACK
+options_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
+  BOOL ret = FALSE;
+
+  switch (msg) {
+    case WM_INITDIALOG:
+      SetWindowLongPtr(dialog, DWLP_USER, lParam);
+      ret = TRUE;
+      break;
+
+    case WM_GETMINMAXINFO: {
+        LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(dialog, DWLP_USER);
+        MINMAXINFO* min_max_info = (MINMAXINFO*)lParam;
+        RECT client;
+        WINDOWINFO info;
+
+        client.top = 0;
+        client.bottom = layout->height;
+        client.left = 0;
+        client.right = layout->width;
+
+        MapDialogRect(dialog, &client);
+        GetWindowInfo(dialog, &info);
+        AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);
+
+        min_max_info->ptMinTrackSize.x = client.right-client.left;
+        min_max_info->ptMinTrackSize.y = client.bottom-client.top;
+        ret = TRUE;
+      }
+      break;
+
+    case WM_MOVE: {
+        RECT rect;
+        
+        GetWindowRect(dialog, &rect);
+        window_placement->x = rect.left;
+        window_placement->y = rect.top;
+        window_placement->width = rect.right-rect.left;
+        window_placement->height = rect.bottom-rect.top;
+      }
+      break;
+      
+    case WM_SIZE: {
+        RECT rect;
+        
+/**/
+        layout(dialog);
+/* redraw them all*/
+        GetWindowRect(dialog, &rect);
+        window_placement->x = rect.left;
+        window_placement->y = rect.top;
+        window_placement->width = rect.right-rect.left;
+        window_placement->height = rect.bottom-rect.top;
+
+        InvalidateRect(dialog, 0, TRUE);
+        UpdateWindow(dialog);
+
+        ret = TRUE;
+      }
+      break;      
+  }
+  
+  return ret;
+}
+  
+static BOOL CALLBACK
 DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
   BOOL ret = FALSE;
 
@@ -377,9 +484,20 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
       
     case WM_SIZE: {
         RECT rect;
-        
+        RECT tab_rect;
+        HWND tab = GetDlgItem(dialog, ID_TAB);
+        int page = TabCtrl_GetCurSel(tab);
+      
+	GetClientRect(tab, &tab_rect);
+
+	TabCtrl_AdjustRect(tab, FALSE, &tab_rect);
+
+	MapWindowPoints(tab, dialog, (LPPOINT)&tab_rect, 2);
 /**/
         layout(dialog);
+      
+        MoveWindow(pages[page], tab_rect.left, tab_rect.top, tab_rect.right-tab_rect.left, tab_rect.bottom-tab_rect.top, FALSE);
+        layout(pages[page]);
 /* redraw them all*/
         GetWindowRect(dialog, &rect);
         window_placement->x = rect.left;
@@ -390,6 +508,35 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
         InvalidateRect(dialog, 0, TRUE);
         UpdateWindow(dialog);
 
+	ret = TRUE;
+      }
+      break;
+      
+    case WM_NOTIFY: {
+	LPNMHDR data = (LPNMHDR)lParam;
+
+	if(data->code == TCN_SELCHANGE) {
+	  if(data->idFrom == ID_TAB) {
+	    int page = TabCtrl_GetCurSel(data->hwndFrom);
+	    int i;
+	    RECT rect;
+
+	    GetClientRect(data->hwndFrom, &rect);
+
+	    TabCtrl_AdjustRect(data->hwndFrom, FALSE, &rect);
+
+	    MapWindowPoints(data->hwndFrom, dialog, (LPPOINT)&rect, 2);
+	    
+	    for(i = 0; i < sizeof(pages)/sizeof(pages[0]); i++) {
+	      if(i == page) {
+		SetWindowPos(pages[i], HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
+	      } else {
+	        ShowWindow(pages[i], FALSE);
+	      }
+	    }
+	  }
+	}
+        
         ret = TRUE;
       }
       break;

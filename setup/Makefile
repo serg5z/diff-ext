@@ -6,7 +6,7 @@ AR ?= ar.exe -r
 WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
 
-CXXFLAGS += -I../../util/include
+CXXFLAGS += -g -I../../util/include
 CFLAGS += -g -I../../util/include
 LIBS :=  -lcomdlg32 -lcomctl32 -lversion
 LDFLAGS += -mwindows

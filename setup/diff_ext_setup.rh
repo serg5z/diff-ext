@@ -7,6 +7,7 @@
  */
 
 #define	IDD_MAINDIALOG	100
+#define 	IDD_OPTIONS 300
 #define	ID_LANGUAGE	101L
 #define	ID_DIFF_COMMAND	102L
 #define	ID_GROUP	103L
@@ -15,6 +16,7 @@
 #define	ID_DIFF_DIRS	107L
 #define      ID_APPLY	108L
 #define	ID_VERSION 109L
+#define   	ID_TAB 110L
 #define	DLG_ABOUT	200
 #define	IDS_HELPMENU	2010
 #define	MAIN_ICON 1

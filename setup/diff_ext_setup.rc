@@ -20,7 +20,7 @@
 #endif
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-
+#if 0
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 1,0,0,0
  PRODUCTVERSION 1,0,0,0
@@ -56,16 +56,48 @@ VS_VERSION_INFO VERSIONINFO
         VALUE "Translation", 0x409, 1200
     }
 }
-
+#endif
 main_icon ICON "de.ico"
 
+IDD_OPTIONS DIALOGEX
+0, 0, 228, 75
+STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK
+FONT 8, "Helv"
+EXSTYLE WS_EX_CONTROLPARENT | WS_EX_TRANSPARENT
+BEGIN
+    GROUPBOX      "Diff command", 			
+                  ID_GROUP, 
+                  7, 7, 214, 46,
+		  WS_EX_TRANSPARENT
+    EDITTEXT      
+                  ID_DIFF_COMMAND, 
+                  14, 18, 145, 14, 
+                  ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+                  
+    PUSHBUTTON    "Browse...",
+                  ID_BROWSE, 
+                  163, 18, 50, 14
+    AUTOCHECKBOX  "Can compare folders",
+                  ID_DIFF_DIRS, 
+                  14, 36, 90, 10,
+                  WS_DISABLED
+    LTEXT         "Language",
+                  104, 
+                  7, 60, 35, 8
+    COMBOBOX      
+                  ID_LANGUAGE, 
+                  46, 59, 100, 130, 
+                  CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+END
+
 IDD_MAINDIALOG DIALOGEX
-70, 60, 229, 101
+70, 60, 242, 129
 STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "diff_ext setup"
 FONT 8, "Helv"
 CLASS "diff-ext-setup"
 BEGIN
+/*
     GROUPBOX      "Diff command", 			
                   ID_GROUP, 
                   7, 7, 214, 46
@@ -88,19 +120,25 @@ BEGIN
                   ID_LANGUAGE, 
                   46, 59, 100, 130, 
                   CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+*/
+    CONTROL         "", 
+		  ID_TAB, 
+		  "SysTabControl32", 
+		  WS_TABSTOP, 
+		  6, 6, 228, 98
     DEFPUSHBUTTON "OK", 
                   IDOK, 
-                  7, 80, 50, 14, 
+                  21, 108, 50, 14, 
                   WS_GROUP
     PUSHBUTTON    "Cancel",
                   IDCANCEL, 
-                  61, 80, 50, 14
+                  75, 108, 50, 14
     PUSHBUTTON    "Apply",
                   ID_APPLY, 
-                  115, 80, 50, 14
+                  129, 108, 50, 14
     PUSHBUTTON    "About",
                   ID_ABOUT, 
-                  172, 80, 50, 14
+                  186, 108, 50, 14
 END
 
 DLG_ABOUT DIALOGEX 
@@ -128,6 +166,9 @@ BEGIN
 END
 
 ID_MAINDIALOG_LAYOUT RCDATA {
+  110L, /* ID_TAB */
+    3L, /* ANCOR_LEFT | ANCOR_TOP */
+    12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
   106L, /*ID_ABOUT*/
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
