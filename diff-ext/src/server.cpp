@@ -69,10 +69,10 @@ DllCanUnloadNow(void) {
 
 extern "C" int APIENTRY
 DllMain(HINSTANCE instance, DWORD reason, LPVOID /* reserved */) {
-  char str[1024];
-  char* reason_string[] = {"DLL_PROCESS_DETACH", "DLL_PROCESS_ATTACH", "DLL_THREAD_ATTACH", "DLL_THREAD_DETACH"};
-  sprintf(str, "instance: %x; reason: '%s'", instance, reason_string[reason]);
-  MessageBox(0, str, TEXT("Info"), MB_OK);  
+//  char str[1024];
+//  char* reason_string[] = {"DLL_PROCESS_DETACH", "DLL_PROCESS_ATTACH", "DLL_THREAD_ATTACH", "DLL_THREAD_DETACH"};
+//  sprintf(str, "instance: %x; reason: '%s'", instance, reason_string[reason]);
+//  MessageBox(0, str, TEXT("Info"), MB_OK);  
   switch (reason) {
     case DLL_PROCESS_ATTACH:
       server_instance = instance;
@@ -164,7 +164,7 @@ SERVER::release() {
   InterlockedDecrement(&_refference_count);
 }
 
-LIST<STRING>*
+DLIST<STRING>*
 SERVER::recent_files() {
   HKEY key;
   DWORD history_size = 8;
@@ -181,11 +181,11 @@ SERVER::recent_files() {
     history_size = max_history_size;
   }
 
-  LIST<STRING>* new_history = new LIST<STRING>();
+  DLIST<STRING>* new_history = new DLIST<STRING>();
   
   if(_recent_files != 0) {
     unsigned int n = history_size;
-    LIST<STRING>::ITERATOR i(*_recent_files);
+    DLIST<STRING>::ITERATOR i = _recent_files->head();
 
     if(n > _recent_files->count()) {
       n = _recent_files->count();
@@ -236,7 +236,7 @@ SERVER::save_history() const {
       len = MAX_PATH;
       int n = 0;
       
-      LIST<STRING>::ITERATOR i(*_recent_files);
+      DLIST<STRING>::ITERATOR i = _recent_files->head();
       
       while(!i.done()) {
 	STRING str = (*i)->data();

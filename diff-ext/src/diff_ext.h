@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ * Copyright (c) 2003-2004, Sergey Zorin. All rights reserved.
  *
  * This software is distributable under the BSD license. See the terms
  * of the BSD license in the LICENSE file provided with this software.
@@ -13,7 +13,7 @@
 #include <windowsx.h>
 #include <shlobj.h>
 
-#include <util/cont/list.h>
+#include <util/cont/dlist.h>
 #include <util/string.h>
 
 // this is the actual OLE Shell context menu handler
@@ -46,7 +46,7 @@ class DIFF_EXT : public IContextMenu, IShellExtInit {
     UINT _n_files;
     STRING _file_name1;
     STRING _file_name2;
-    LIST<STRING>* _recent_files;
+    DLIST<STRING>* _recent_files;
     HINSTANCE _resource;
     DWORD _language;
     HWND _hwnd;
