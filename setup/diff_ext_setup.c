@@ -34,13 +34,112 @@ HANDLE resource;
 
 static BOOL CALLBACK DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 
+static BOOL
+is_extended_dialog(DLGTEMPLATE* tpl) {
+  return (HIWORD(tpl->style) == 0xffff);
+}
+
+static DLGITEMTEMPLATE*
+first_item(DLGTEMPLATE* tpl) {
+  WORD* current;
+  
+  current = (WORD*)(tpl+1);
+  
+/* skip menu */  
+  if((*current) == 0xffff) {
+    current += 2;
+  }
+  else {
+    while((*current) != 0) {
+      current++;
+    }
+    current++;
+  }
+  
+/* skip class */    
+  if((*current) == 0xffff) {
+    current += 2;
+  }
+  else {
+    while((*current) != 0) {
+      current++;
+    }
+    current++;
+  }
+
+/* skip title */    
+  if((*current) == 0xffff) {
+    current += 2;
+  }
+  else {
+    while((*current) != 0) {
+      current++;
+    }
+    current++;
+  }
+  
+  if (tpl->style & DS_SETFONT) {
+    current++;
+    while((*current) != 0) {
+      current++;
+    }
+    current++;
+  }
+  
+  return (DLGITEMTEMPLATE*)(((DWORD)current+3) & ~3 );
+}
+
+static DLGITEMTEMPLATE*
+next_item(DLGITEMTEMPLATE* tpl) {
+  WORD* current;
+  WORD extra_size;
+  
+  tpl++;
+  current = (WORD*)tpl;
+  
+/* skip class */    
+  if((*current) == 0xffff) {
+    current += 2;
+  }
+  else {
+    while((*current) != 0) {
+      current++;
+    }
+    current++;
+  }
+
+/* skip text */    
+  if((*current) == 0xffff) {
+    current += 2;
+  }
+  else {
+    while((*current) != 0) {
+      current++;
+    }
+    current++;
+  }
+  
+  extra_size = *current;
+  if(extra_size > 0) {
+    current = (WORD*)((BYTE*)current + extra_size);
+  }
+  else
+    current++;
+  
+  return (DLGITEMTEMPLATE*)(((DWORD)current+3) & ~3 );
+}
+
 static void
 init_layout() {
   HGLOBAL layout_table_handle;
+  HGLOBAL dialog_handle;
   HRSRC resource_handle;
   LAYOUT_ITEM* layout_table;
-  DWORD resource_size;
+  DLGTEMPLATE* dialog;
+  DLGITEMTEMPLATE* dialog_item;
+  DWORD layout_resource_size;
   int i;
+  int n;
   LAYOUT_ITEM_LIST* prev;
   
   dialog_layout_root = (LAYOUT_ITEM_LIST*)malloc(sizeof(LAYOUT_ITEM_LIST));
@@ -48,26 +147,66 @@ init_layout() {
     
   resource_handle = FindResource(resource, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT), RT_RCDATA);
   layout_table_handle = LoadResource(resource, resource_handle);
-  resource_size = SizeofResource(resource, resource_handle);
+  layout_resource_size = SizeofResource(resource, resource_handle);
   layout_table = (LAYOUT_ITEM*)LockResource(layout_table_handle);
+
+  resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), RT_DIALOG);
+  dialog_handle = LoadResource(resource, resource_handle);
+  dialog = (DLGTEMPLATE*)LockResource(dialog_handle);
   
-  for(i = 0; i < resource_size/sizeof(LAYOUT_ITEM); i++) {
-    LAYOUT_ITEM_LIST* item = (LAYOUT_ITEM_LIST*)malloc(sizeof(LAYOUT_ITEM_LIST));
+  dialog_item = first_item(dialog);
+  
+  for(n = 0; n < dialog->cdit; n++) {
+    for(i = 0; i < layout_resource_size/sizeof(LAYOUT_ITEM); i++) {
+      if(layout_table[i].id == dialog_item->id) {
+        LAYOUT_ITEM_LIST* item = (LAYOUT_ITEM_LIST*)malloc(sizeof(LAYOUT_ITEM_LIST));
+        
+        item->item.id = layout_table[i].id;
+        item->item.top_left.anchor = layout_table[i].top_left.anchor;
+        item->item.bottom_right.anchor = layout_table[i].bottom_right.anchor;
+        
+        if(item->item.top_left.anchor & ANCOR_RIGHT) {
+          item->item.top_left.x = dialog_item->x - dialog->cx;
+        }
     
-    item->item.id = layout_table[i].id;
-    item->item.top_left.x = layout_table[i].top_left.x;
-    item->item.top_left.y = layout_table[i].top_left.y;
-    item->item.top_left.anchor = layout_table[i].top_left.anchor;
+        if(item->item.top_left.anchor & ANCOR_LEFT) {
+          item->item.top_left.x = dialog_item->x;
+        }
     
-    item->item.bottom_right.x = layout_table[i].bottom_right.x;
-    item->item.bottom_right.y = layout_table[i].bottom_right.y;
-    item->item.bottom_right.anchor = layout_table[i].bottom_right.anchor;
+        if(item->item.top_left.anchor & ANCOR_TOP) {
+          item->item.top_left.y = dialog_item->y;
+        }
     
-    prev->next = item;
-    prev = item;
-    prev->next = 0;
+        if(item->item.top_left.anchor & ANCOR_BOTTOM) {
+          item->item.top_left.y = dialog_item->y - dialog->cy;
+        }
+    
+        if(item->item.bottom_right.anchor & ANCOR_RIGHT) {
+          item->item.bottom_right.x = dialog_item->x - dialog->cx + dialog_item->cx;
+        }
+    
+        if(item->item.bottom_right.anchor & ANCOR_LEFT) {
+          item->item.bottom_right.x = dialog_item->x + dialog_item->cx;
+        }
+    
+        if(item->item.bottom_right.anchor & ANCOR_TOP) {
+          item->item.bottom_right.y = dialog_item->y + dialog_item->cy;
+        }
+    
+        if(item->item.bottom_right.anchor & ANCOR_BOTTOM) {
+          item->item.bottom_right.y = dialog_item->y - dialog->cy + dialog_item->cy;
+        }
+    
+        prev->next = item;
+        prev = item;
+        prev->next = 0;
+      }
+    }
+
+    dialog_item = next_item(dialog_item);
   }
   
+  FreeResource(dialog);
   FreeResource(layout_table_handle);
 }
 
