@@ -5,7 +5,6 @@
 BUILD ?= .
 UPDATE_VERSION ?= ../../bin/update_version
 
-DEBUG ?= 
 CXX  ?= g++.exe
 CC   ?= gcc.exe
 AR ?= ar.exe -r
