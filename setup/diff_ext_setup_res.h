@@ -15,3 +15,5 @@
 #define ANCOR_TOP 0x2L
 #define ANCOR_RIGHT 0x4L
 #define ANCOR_BOTTOM 0x8L
+
+#define ANCHOR_RIGHTBOTTOM 12L

@@ -47,36 +47,36 @@ first_item(DLGTEMPLATE* tpl) {
   
 /* skip menu */  
   if((*current) == 0xffff) {
-    current += 2;
+    current++;
   }
   else {
     while((*current) != 0) {
       current++;
     }
-    current++;
   }
+  current++;
   
 /* skip class */    
   if((*current) == 0xffff) {
-    current += 2;
+    current++;
   }
   else {
     while((*current) != 0) {
       current++;
     }
-    current++;
   }
+  current++;
 
 /* skip title */    
   if((*current) == 0xffff) {
-    current += 2;
+    current++;
   }
   else {
     while((*current) != 0) {
       current++;
     }
-    current++;
   }
+  current++;
   
   if (tpl->style & DS_SETFONT) {
     current++;
@@ -86,7 +86,7 @@ first_item(DLGTEMPLATE* tpl) {
     current++;
   }
   
-  return (DLGITEMTEMPLATE*)(((DWORD)current+3) & ~3 );
+  return (DLGITEMTEMPLATE*)(((DWORD)current+3) & ~(DWORD)3 );
 }
 
 static DLGITEMTEMPLATE*
@@ -99,34 +99,35 @@ next_item(DLGITEMTEMPLATE* tpl) {
   
 /* skip class */    
   if((*current) == 0xffff) {
-    current += 2;
+    current++;
   }
   else {
     while((*current) != 0) {
       current++;
     }
-    current++;
   }
+  current++;
 
 /* skip text */    
   if((*current) == 0xffff) {
-    current += 2;
+    current++;
   }
   else {
     while((*current) != 0) {
       current++;
     }
-    current++;
   }
+  current++;
   
   extra_size = *current;
   if(extra_size > 0) {
     current = (WORD*)((BYTE*)current + extra_size);
   }
-  else
+  else {
     current++;
+  }
   
-  return (DLGITEMTEMPLATE*)(((DWORD)current+3) & ~3 );
+  return (DLGITEMTEMPLATE*)(((DWORD)current+3) & ~(DWORD)3 );
 }
 
 static void
