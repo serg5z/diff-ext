@@ -50,7 +50,7 @@ $(LANG_RU) : lang/$(PROJ)_ru.res
 	--def lang/$(PROJ)_lang.def \
 	--output-exp ${EXPLIB} \
 	$< -o $@
-	strip $@
+#	strip $@
 
 $(DLL): $(OBJ)
 	$(DLLWRAP) \
@@ -61,7 +61,7 @@ $(DLL): $(OBJ)
 		--implib $(STATICLIB) \
 		$(OBJ) $(LDFLAGS) $(LIBS) \
 		-o $@
-	strip $@
+#	strip $@
 
 .cpp.o:
 	$(CXX) -c $? -o $@ $(CXXFLAGS)

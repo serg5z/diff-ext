@@ -13,11 +13,11 @@
 #include "server.h"
 #include "diff_ext_res.h"
 
-const int IDM_TEST_COMMAND=10;
-const int IDM_DIFF=20;
-const int IDM_DIFF_LATER=30;
-const int IDM_DIFF_WITH=40;
-const int IDM_DIFF_WITH_BASE=50;
+const UINT IDM_TEST_COMMAND=10;
+const UINT IDM_DIFF=20;
+const UINT IDM_DIFF_LATER=30;
+const UINT IDM_DIFF_WITH=40;
+const UINT IDM_DIFF_WITH_BASE=50;
 
 DEQUE<STRING> DIFF_EXT::_recent_files(4);
 
@@ -320,10 +320,35 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
 
 STDMETHODIMP
 DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT cchMax) {
-  if (uFlags == GCS_HELPTEXT && cchMax > 35)
-    lstrcpy(pszName, _T("nothing here yet."));
+  HRESULT ret = NOERROR;
+  TCHAR resource_string[256];
+  int resource_string_length;
+  
+  if(uFlags == GCS_HELPTEXT) {
+    if(idCmd == IDM_DIFF) {
+    } else if(idCmd == IDM_DIFF_WITH) {
+      resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(TCHAR));
+      if(resource_string_length > 0) {
+        if(!_recent_files.empty()) {
+          char* file_name1 = _file_name1;
+          char* file_name2 = _recent_files.front();
+          //~ char* args[] = {file_name1, file_name2};
+          //~ FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &pszName, cchMax, args);
+          sprintf(pszName, resource_string, file_name1, file_name2);
+        }
+        else {
+          lstrcpyn(pszName, _T(""), cchMax);
+        }
+      }
+    } else if(idCmd == IDM_DIFF_LATER) {
+    } else if((idCmd >= IDM_DIFF_WITH_BASE) || (idCmd < IDM_DIFF_WITH_BASE+_recent_files.size())) {
+  //      diff_with(LOWORD(ici->lpVerb)-IDM_DIFF_WITH_BASE);
+    }
+  }
+//  if (uFlags == GCS_HELPTEXT && cchMax > 35)
+//    lstrcpy(pszName, _T("nothing here yet."));
 
-  return NOERROR;
+  return ret;
 }
 
 void

@@ -61,4 +61,7 @@ STRINGTABLE
   DIFF_STR "diff"
   DIFF_WITH_STR "diff with"
   DIFF_LATER_STR "diff later"
+  
+  DIFF_HINT "Compare selected files"
+  DIFF_WITH_HINT "Compare '%s' with '%s'"
 }

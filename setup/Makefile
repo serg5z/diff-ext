@@ -48,7 +48,7 @@ $(LANG_RU) : lang/$(PROJ)_ru.res
 
 $(EXE): $(OBJ)
 	$(CC) $(OBJ) -o $@ $(LDFLAGS) $(LIBS)
-	strip $@
+#	strip $@
 
 .cpp.o:
 	$(CPP) -c $? -o $@ $(CXXFLAGS)

@@ -1,3 +1,5 @@
-#define  DIFF_STR 1001
-#define  DIFF_WITH_STR 1002
-#define  DIFF_LATER_STR 1003
+#define DIFF_STR 1001
+#define DIFF_WITH_STR 1002
+#define DIFF_LATER_STR 1003
+#define DIFF_HINT 2001
+#define DIFF_WITH_HINT 2002
