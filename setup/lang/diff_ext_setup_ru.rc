@@ -22,8 +22,8 @@
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,0
- PRODUCTVERSION 1,0,0,0
+ FILEVERSION 1,1,0,0
+ PRODUCTVERSION 1,1,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -41,14 +41,14 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "Comments", ""
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diff shell extension setup"
-            VALUE "FileVersion", "Выпуск 1.0"
+            VALUE "FileVersion", "Выпуск 1.1"
             VALUE "InternalName", "diff shell extension setup"
             VALUE "LegalCopyright", "Copyright © 2003, 2004 Сергей Зорин"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "diff_ext_setup1049.dll"
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "Выпуск 1.0"
+            VALUE "ProductVersion", "Выпуск 1.1"
         }
     }
     BLOCK "VarFileInfo"
@@ -64,36 +64,12 @@ main_icon ICON "de.ico"
 #include "about_ru.dlg"
 
 IDD_MAINDIALOG DIALOGEX 
-86, 69, 234, 101
+70, 60, 242, 129
 STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Установки diff_ext"
 FONT 8, "Helv"
 CLASS "diff-ext-setup"
 BEGIN
-/*
-    GROUPBOX      "Программа сравнения",
-                  ID_GROUP, 
-                  7, 7, 219, 46
-    EDITTEXT      
-                  ID_DIFF_COMMAND, 
-                  14, 18, 150, 14, 
-                  ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
-                  
-    PUSHBUTTON    "Обзор...",
-                  ID_BROWSE, 
-                  168, 18, 50, 14
-    AUTOCHECKBOX  "Может сравнивать директории",
-                  ID_DIFF_DIRS, 
-                  14, 36, 120, 10,
-                  WS_DISABLED
-    LTEXT         "Язык",
-                  104, 
-		  7, 60, 25, 8
-    COMBOBOX      
-                  ID_LANGUAGE, 
-                  36, 59, 100, 130, 
-                  CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-*/
     CONTROL         "", 
 		  ID_TAB, 
 		  "SysTabControl32", 
@@ -102,41 +78,35 @@ BEGIN
 		  
     DEFPUSHBUTTON "OK", 
                   IDOK, 
-                  7, 80, 50, 14,
+                  7, 108, 50, 14,
                   WS_GROUP
     PUSHBUTTON    "Отмена",
                   IDCANCEL,
-                  61, 80, 50, 14
+                  61, 108, 50, 14
     PUSHBUTTON    "Применить",
                   ID_APPLY,
-                  115, 80, 50, 14
+                  115, 108, 50, 14
     PUSHBUTTON    "О программе",
                   ID_ABOUT,
-                  172, 80, 55, 14
+                  172, 108, 55, 14
 END
 
 ID_MAINDIALOG_LAYOUT RCDATA {
-  106L, /*ID_ABOUT*/
+  ID_TAB, /* ID_TAB */
+    3L, /* ANCOR_LEFT | ANCOR_TOP */
+    12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
+  ID_ABOUT, /*ID_ABOUT*/
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
   2L, /*IDCANCEL*/ 
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
-  108L, /*ID_APPLY*/ 
-    12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
-    12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
   1L, /*IDOK*/ 
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
-  103L, /*ID_GROUP*/ 
-    3L, /* ANCOR_LEFT | ANCOR_TOP */
-    6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  102L, /*ID_DIFF_COMMAND*/ 
-    3L, /* ANCOR_LEFT | ANCOR_TOP */
-    6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  105L, /*ID_BROWSE*/ 
-    6L, /* ANCOR_RIGHT | ANCOR_TOP */
-    6L /* ANCOR_RIGHT | ANCOR_TOP */
+  ID_APPLY, /*ID_APPLY*/ 
+    12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
+    12L /* ANCOR_RIGHT | ANCOR_BOTTOM */
 }
 
 STRINGTABLE

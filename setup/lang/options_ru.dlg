@@ -12,7 +12,7 @@ STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK | WS_CLIPSIBLINGS //| WS_CLIPCHILDREN
 FONT 8, "Helv"
 EXSTYLE WS_EX_CONTROLPARENT
 BEGIN
-    GROUPBOX      "Diff command", 			
+    GROUPBOX      "Программа сравнения", 			
                   ID_GROUP, 
                   7, 7, 214, 46,
 		  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
@@ -21,14 +21,14 @@ BEGIN
                   14, 18, 145, 14, 
                   ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
                   
-    PUSHBUTTON    "Browse...",
+    PUSHBUTTON    "Обзор...",
                   ID_BROWSE, 
                   163, 18, 50, 14
-    AUTOCHECKBOX  "Can compare folders",
+    AUTOCHECKBOX  "Может сравнивать директории",
                   ID_DIFF_DIRS, 
-                  14, 36, 90, 10,
+                  14, 36, 120, 10,
                   WS_DISABLED
-    LTEXT         "Language",
+    LTEXT         "Язык",
                   104, 
                   7, 60, 35, 8
     COMBOBOX      

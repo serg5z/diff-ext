@@ -13,7 +13,7 @@ static BOOL CALLBACK about_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LP
 
 void
 about(HANDLE resource, HWND parent) {
-  DialogBoxParam(resource, MAKEINTRESOURCE(IDD_ABOUT), parent, about_dialog_func, resource);
+  DialogBoxParam(resource, MAKEINTRESOURCE(IDD_ABOUT), parent, about_dialog_func, (LPARAM)resource);
 }
 
 static void

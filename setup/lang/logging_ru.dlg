@@ -12,7 +12,7 @@ STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK //| WS_CLIPCHILDREN
 FONT 8, "Helv"
 EXSTYLE WS_EX_CONTROLPARENT
 BEGIN
-    AUTOCHECKBOX  "Enable logging",
+    AUTOCHECKBOX  "Вести журнал",
                   ID_ENABLE_LOGGING, 
                   7, 7, 90, 10,
 		  WS_TABSTOP
@@ -21,26 +21,26 @@ BEGIN
                   7, 22, 159, 14, 
                   ES_AUTOHSCROLL | WS_VISIBLE | WS_BORDER | WS_DISABLED
                   
-    PUSHBUTTON    "Browse...",
+    PUSHBUTTON    "Обзор...",
                   ID_BROWSE, 
                   170, 22, 50, 14,
 		  WS_DISABLED
                   
-    LTEXT  "Log level",
+    LTEXT  "Уровень журналирования",
                   ID_LOG_LEVEL_LABEL, 
-                  7, 45, 35, 8,
+                  7, 45, 95, 8,
 		  WS_DISABLED
                   
-    EDITTEXT  "Enable logging",
+    EDITTEXT  "",
                   ID_LOG_LEVEL, 
-                  45, 43, 30, 12,
+                  105, 43, 30, 12,
                   ES_AUTOHSCROLL | ES_NUMBER | ES_RIGHT | WS_GROUP | WS_TABSTOP | WS_DISABLED
                   
     CONTROL "", 
                   ID_LOG_LEVEL_BUTTON, 
                   "msctls_updown32", 
                   0xb6, 
-                  89, 43, 15, 12,
+                  149, 43, 15, 12,
 		  WS_DISABLED
 END
 
