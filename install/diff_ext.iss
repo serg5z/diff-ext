@@ -7,6 +7,7 @@ AppPublisher=Z
 DefaultDirName={pf}\Z\diff_ext
 DefaultGroupName=Z\diff_ext
 DisableProgramGroupPage=false
+OutputDir=.
 OutputBaseFilename=diff_ext-0.20
 
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
