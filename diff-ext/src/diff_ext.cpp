@@ -27,7 +27,7 @@ extern "C" void dec_cRefThisDLL();
 // *********************** CShellExt *************************
 CShellExt::CShellExt() : _n_files(0), _file_name1(""), _file_name2(""), _ref_count(0L) {
   if(_recent_files.size() == 0)
-    _recent_files = DEQUE<STRING>(4);
+    _recent_files = DEQUE<STRING>(8);
 
   inc_cRefThisDLL();
 }
@@ -133,6 +133,7 @@ CShellExt::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*la
         str += _recent_files.front();
       }
 
+      str = cut_to_length(str);
       c_str = str;
 
       ZeroMemory(&item_info, sizeof(item_info));
@@ -161,7 +162,8 @@ CShellExt::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*la
 
       int n = 0;
       while(!_recent_files.done(i)) {
-        c_str = _recent_files.item(i);
+        str = cut_to_length(_recent_files.item(i));
+        c_str = str;
 
         ZeroMemory(&item_info, sizeof(item_info));
         item_info.cbSize = sizeof(MENUITEMINFO);
@@ -175,7 +177,7 @@ CShellExt::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*la
         i++;
         n++;
       }
-
+      
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_SUBMENU | MIIM_TYPE | MIIM_STATE;
@@ -186,7 +188,7 @@ CShellExt::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*la
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
     } else if(_n_files == 2) {
-      STRING str = "Diff "+_file_name1+" and "+_file_name2;
+      STRING str = "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
       LPSTR c_str = str;
 
       ZeroMemory(&item_info, sizeof(item_info));
@@ -223,6 +225,9 @@ CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
   _hwnd = ici->hwnd;
 
   if(HIWORD(ici->lpVerb) == 0) {
+//~ char buf[256];
+//~ sprintf(buf, "id: %d", LOWORD(ici->lpVerb));
+//~ MessageBox(0, buf, "InvokeCommand", MB_OK);
     if(LOWORD(ici->lpVerb) == IDM_TEST_COMMAND) {
       MessageBox(_hwnd, "Hello World!!!", "Test command", MB_OK);
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF) {
@@ -350,4 +355,22 @@ CShellExt::diff_later() {
   //~ fprintf(f, "added file %s; new size: %d\n", _file_name1, _recent_files.size());
 
   //~ fclose(f);
+}
+
+STRING
+CShellExt::cut_to_length(STRING in, int max_len) {
+  //~ STRING ret;
+  //~ int length = in.length();
+  
+  //~ if(length > max_len) {
+    //~ ret = in.substr(0, (max_len-3)/2);
+    //~ ret += "...";
+    //~ ret += in.substr(length-(max_len-3)/2, STRING::end);
+  //~ }
+  //~ else {
+    //~ ret = in;
+  //~ }
+  
+  //~ return ret;
+  return in;
 }

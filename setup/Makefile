@@ -1,19 +1,9 @@
-# Project: diff_ext
-# Generates diff_ext.dll with gcc.
-# Can be used for Cygwin and MingW (MingW ignores -mno-cygwin)
-#
 BUILD ?= .
 
-CPP  := g++.exe
-CC   := gcc.exe
-LD := gcc
-CXXFLAGS := -g -ansi -pedantic -Wall -mno-cygwin -I../../util/include
-CFLAGS := -g -ansi -pedantic -Wall -mno-cygwin -I../../util/include
-LDFLAGS := -L../../util/src -mwindows
-#LIBS :=  
+CXXFLAGS += -I../../util/include
+CFLAGS += -I../../util/include
 LIBS :=  -lcomdlg32 -lcomctl32
-WINDRES := windres.exe
-DLLWRAP = dllwrap.exe
+LDFLAGS += -mwindows
 RES  := diff_ext_setup.res
 DEFFILE = diff_ext.def
 STATICLIB = diff_ext.a
@@ -21,8 +11,6 @@ EXPLIB = diff_ext.exp
 
 SRC-CPP = $(wildcard *.cpp)
 SRC-C$ = $(wildcard *.c)
-
-#SRC-CPP += string/string.cpp
 
 OBJ  := $(SRC-CPP:.cpp=.o) $(SRC-C:.c=.o)
 OBJ += $(RES)
@@ -38,7 +26,8 @@ clean: clean-custom
 	${RM}  $(OBJ) $(EXE) ${RES} ${EXPLIB} $(STATICLIB)
 
 $(EXE): $(OBJ)
-	$(LD) $(OBJ) -o $@ $(LDFLAGS) $(LIBS)
+	$(CC) $(OBJ) -o $@ $(LDFLAGS) $(LIBS)
+	strip $@
 
 .cpp.o:
 	$(CPP) -c $? -o $@ $(CXXFLAGS)

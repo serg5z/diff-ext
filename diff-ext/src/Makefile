@@ -2,14 +2,10 @@
 # Generates diff_ext.dll with gcc.
 # Can be used for Cygwin and MingW (MingW ignores -mno-cygwin)
 #
-CPP  := g++.exe
-CC   := gcc.exe
-CXXFLAGS := -g -ansi -pedantic -Wall -mno-cygwin -I../../util/include
-LDFLAGS := -L../../util/src
-#LIBS :=  -luuid -luuid -lole32 -ldmalloc
+BUILD ?= .
+
+CXXFLAGS += -I../../util/include
 LIBS :=  -lutil -luuid -luuid -lole32
-WINDRES := windres.exe
-DLLWRAP = dllwrap.exe
 RES  := diff_ext.res
 DEFFILE = diff_ext.def
 STATICLIB = diff_ext.a
@@ -17,8 +13,6 @@ EXPLIB = diff_ext.exp
 
 SRC-CPP = $(wildcard *.cpp)
 SRC-C$ = $(wildcard *.c)
-
-#SRC-CPP += string/string.cpp
 
 OBJ  := $(SRC-CPP:.cpp=.o) $(SRC-C:.c=.o)
 OBJ += $(RES)

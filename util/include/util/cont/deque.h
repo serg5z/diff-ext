@@ -9,10 +9,6 @@
 #ifndef __deque_h__
 #define __deque_h__
 
-/*
- * $Id$
- */
-
 #include <assert.h>
 
 template <class T>

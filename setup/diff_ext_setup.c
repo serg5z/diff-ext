@@ -164,8 +164,6 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         hwnd_item = GetDlgItem(hwndDlg, IDCANCEL);
 
-	GetWindowRect(hwnd_item, &rect);
-
 	rect.left = -90;
 	rect.top = -20;
 	rect.right = -50;
@@ -181,8 +179,6 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
 	MoveWindow(hwnd_item, x, y, w, h, FALSE);
 
         hwnd_item = GetDlgItem(hwndDlg, IDOK);
-
-	GetWindowRect(hwnd_item, &rect);
 
 	rect.left = -135;
 	rect.top = -20;
@@ -200,8 +196,6 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         hwnd_item = GetDlgItem(hwndDlg, ID_GROUP);
 
-	GetWindowRect(hwnd_item, &rect);
-
 	rect.left = 5;
 	rect.top = 5;
 	rect.right = -5;
@@ -218,8 +212,6 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         hwnd_item = GetDlgItem(hwndDlg, ID_DIFF_COMMAND);
 
-	GetWindowRect(hwnd_item, &rect);
-
 	rect.left = 10;
 	rect.top = 15;
 	rect.right = -55;
@@ -235,8 +227,6 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
 	MoveWindow(hwnd_item, x, y, w, h, FALSE);
 
         hwnd_item = GetDlgItem(hwndDlg, ID_BROWSE);
-
-	GetWindowRect(hwnd_item, &rect);
 
 	rect.left = -50;
 	rect.top = 15;
