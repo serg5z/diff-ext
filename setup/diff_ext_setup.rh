@@ -19,7 +19,7 @@
 #define	ID_VERSION 109L
 #define   	ID_TAB 110L
 #define      ID_LOG_PATH 111L
-#define	ID_ENABLE_DEBUG 112L
+#define	ID_ENABLE_LOGGING 112L
 #define	DLG_ABOUT	200
 #define	IDS_HELPMENU	2010
 #define	MAIN_ICON 1

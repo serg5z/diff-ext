@@ -20,6 +20,19 @@ static BOOL CALLBACK debug_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_
 
 static void
 apply(PAGE* page) {
+  HKEY key;
+  TCHAR log_path[MAX_PATH];
+  LRESULT enabled = 0;
+  
+  GetDlgItemText(page->page, ID_LOG_PATH, log_path, MAX_PATH);
+  if(IsDlgButtonChecked(page->page, ID_ENABLE_LOGGING)) {
+    enabled = 1;
+  }
+
+  RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_SET_VALUE, &key);
+  RegSetValueEx(key, TEXT("log_file"), 0, REG_SZ, (const BYTE*)log_path, lstrlen(log_path));
+  RegSetValueEx(key, TEXT("log"), 0, REG_DWORD, (const BYTE*)&enabled, sizeof(enabled));
+  RegCloseKey(key);
 }
 
 PAGE* 
@@ -62,6 +75,50 @@ debug_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
   switch (msg) {
     case WM_INITDIALOG:
       init(dialog, w_param, l_param);
+      ret = TRUE;
+      break;
+    
+    case WM_COMMAND:
+      switch(LOWORD(w_param)) {
+	case ID_ENABLE_LOGGING:
+	  if(IsDlgButtonChecked(dialog, ID_ENABLE_LOGGING)) {
+	    HWND item;
+	    item = GetDlgItem(dialog, ID_BROWSE);
+	    EnableWindow(item, TRUE);
+	    item = GetDlgItem(dialog, ID_LOG_PATH);
+	    EnableWindow(item, TRUE);
+	  } else {
+	    HWND item;
+	    item = GetDlgItem(dialog, ID_BROWSE);
+	    EnableWindow(item, FALSE);
+	    item = GetDlgItem(dialog, ID_LOG_PATH);
+	    EnableWindow(item, FALSE);
+	  }
+	  break;
+
+        case ID_BROWSE: {
+            OPENFILENAME ofn;
+            TCHAR szFile[MAX_PATH] = "";
+
+            ZeroMemory(&ofn, sizeof(OPENFILENAME));
+            ofn.lStructSize = sizeof(OPENFILENAME);
+            ofn.hwndOwner = dialog;
+            ofn.lpstrFile = szFile;
+            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
+            ofn.lpstrFilter = "Log files (*.log)\0*.LOG\0All (*.*)\0*.*\0";
+            ofn.nFilterIndex = 1;
+            ofn.lpstrFileTitle = NULL;
+            ofn.nMaxFileTitle = 0;
+            ofn.lpstrInitialDir = NULL;
+	    ofn.lpstrTitle = "Select file compare utility";
+            ofn.Flags = OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
+
+            if(GetOpenFileName(&ofn) == TRUE) {
+              SetDlgItemText(dialog, ID_LOG_PATH, ofn.lpstrFile);
+	    }
+          }
+          break;
+      }
       ret = TRUE;
       break;
   }

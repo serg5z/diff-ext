@@ -23,9 +23,7 @@ apply(PAGE* page) {
   HKEY key;
   TCHAR command[MAX_PATH];
   LRESULT language;
-  LRESULT old_language;
   LRESULT idx;
-  DWORD hlen;
   
   GetDlgItemText(page->page, ID_DIFF_COMMAND, command, MAX_PATH);
   idx = SendDlgItemMessage(page->page, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
@@ -79,8 +77,6 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   TCHAR* locale_info;
   int locale_info_size;
   int curr = 0;
-  WINDOW_DATA* data = (WINDOW_DATA*)l_param;
-  PAGE* page = (PAGE*)data->page;
   
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     DWORD hlen = MAX_PATH;
@@ -194,7 +190,7 @@ options_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             ofn.nMaxFileTitle = 0;
             ofn.lpstrInitialDir = NULL;
 	    ofn.lpstrTitle = "Select file compare utility";
-            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
 
             if(GetOpenFileName(&ofn) == TRUE) {
               SetDlgItemText(dialog, ID_DIFF_COMMAND, ofn.lpstrFile);

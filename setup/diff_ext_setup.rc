@@ -95,18 +95,19 @@ STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK //| WS_CLIPCHILDREN
 FONT 8, "Helv"
 EXSTYLE WS_EX_CONTROLPARENT
 BEGIN
-    AUTOCHECKBOX  "Enable debug",
-                  ID_ENABLE_DEBUG, 
+    AUTOCHECKBOX  "Enable logging",
+                  ID_ENABLE_LOGGING, 
                   7, 7, 90, 10,
 		  WS_TABSTOP
     EDITTEXT      
                   ID_LOG_PATH, 
                   7, 22, 159, 14, 
-                  ES_AUTOHSCROLL | WS_VISIBLE | WS_BORDER
+                  ES_AUTOHSCROLL | WS_VISIBLE | WS_BORDER | WS_DISABLED
                   
     PUSHBUTTON    "Browse...",
                   ID_BROWSE, 
-                  170, 22, 50, 14
+                  170, 22, 50, 14,
+		  WS_DISABLED
 END
 
 IDD_MAINDIALOG DIALOGEX

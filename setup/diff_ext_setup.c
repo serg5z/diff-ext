@@ -95,11 +95,6 @@ WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
 static void
 InitializeApp(HWND dialog, WPARAM w_param, LPARAM l_param) {
   HWND tab = GetDlgItem(dialog, ID_TAB);
-  HGLOBAL dialog_handle;
-  HRSRC resource_handle;
-  DLGTEMPLATE* dialog_template;
-  LAYOUT* options_layout;
-  LAYOUT* debug_layout;
   RECT rect;
   TCITEM item1;
   TCITEM item2;
