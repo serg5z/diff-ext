@@ -4,11 +4,15 @@
 #
 BUILD ?= .
 
-CPP  ?= g++.exe
+CXX  ?= g++.exe
 CC   ?= gcc.exe
 AR ?= ar.exe -r
 WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
+CXXFLAGS ?= -g -ansi -pedantic -Wall -mno-cygwin
+CFLAGS ?= -g -ansi -pedantic -Wall -mno-cygwin
+LDFLAGS ?= -L$(LIB)
+LIB ?= ../../lib
 
 CXXFLAGS += -I../../util/include
 LIBS :=  -lutil -luuid -luuid -lole32
@@ -17,10 +21,10 @@ DEFFILE = diff_ext.def
 STATICLIB = diff_ext.a
 EXPLIB = diff_ext.exp
 
-SRC-CPP = $(wildcard *.cpp)
+SRC-CXX = $(wildcard *.cpp)
 SRC-C$ = $(wildcard *.c)
 
-OBJ  := $(SRC-CPP:.cpp=.o) $(SRC-C:.c=.o)
+OBJ  := $(SRC-CXX:.cpp=.o) $(SRC-C:.c=.o)
 OBJ += $(RES)
 
 INCS :=
@@ -60,7 +64,7 @@ $(DLL): $(OBJ)
 	strip $@
 
 .cpp.o:
-	$(CPP) -c $? -o $@ $(CXXFLAGS)
+	$(CXX) -c $? -o $@ $(CXXFLAGS)
 
 .rc.res:
 	$(WINDRES)  $< -I rc -o $@ -O coff -DMING

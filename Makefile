@@ -1,6 +1,6 @@
 export BUILD := $(shell pwd)/build
 export LIB := $(shell pwd)/lib
-export CPP  := g++.exe
+export CXX  := g++.exe
 export CC   := gcc.exe
 export AR := ar.exe -r
 export WINDRES := windres.exe
