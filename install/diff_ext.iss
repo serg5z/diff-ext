@@ -58,3 +58,13 @@ Root: HKLM; Subkey: Software\Z; Flags: uninsdeletekeyifempty uninsdeletevalue
 Name: en; MessagesFile: compiler:Default.isl; LicenseFile: ..\LICENSE.rtf
 Name: ru; MessagesFile: russian.isl; LicenseFile: ..\LICENSE_RU.rtf
 
+[CustomMessages]
+ru.NameAndVersion=%1 версия %2
+ru.AdditionalIcons=Дополнительные иконки:
+ru.CreateDesktopIcon=Создать иконку на рабочем столе
+ru.CreateQuickLaunchIcon=Создать иконку в панели быстрого запуска
+ru.ProgramOnTheWeb=%1 в сети
+ru.UninstallProgram=Деинсталлировать %1
+ru.LaunchProgram=Запустить %1
+ru.AssocFileExtension=Создать ассоциацию %1 с расширением %2
+ru.AssocingFileExtension=Создаю ассоциацию %1 с расширением %2 ...
