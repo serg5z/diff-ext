@@ -13,6 +13,12 @@ const DWORD ANCOR_BOTTOM=0x000008;
 */
 
 typedef struct {
+  DWORD id;
+  DWORD top_left_anchor;
+  DWORD bottom_right_anchor;
+} LAYOUT_ITEM_RC;
+
+typedef struct {
   int x;
   int y;
   DWORD anchor;
@@ -119,6 +125,7 @@ next_item(DLGITEMTEMPLATE* tpl) {
   }
   current++;
   
+/* testme!!! */  
   extra_size = *current;
   if(extra_size > 0) {
     current = (WORD*)((BYTE*)current + extra_size);
@@ -135,7 +142,7 @@ init_layout() {
   HGLOBAL layout_table_handle;
   HGLOBAL dialog_handle;
   HRSRC resource_handle;
-  LAYOUT_ITEM* layout_table;
+  LAYOUT_ITEM_RC* layout_table;
   DLGTEMPLATE* dialog;
   DLGITEMTEMPLATE* dialog_item;
   DWORD layout_resource_size;
@@ -149,7 +156,7 @@ init_layout() {
   resource_handle = FindResource(resource, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT), RT_RCDATA);
   layout_table_handle = LoadResource(resource, resource_handle);
   layout_resource_size = SizeofResource(resource, resource_handle);
-  layout_table = (LAYOUT_ITEM*)LockResource(layout_table_handle);
+  layout_table = (LAYOUT_ITEM_RC*)LockResource(layout_table_handle);
 
   resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), RT_DIALOG);
   dialog_handle = LoadResource(resource, resource_handle);
@@ -158,13 +165,13 @@ init_layout() {
   dialog_item = first_item(dialog);
   
   for(n = 0; n < dialog->cdit; n++) {
-    for(i = 0; i < layout_resource_size/sizeof(LAYOUT_ITEM); i++) {
+    for(i = 0; i < layout_resource_size/sizeof(LAYOUT_ITEM_RC); i++) {
       if(layout_table[i].id == dialog_item->id) {
         LAYOUT_ITEM_LIST* item = (LAYOUT_ITEM_LIST*)malloc(sizeof(LAYOUT_ITEM_LIST));
         
         item->item.id = layout_table[i].id;
-        item->item.top_left.anchor = layout_table[i].top_left.anchor;
-        item->item.bottom_right.anchor = layout_table[i].bottom_right.anchor;
+        item->item.top_left.anchor = layout_table[i].top_left_anchor;
+        item->item.bottom_right.anchor = layout_table[i].bottom_right_anchor;
         
         if(item->item.top_left.anchor & ANCOR_RIGHT) {
           item->item.top_left.x = dialog_item->x - dialog->cx;
@@ -306,7 +313,7 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
 
     RegCloseKey(key);
 
-    sprintf(language_lib, "diff_ext_setup%d.dll\0", language);
+    sprintf(language_lib, "diff_ext_setup%d.dll", language);
   }
 
   resource = LoadLibrary(language_lib);
@@ -352,7 +359,7 @@ InitializeApp(HWND hDlg,WPARAM wParam, LPARAM lParam) {
     HANDLE file;
     WIN32_FIND_DATA file_info;
     DWORD language;
-    char prefix[] = "diff-ext-setup";
+    char prefix[] = "diff_ext_setup";
     char root[] = "????";
     char suffix[] = ".dll";
     TCHAR* locale_info;
