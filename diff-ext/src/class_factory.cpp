@@ -6,10 +6,6 @@
  *
  */
 
-/*
- * $Id$
- */
- 
 #include "class_factory.h"
 #include "diff_ext.h"
 

@@ -9,10 +9,6 @@
 #ifndef __diff_ext_h__
 #define __diff_ext_h__
 
-/*
- * $Id$
- */
-
 #include <windows.h>
 #include <windowsx.h>
 #include <shlobj.h>

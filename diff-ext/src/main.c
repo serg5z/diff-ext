@@ -6,10 +6,6 @@
  *
  */
 
-/*
- * $Id$
- */
-
 #include <windows.h>
 
 #define SHELLEXNAME    "diff_ext"

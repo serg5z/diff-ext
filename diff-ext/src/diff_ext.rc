@@ -6,10 +6,6 @@
  *
  */
 
-/*
- * $Id$
- */
-
 #include <windows.h>
 #define xstr(x) str(x)
 #define str(x) #x

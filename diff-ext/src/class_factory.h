@@ -8,10 +8,6 @@
 
 #ifndef __class_factory_h__
 #define __class_factory_h__
-
-/*
- * $Id$
- */
  
 #include <shlobj.h>
 #include <shlguid.h>
