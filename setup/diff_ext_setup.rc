@@ -16,13 +16,10 @@
   #define MANIFEST 24
   #endif
 
-/* disable it untill I can fix styling problem with tab pages
 1 MANIFEST "diff_ext_setup.manifest"
-*/
 #endif
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#if 0
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 1,0,0,0
  PRODUCTVERSION 1,0,0,0
@@ -58,19 +55,19 @@ VS_VERSION_INFO VERSIONINFO
         VALUE "Translation", 0x409, 1200
     }
 }
-#endif
+
 main_icon ICON "de.ico"
 
 IDD_OPTIONS DIALOGEX
 0, 0, 228, 75
-STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK
+STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK | WS_CLIPSIBLINGS //| WS_CLIPCHILDREN
 FONT 8, "Helv"
 EXSTYLE WS_EX_CONTROLPARENT
 BEGIN
     GROUPBOX      "Diff command", 			
                   ID_GROUP, 
                   7, 7, 214, 46,
-		  WS_EX_TRANSPARENT
+		  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
     EDITTEXT      
                   ID_DIFF_COMMAND, 
                   14, 18, 145, 14, 
@@ -94,7 +91,7 @@ END
 
 IDD_DEBUG DIALOGEX
 0, 0, 228, 75
-STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK
+STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK //| WS_CLIPCHILDREN
 FONT 8, "Helv"
 EXSTYLE WS_EX_CONTROLPARENT
 BEGIN
@@ -105,7 +102,7 @@ BEGIN
     EDITTEXT      
                   ID_LOG_PATH, 
                   7, 22, 159, 14, 
-                  ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER
+                  ES_AUTOHSCROLL | WS_VISIBLE | WS_BORDER
                   
     PUSHBUTTON    "Browse...",
                   ID_BROWSE, 
@@ -114,7 +111,7 @@ END
 
 IDD_MAINDIALOG DIALOGEX
 70, 60, 242, 129
-STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_CLIPCHILDREN
 CAPTION "diff_ext setup"
 FONT 8, "Helv"
 CLASS "diff-ext-setup"
@@ -122,7 +119,7 @@ BEGIN
     CONTROL         "", 
 		  ID_TAB, 
 		  "SysTabControl32", 
-		  WS_TABSTOP | WS_CLIPSIBLINGS, 
+		  WS_TABSTOP, 
 		  6, 6, 228, 98
     DEFPUSHBUTTON "OK", 
                   IDOK, 
@@ -146,8 +143,8 @@ CAPTION "About diff_ext"
 FONT 8, "MS Shell Dlg"
 BEGIN
     DEFPUSHBUTTON "&Close", 
-		  IDOK, 
-		  157, 52, 50, 14
+	  IDOK, 
+	  157, 52, 50, 14
 		  
     ICON  "main_icon", 
 	  203, 
@@ -178,7 +175,19 @@ ID_MAINDIALOG_LAYOUT RCDATA {
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
   ID_APPLY, /*ID_APPLY*/ 
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
-    12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
+    12L /* ANCOR_RIGHT | ANCOR_BOTTOM */
+}
+
+ID_DEBUG_LAYOUT RCDATA {
+  ID_BROWSE, /*ID_BROWSE*/ 
+    6L, /* ANCOR_RIGHT | ANCOR_TOP */
+    6L, /* ANCOR_RIGHT | ANCOR_TOP */
+  ID_LOG_PATH, /*ID_LOG_PATH*/ 
+    3L, /* ANCOR_LEFT | ANCOR_TOP */
+    6L /* ANCOR_RIGHT | ANCOR_TOP */
+}
+
+ID_OPTIONS_LAYOUT RCDATA {
   ID_GROUP, /*ID_GROUP*/ 
     3L, /* ANCOR_LEFT | ANCOR_TOP */
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
@@ -187,8 +196,5 @@ ID_MAINDIALOG_LAYOUT RCDATA {
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
   ID_BROWSE, /*ID_BROWSE*/ 
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
-    6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  ID_LOG_PATH, /*ID_LOG_PATH*/ 
-    3L, /* ANCOR_LEFT | ANCOR_TOP */
     6L /* ANCOR_RIGHT | ANCOR_TOP */
 }

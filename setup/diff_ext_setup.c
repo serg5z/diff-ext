@@ -5,8 +5,6 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
-#define SIDEBYSIDE_COMMONCONTROLS 1
-
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
@@ -14,6 +12,7 @@
 #include <stdio.h>
 
 #include "layout.h"
+#include "page.h"
 
 #include "diff_ext_setup.rh"
 
@@ -25,12 +24,12 @@ typedef struct {
 } WINDOW_PLACEMENT;
 
 static BOOL CALLBACK DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
-static BOOL CALLBACK options_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
-static BOOL CALLBACK debug_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
+extern PAGE* create_options_page(HANDLE resource, HWND parent);
+extern PAGE* create_debug_page(HANDLE resource, HWND parent);
 
 static HANDLE resource;
 static WINDOW_PLACEMENT* window_placement = 0;
-static pages[2];
+static PAGE* pages[2];
 
 int APIENTRY
 WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
@@ -57,8 +56,9 @@ WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
   
     resource = LoadLibrary(language_lib);
   
-    if(resource == NULL)
+    if(resource == NULL) {
       resource = instance;
+    }
   
     memset(&wc,0,sizeof(wc));
     wc.lpfnWndProc = DefDlgProc;
@@ -93,20 +93,7 @@ WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
 }
 
 static void
-InitializeApp(HWND dialog, WPARAM wParam, LPARAM lParam) {
-  HKEY key;
-  TCHAR command[MAX_PATH] = TEXT("");
-  TCHAR home[MAX_PATH] = TEXT(".");
-  DWORD hlen;
-  HANDLE file;
-  WIN32_FIND_DATA file_info;
-  DWORD language = 1033;
-  TCHAR prefix[] = TEXT("diff_ext_setup");
-  TCHAR root[] = TEXT("????");
-  TCHAR suffix[] = TEXT(".dll");
-  TCHAR* locale_info;
-  int locale_info_size;
-  int curr = 0;
+InitializeApp(HWND dialog, WPARAM w_param, LPARAM l_param) {
   HWND tab = GetDlgItem(dialog, ID_TAB);
   HGLOBAL dialog_handle;
   HRSRC resource_handle;
@@ -116,24 +103,26 @@ InitializeApp(HWND dialog, WPARAM wParam, LPARAM lParam) {
   RECT rect;
   TCITEM item1;
   TCITEM item2;
+  HMODULE uxtheme_library = LoadLibrary(TEXT("uxtheme.dll"));
 
-  options_layout = create_layout(resource, MAKEINTRESOURCE(IDD_OPTIONS), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
-  debug_layout = create_layout(resource, MAKEINTRESOURCE(IDD_DEBUG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
+  pages[0] = create_options_page(resource, dialog);
+  pages[1] = create_debug_page(resource, dialog);
 
-  resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_OPTIONS), RT_DIALOG);
-  dialog_handle = LoadResource(resource, resource_handle);
-  dialog_template = (DLGTEMPLATE*)LockResource(dialog_handle);
+  if(uxtheme_library != 0) {
+    FARPROC EnableThemeDialogTexture = GetProcAddress(uxtheme_library, "EnableThemeDialogTexture");
+    
+    if(EnableThemeDialogTexture != 0) {
+      int i;
+      const int ETDT_DISABLE = 1;
+      const int ETDT_ENABLE = 2;
+      const int ETDT_USETABTEXTURE = 4;
+      const int ETDT_ENABLETAB = ETDT_ENABLE | ETDT_USETABTEXTURE;
+      for(i = 0; i < sizeof(pages)/sizeof(pages[0]); i++) {
+	(EnableThemeDialogTexture)(pages[i]->page, ETDT_ENABLETAB);
+      }
+    }
+  }
 
-  pages[0] = CreateDialogIndirectParam(resource, dialog_template, dialog, (DLGPROC)options_func, (LPARAM)options_layout);
-
-  resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_DEBUG), RT_DIALOG);
-  dialog_handle = LoadResource(resource, resource_handle);
-  dialog_template = (DLGTEMPLATE*)LockResource(dialog_handle);
-
-  pages[1] = CreateDialogIndirectParam(resource, dialog_template, dialog, (DLGPROC)debug_func, (LPARAM)debug_layout);
-  
-  printf("%d\n", GetLastError());
-  
   ZeroMemory(&item1, sizeof(TCITEM));
   ZeroMemory(&item2, sizeof(TCITEM));
 
@@ -146,81 +135,9 @@ InitializeApp(HWND dialog, WPARAM wParam, LPARAM lParam) {
   item2.lParam = (LPARAM)0;
 
   TabCtrl_InsertItem(tab, 1, &item1);
-  TabCtrl_InsertItem(tab, 2, &item2);
+  TabCtrl_InsertItem(tab, 2, &item2);  
   
-  ZeroMemory(command, MAX_PATH);
-
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
-
-    hlen = MAX_PATH;
-    RegQueryValueEx(key, TEXT("diff"), 0, NULL, (BYTE*)command, &hlen);
-
-    hlen = sizeof(DWORD);
-    if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &hlen) != ERROR_SUCCESS) {
-      language = 1033;
-    }
-
-    hlen = MAX_PATH;
-    if(RegQueryValueEx(key, TEXT("home"), 0, NULL, (BYTE*)home, &hlen) != ERROR_SUCCESS) {
-      lstrcpy(home, TEXT("."));
-    }
-
-    RegCloseKey(key);
-  }
-  
-  locale_info_size = GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, 0, 0);
-  locale_info = (TCHAR*)malloc(locale_info_size);
-  GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
-
-  SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
-  SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETITEMDATA, curr, 1033);
-
-  if(language == 1033)
-    SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
-
-  free(locale_info);
-  curr++;
-
-  lstrcat(home, "\\");
-  lstrcat(home, prefix);
-  lstrcat(home, root);
-  lstrcat(home, suffix);
-
-  file = FindFirstFile(home, &file_info);
-  if(file != INVALID_HANDLE_VALUE) {
-    BOOL stop = FALSE;
-
-    while(stop == FALSE) {
-      char* str = file_info.cFileName+sizeof(prefix)/sizeof(char)-1;
-      DWORD lang_id;
-
-      str[sizeof(root)/sizeof(char)-1] = 0;
-
-      lang_id = atoi(str);
-
-      locale_info_size = GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, 0, 0);
-      locale_info = (TCHAR*)malloc(locale_info_size);
-      GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
-
-      SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
-      SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETITEMDATA, curr, lang_id);
-
-      if(lang_id == language)
-        SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
-
-      free(locale_info);
-
-      stop = !FindNextFile(file, &file_info);
-      curr++;
-    }
-
-    FindClose(file);
-  }
-
-  SetDlgItemText(dialog, ID_DIFF_COMMAND, command);
-  SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, MAX_PATH, 0);
-  
-  SetWindowLongPtr(dialog, DWLP_USER, lParam);
+  SetWindowLongPtr(dialog, DWLP_USER, l_param);
   
   if(window_placement == 0) {
     RECT rect;
@@ -237,12 +154,9 @@ InitializeApp(HWND dialog, WPARAM wParam, LPARAM lParam) {
   }
   
   GetClientRect(tab, &rect);
-
   TabCtrl_AdjustRect(tab, FALSE, &rect);
-
-  MapWindowPoints(tab, dialog, (LPPOINT)&rect, 2);
-  
-  SetWindowPos(pages[0], HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
+  MapWindowPoints(tab, dialog, (LPPOINT)&rect, 2);  
+  SetWindowPos(pages[0]->page, HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
 }
 
 static void
@@ -301,34 +215,6 @@ AboutDialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 static BOOL CALLBACK
-options_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
-  BOOL ret = FALSE;
-
-  switch (msg) {
-    case WM_INITDIALOG:
-      SetWindowLongPtr(dialog, DWLP_USER, lParam);
-      ret = TRUE;
-      break;  
-  }
-  
-  return ret;
-}
-  
-static BOOL CALLBACK
-debug_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
-  BOOL ret = FALSE;
-
-  switch (msg) {
-    case WM_INITDIALOG:
-      SetWindowLongPtr(dialog, DWLP_USER, lParam);
-      ret = TRUE;
-      break;
-  }
-  
-  return ret;
-}
-  
-static BOOL CALLBACK
 DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
   BOOL ret = FALSE;
 
@@ -344,24 +230,13 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	  DialogBox(resource, MAKEINTRESOURCE(DLG_ABOUT), dialog, AboutDialogFunc);
 	  break;
 	
-        case ID_DIFF_COMMAND: {
-            static int first = 1;
-            if((first != 0) && (HIWORD(wParam) == EN_SETFOCUS)) {
-              SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETSEL, 0, 0);
-              SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETMARGINS, EC_RIGHTMARGIN, MAKELPARAM(0, 30));
-              first = 0;
-            }
-          }
-          break;
-
         case ID_APPLY:
         case IDOK: {
             HKEY key;
-            TCHAR command[MAX_PATH];
-	    LRESULT language;
-	    LRESULT old_language;
-	    LRESULT idx;
+	    LRESULT language = 1033;
+	    LRESULT old_language = 1033;
 	    DWORD hlen;
+	    int i;
 
 	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 	      hlen = sizeof(DWORD);
@@ -372,15 +247,19 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	      RegCloseKey(key);
 	    }
 	    
-            GetDlgItemText(dialog, ID_DIFF_COMMAND, command, MAX_PATH);
-	    idx = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
-	    language = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
+	    for(i = 0; i < sizeof(pages)/sizeof(pages[0]); i++) {
+	      pages[i]->apply(pages[i]);
+	    }
+	    
+	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+	      hlen = sizeof(DWORD);
+	      if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &hlen) != ERROR_SUCCESS) {
+		language = 1033;
+	      }
 
-            RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_SET_VALUE, &key);
-            RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, lstrlen(command));
-            RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
-            RegCloseKey(key);
-
+	      RegCloseKey(key);
+	    }
+	    
 	    if((LOWORD(wParam) == IDOK) || (language != old_language)) {
 	      EndDialog(dialog, LOWORD(wParam));
 	    }
@@ -392,33 +271,6 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
         case IDCANCEL:
           EndDialog(dialog, IDCANCEL);
           ret = TRUE;
-          break;
-
-        case ID_BROWSE: {
-            OPENFILENAME ofn;
-            TCHAR szFile[MAX_PATH] = "";
-            DWORD err;
-
-            ZeroMemory(&ofn, sizeof(OPENFILENAME));
-            ofn.lStructSize = sizeof(OPENFILENAME);
-            ofn.hwndOwner = dialog;
-            ofn.lpstrFile = szFile;
-            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
-            ofn.lpstrFilter = "Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0";
-            ofn.nFilterIndex = 1;
-            ofn.lpstrFileTitle = NULL;
-            ofn.nMaxFileTitle = 0;
-            ofn.lpstrInitialDir = NULL;
-	    ofn.lpstrTitle = "Select file compare utility";
-            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-
-            if(GetOpenFileName(&ofn) == TRUE)
-              SetDlgItemText(dialog, ID_DIFF_COMMAND, ofn.lpstrFile);
-
-            err = CommDlgExtendedError();
-
-            ret = TRUE;
-          }
           break;
       }
       break;
@@ -469,8 +321,8 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 /**/
         layout(dialog);
       
-        MoveWindow(pages[page], tab_rect.left, tab_rect.top, tab_rect.right-tab_rect.left, tab_rect.bottom-tab_rect.top, FALSE);
-        layout(pages[page]);
+        MoveWindow(pages[page]->page, tab_rect.left, tab_rect.top, tab_rect.right-tab_rect.left, tab_rect.bottom-tab_rect.top, FALSE);
+        layout(pages[page]->page);
 /* redraw them all*/
         GetWindowRect(dialog, &rect);
         window_placement->x = rect.left;
@@ -478,8 +330,7 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
         window_placement->width = rect.right-rect.left;
         window_placement->height = rect.bottom-rect.top;
 
-        InvalidateRect(dialog, 0, TRUE);
-        UpdateWindow(dialog);
+	RedrawWindow(dialog, 0, 0, RDW_ALLCHILDREN | RDW_INVALIDATE);
 
 	ret = TRUE;
       }
@@ -495,17 +346,16 @@ DialogFunc(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	    RECT rect;
 
 	    GetClientRect(data->hwndFrom, &rect);
-
 	    TabCtrl_AdjustRect(data->hwndFrom, FALSE, &rect);
-
 	    MapWindowPoints(data->hwndFrom, dialog, (LPPOINT)&rect, 2);
 	    
 	    for(i = 0; i < sizeof(pages)/sizeof(pages[0]); i++) {
 	      if(i == page) {
-		SetWindowPos(pages[i], HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
-		layout(pages[i]);
+		SetWindowPos(pages[i]->page, HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
+		layout(pages[i]->page);
+		RedrawWindow(pages[i]->page, 0, 0, RDW_ALLCHILDREN | RDW_INVALIDATE);
 	      } else {
-	        ShowWindow(pages[i], FALSE);
+	        ShowWindow(pages[i]->page, FALSE);
 	      }
 	    }
 	  }
