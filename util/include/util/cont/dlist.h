@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ * Copyright (c) 2003,2004 Sergey Zorin. All rights reserved.
  *
  * This software is distributable under the BSD license. See the terms
  * of the BSD license in the LICENSE file provided with this software.
@@ -249,6 +249,10 @@ class DLIST {
     
     unsigned int count() const {
       return _count;
+    }
+    
+    bool empty() const {
+      return (_root._next == &_root);
     }
     
     void clear() {
