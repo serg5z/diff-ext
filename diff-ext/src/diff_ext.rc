@@ -1,9 +1,19 @@
 /*
+ * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ *
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
+ *
+ */
+
+/*
  * $Id$
  */
+
 #include <windows.h>
 #define xstr(x) str(x)
 #define str(x) #x
+
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 0,1,0,1
  PRODUCTVERSION 0,1,0,1
