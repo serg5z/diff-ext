@@ -204,13 +204,6 @@ SERVER::recent_files() {
 	  }
 	} else {
 	  stop = true;
-	  LPTSTR message;
-	  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
-	    GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-	    (LPTSTR) &message, 0, 0);
-	  MessageBox(0, message, TEXT("GetLastError"), MB_OK | MB_ICONINFORMATION);
-      
-	  LocalFree(message);
 	}
       }
       

@@ -3,13 +3,13 @@ Compression=lzma
 SolidCompression=yes
 AppName=diff_ext
 AppId=A0482097-C69D-4DEC-8AB6-D3A259ACC151
-AppVerName=diff_ext 1.2
+AppVerName=diff_ext 1.3
 AppPublisher=Z
 DefaultDirName={pf}\Z\diff_ext
 DefaultGroupName=Z\diff_ext
 DisableProgramGroupPage=false
 OutputDir=.
-OutputBaseFilename=diff_ext-1.2
+OutputBaseFilename=diff_ext-1.3
 
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
 ; MinVersion=4,3.51
@@ -45,14 +45,6 @@ Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: language; 
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: log; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: log_level; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff_ext\history; Flags: uninsdeletekeyifempty uninsdeletevalue
-Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 1; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 2; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 3; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 4; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 5; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 6; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 7; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff_ext\history; ValueType: string; ValueName: 8; ValueData: ; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z; Flags: uninsdeletekeyifempty uninsdeletevalue
 
 ;Root: HKCR; Subkey: "*\shellex\ContextMenuHandlers\diff_ext"; ValueType: string; ValueName: ""; ValueData: "{{A0482097-C69D-4DEC-8AB6-D3A259ACC151}"; Flags: uninsdeletekey

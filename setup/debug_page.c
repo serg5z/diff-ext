@@ -160,13 +160,13 @@ debug_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
 
         case ID_BROWSE: {
             OPENFILENAME ofn;
-            TCHAR szFile[MAX_PATH] = "";
+            TCHAR log_path[MAX_PATH] = "";
 
             ZeroMemory(&ofn, sizeof(OPENFILENAME));
             ofn.lStructSize = sizeof(OPENFILENAME);
             ofn.hwndOwner = dialog;
-            ofn.lpstrFile = szFile;
-            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
+            ofn.lpstrFile = log_path;
+            ofn.nMaxFile = sizeof(log_path)/sizeof(log_path[0]);
             ofn.lpstrFilter = TEXT("Log files (*.log)\0*.LOG\0All (*.*)\0*.*\0");
             ofn.nFilterIndex = 1;
             ofn.lpstrFileTitle = NULL;
@@ -176,7 +176,18 @@ debug_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
 
             if(GetOpenFileName(&ofn) == TRUE) {
-              SetDlgItemText(dialog, ID_LOG_PATH, ofn.lpstrFile);
+	      unsigned int length = lstrlen(log_path);
+	      
+	      if((length > 3) && (ofn.nFilterIndex == 1)) {
+		if((log_path[length-4] != '.') && 
+		   (log_path[length-3] != 'l') && 
+		   (log_path[length-2] != 'o') && 
+		   (log_path[length-1] != 'g')) {
+		  lstrcat(log_path, ".log");
+	        }
+	      }
+	      
+              SetDlgItemText(dialog, ID_LOG_PATH, log_path);
 	    }
           }
           break;

@@ -15,8 +15,8 @@ ifdef DEBUG
   CXXFLAGS ?= -g -ansi -pedantic -Wall
   CFLAGS ?= -g -ansi -pedantic -Wall
 else
-  CXXFLAGS ?= -ansi -pedantic -Wall
-  CFLAGS ?= -ansi -pedantic -Wall
+  CXXFLAGS ?= -ansi -pedantic -Wall -O2
+  CFLAGS ?= -ansi -pedantic -Wall -O2
 endif
 LDFLAGS ?= -L$(LIB)
 LIB ?= ../../lib
