@@ -6,12 +6,12 @@ static const DWORD ANCOR_RIGHT =0x000004;
 static const DWORD ANCOR_BOTTOM=0x000008;
 
 typedef struct {
-  WORD dlgVer;
+  WORD version;
   WORD signature;
-  DWORD helpID;
-  DWORD exStyle;
+  DWORD help_iD;
+  DWORD extended_style;
   DWORD style;
-  WORD cDlgItems;
+  WORD cdit;
   short x;
   short y;
   short cx;
@@ -158,6 +158,48 @@ next_item(DLGITEMTEMPLATE* tpl) {
   return (DLGITEMTEMPLATE*)(((DWORD)current+3) & ~(DWORD)3 );
 }
 
+static DLGITEMTEMPLATEEX*
+next_extended_item(DLGITEMTEMPLATEEX* tpl) {
+  WORD* current;
+  WORD extra_size;
+  
+  tpl++;
+  current = (WORD*)tpl;
+  
+/* skip class */    
+  if((*current) == 0xffff) {
+    current++;
+  }
+  else {
+    while((*current) != 0) {
+      current++;
+    }
+  }
+  current++;
+
+/* skip text */    
+  if((*current) == 0xffff) {
+    current++;
+  }
+  else {
+    while((*current) != 0) {
+      current++;
+    }
+  }
+  current++;
+  
+/* testme!!! */  
+  extra_size = *current;
+  if(extra_size > 0) {
+    current = (WORD*)((BYTE*)current + extra_size);
+  }
+  else {
+    current++;
+  }
+  
+  return (DLGITEMTEMPLATEEX*)(((DWORD)current+3) & ~(DWORD)3 );
+}
+
 LAYOUT*
 create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
   HGLOBAL layout_table_handle;
@@ -169,6 +211,8 @@ create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
   DWORD layout_resource_size;
   unsigned int i;
   int n;
+  int dialog_width;
+  int dialog_height;
   int controls_count;
   LAYOUT_ITEM_LIST* prev;
   LAYOUT* layout = (LAYOUT*)malloc(sizeof(LAYOUT));
@@ -188,18 +232,46 @@ create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
   dialog_item = first_item(dialog);
   
   if(is_extended_dialog(dialog)) {
-    controls_count = ((DLGTEMPLATEEX*)dialog)->cDlgItems;
+    layout->width = ((DLGTEMPLATEEX*)dialog)->cx;
+    layout->height = ((DLGTEMPLATEEX*)dialog)->cy;
+    dialog_width = ((DLGTEMPLATEEX*)dialog)->cx;
+    dialog_height = ((DLGTEMPLATEEX*)dialog)->cy;
+
+    controls_count = ((DLGTEMPLATEEX*)dialog)->cdit;
   }
   else {
+    layout->width = dialog->cx;
+    layout->height = dialog->cy;
+    dialog_width = dialog->cx;
+    dialog_height = dialog->cy;
+  
     controls_count = dialog->cdit;
   }
   
-  layout->width = dialog->cx;
-  layout->height = dialog->cy;
-  
   for(n = 0; n < controls_count; n++) {
+    DWORD item_id;
+    int x;
+    int y;
+    int cx;
+    int cy;
+    
+    if(is_extended_dialog(dialog)) {
+      item_id = ((DLGITEMTEMPLATEEX*)dialog_item)->id;
+      x = ((DLGITEMTEMPLATEEX*)dialog_item)->x;
+      y = ((DLGITEMTEMPLATEEX*)dialog_item)->y;
+      cx = ((DLGITEMTEMPLATEEX*)dialog_item)->cx;
+      cy = ((DLGITEMTEMPLATEEX*)dialog_item)->cy;
+    }
+    else {
+      item_id = dialog_item->id;
+      x = dialog_item->x;
+      y = dialog_item->y;
+      cx = dialog_item->cx;
+      cy = dialog_item->cy;
+    }
+    
     for(i = 0; i < layout_resource_size/sizeof(LAYOUT_ITEM_RC); i++) {
-      if(layout_table[i].id == dialog_item->id) {
+      if(layout_table[i].id == item_id) {
         LAYOUT_ITEM_LIST* item = (LAYOUT_ITEM_LIST*)malloc(sizeof(LAYOUT_ITEM_LIST));
         
         item->item.id = layout_table[i].id;
@@ -208,35 +280,35 @@ create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
         item->next = 0;
 
         if(item->item.top_left.anchor & ANCOR_RIGHT) {
-          item->item.top_left.x = dialog_item->x - dialog->cx;
+          item->item.top_left.x = x - dialog_width;
         }
     
         if(item->item.top_left.anchor & ANCOR_LEFT) {
-          item->item.top_left.x = dialog_item->x;
+          item->item.top_left.x = x;
         }
     
         if(item->item.top_left.anchor & ANCOR_TOP) {
-          item->item.top_left.y = dialog_item->y;
+          item->item.top_left.y = y;
         }
     
         if(item->item.top_left.anchor & ANCOR_BOTTOM) {
-          item->item.top_left.y = dialog_item->y - dialog->cy;
+          item->item.top_left.y = y - dialog_height;
         }
     
         if(item->item.bottom_right.anchor & ANCOR_RIGHT) {
-          item->item.bottom_right.x = dialog_item->x - dialog->cx + dialog_item->cx;
+          item->item.bottom_right.x = x - dialog_width + cx;
         }
     
         if(item->item.bottom_right.anchor & ANCOR_LEFT) {
-          item->item.bottom_right.x = dialog_item->x + dialog_item->cx;
+          item->item.bottom_right.x = x + cx;
         }
     
         if(item->item.bottom_right.anchor & ANCOR_TOP) {
-          item->item.bottom_right.y = dialog_item->y + dialog_item->cy;
+          item->item.bottom_right.y = y + cy;
         }
     
         if(item->item.bottom_right.anchor & ANCOR_BOTTOM) {
-          item->item.bottom_right.y = dialog_item->y - dialog->cy + dialog_item->cy;
+          item->item.bottom_right.y = y - dialog_height + cy;
         }
     
         if(layout->control_layout == 0) {
@@ -250,7 +322,12 @@ create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
       }
     }
 
-    dialog_item = next_item(dialog_item);
+    if(is_extended_dialog(dialog)) {
+      dialog_item = (DLGITEMTEMPLATE*)next_extended_item((DLGITEMTEMPLATEEX*)dialog_item);
+    }
+    else {
+      dialog_item = next_item(dialog_item);
+    }
   }
   
   FreeResource(dialog);
