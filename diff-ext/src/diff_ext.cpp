@@ -175,7 +175,12 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       resource_string_length = LoadString(_resource, DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
-	MessageBox(0, TEXT("Can not load 'DIFF_WITH_STR' string resource"), TEXT("ERROR"), MB_OK);
+	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	
+	if(resource_string_length == 0) {
+	  lstrcpy(resource_string, TEXT("diff with"));
+	  MessageBox(0, TEXT("Can not load 'DIFF_WITH_STR' string resource"), TEXT("ERROR"), MB_OK);
+	}
       }
       
       STRING str(resource_string);
@@ -184,11 +189,11 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 
       if(_recent_files.count() > 0) {
         state = MFS_ENABLED;
-	str += " ";
-        str += _recent_files.front();
+	str += " '";
+        str += cut_to_length(_recent_files.front());
+	str += "'";
       }
 
-      str = cut_to_length(str);
       c_str = str;
 
       ZeroMemory(&item_info, sizeof(item_info));
@@ -204,7 +209,12 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       resource_string_length = LoadString(_resource, DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
-	MessageBox(0, TEXT("Can not load 'DIFF_LATER_STR' string resource"), TEXT("ERROR"), MB_OK);
+	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	
+	if(resource_string_length == 0) {
+	  lstrcpy(resource_string, TEXT("diff later"));
+	  MessageBox(0, TEXT("Can not load 'DIFF_LATER_STR' string resource"), TEXT("ERROR"), MB_OK);
+	}
       }
       
       ZeroMemory(&item_info, sizeof(item_info));
@@ -242,7 +252,12 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       resource_string_length = LoadString(_resource, DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
-	MessageBox(0, TEXT("Can not load 'DIFF_WITH_STR' string resource"), TEXT("ERROR"), MB_OK);
+	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	
+	if(resource_string_length == 0) {
+	  lstrcpy(resource_string, TEXT("diff with"));
+	  MessageBox(0, TEXT("Can not load 'DIFF_WITH_STR' string resource"), TEXT("ERROR"), MB_OK);
+	}
       }
       
       ZeroMemory(&item_info, sizeof(item_info));
@@ -258,7 +273,12 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       resource_string_length = LoadString(_resource, DIFF_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
-	MessageBox(0, TEXT("Can not load 'DIFF_STR' string resource"), TEXT("ERROR"), MB_OK);
+	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	
+	if(resource_string_length == 0) {
+	  lstrcpy(resource_string, TEXT("diff"));
+	  MessageBox(0, TEXT("Can not load 'DIFF_STR' string resource"), TEXT("ERROR"), MB_OK);
+	}
       }
       
       STRING str(resource_string); //= "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
@@ -327,57 +347,90 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
   if(uFlags == GCS_HELPTEXT) {
     if(idCmd == IDM_DIFF) {
       resource_string_length = LoadString(_resource, DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+      
+      if(resource_string_length == 0) {
+	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	
+	if(resource_string_length == 0) {
+	  lstrcpy(resource_string, TEXT("Compare selected files"));
+	  MessageBox(0, TEXT("Can not load 'DIFF_HINT' string resource"), TEXT("ERROR"), MB_OK);
+	}
+      }
+      
       lstrcpyn(pszName, resource_string, cchMax);
     } else if(idCmd == IDM_DIFF_WITH) {
-      resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-      if(resource_string_length > 0) {
-        if(!_recent_files.empty()) {
-          char* file_name1 = _file_name1;
-          char* file_name2 = _recent_files.front();
-          char* message;
-          char* args[] = {file_name1, file_name2};
+      if(!_recent_files.empty()) {
+	LPSTR file_name1 = _file_name1;
+	LPSTR file_name2 = _recent_files.front();
+	LPSTR message;
+	LPSTR args[] = {file_name1, file_name2};
 
-          FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
-          lstrcpyn(pszName, message, cchMax);
-          LocalFree(message);
-        }
-        else {
-          lstrcpyn(pszName, _T(""), cchMax);
-        }
+	resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	
+	if(resource_string_length == 0) {
+	  resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	  
+	  if(resource_string_length == 0) {
+	    lstrcpy(resource_string, TEXT("Compare '%1' with '%2'"));
+	    MessageBox(0, TEXT("Can not load 'DIFF_WITH_HINT' string resource"), TEXT("ERROR"), MB_OK);
+	  }
+	}
+	
+	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
+	lstrcpyn(pszName, message, cchMax);
+	LocalFree(message);
+      }
+      else {
+	lstrcpyn(pszName, _T(""), cchMax);
       }
     } else if(idCmd == IDM_DIFF_LATER) {
       resource_string_length = LoadString(_resource, DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-      if(resource_string_length > 0) {
-        char* file_name1 = _file_name1;
-        char* message;
-        char* args[] = {file_name1};
-
-        FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
-        lstrcpyn(pszName, message, cchMax);
-        LocalFree(message);
+      
+      if(resource_string_length == 0) {
+	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	
+	if(resource_string_length == 0) {
+	  lstrcpy(resource_string, TEXT("Save '%1' for later comparison"));
+	  MessageBox(0, TEXT("Can not load 'DIFF_LATER_HINT' string resource"), TEXT("ERROR"), MB_OK);
+	}
       }
-    } else if((idCmd >= IDM_DIFF_WITH_BASE) && (idCmd < IDM_DIFF_WITH_BASE+_recent_files.size())) {
-      resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-      if(resource_string_length > 0) {
-        if(!_recent_files.empty()) {
-          unsigned int num = idCmd-IDM_DIFF_WITH_BASE;
-          char* file_name1 = _file_name1;
-          
-          DEQUE<STRING>::CURSOR i = _recent_files.begin();
-          for(unsigned int j = 0; j < num; j++)
-            i++;
-        
-          char* file_name2 = _recent_files.item(i);
-          char* message;
-          char* args[] = {file_name1, file_name2};
+      
+      LPSTR file_name1 = _file_name1;
+      LPSTR message;
+      LPSTR args[] = {file_name1};
 
-          FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
-          lstrcpyn(pszName, message, cchMax);
-          LocalFree(message);
-        }
-        else {
-          lstrcpyn(pszName, _T(""), cchMax);
-        }
+      FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
+      lstrcpyn(pszName, message, cchMax);
+      LocalFree(message);
+    } else if((idCmd >= IDM_DIFF_WITH_BASE) && (idCmd < IDM_DIFF_WITH_BASE+_recent_files.size())) {
+      if(!_recent_files.empty()) {
+	resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+      
+	if(resource_string_length == 0) {
+	  resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	  
+	  if(resource_string_length == 0) {
+	    lstrcpy(resource_string, TEXT("Compare '%1' with '%2'"));
+	    MessageBox(0, TEXT("Can not load 'DIFF_WITH_HINT' string resource"), TEXT("ERROR"), MB_OK);
+	  }
+	}
+	unsigned int num = idCmd-IDM_DIFF_WITH_BASE;
+	LPSTR file_name1 = _file_name1;
+	
+	DEQUE<STRING>::CURSOR i = _recent_files.begin();
+	for(unsigned int j = 0; j < num; j++)
+	  i++;
+      
+	LPSTR file_name2 = _recent_files.item(i);
+	LPSTR message;
+	LPSTR args[] = {file_name1, file_name2};
+
+	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
+	lstrcpyn(pszName, message, cchMax);
+	LocalFree(message);
+      }
+      else {
+	lstrcpyn(pszName, _T(""), cchMax);
       }
     }
   }
@@ -425,26 +478,19 @@ DIFF_EXT::diff() {
   lstrcat(command, tmp);
   lstrcat(command,"\"");
 
-  //~ const char* s;
-
-  //~ fprintf(f, "command='%s'\n", command);
-  //~ s = _file_name1;
-  //~ fprintf(f, "f1='%s'\n", s);
-  //~ s = _file_name2;
-  //~ fprintf(f, "f2='%s'\n", s);
-  //~ fprintf(f, "length=%d\n", MAX_PATH);
-
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
 
   if (CreateProcess(0, command, 0, 0, FALSE, 0, 0, 0, &si, &pi) == 0) {
-    char* message;
+/*
+    LPTSTR message;
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
       GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
       (LPTSTR) &message, 0, 0);
     MessageBox(0, message, TEXT("GetLastError"), MB_OK | MB_ICONINFORMATION);
 
     LocalFree(message);
+*/
     MessageBox(_hwnd, TEXT("Error creating process: Check if differ is in your path!"), TEXT("diff_ext.dll error"), MB_OK);
   } else {
     CloseHandle( pi.hProcess );
