@@ -36,7 +36,7 @@ LANG := $(LANG_RU)
 all: all-before $(EXE) $(LANG) all-after
 
 clean: clean-custom
-	${RM}  $(OBJ) $(EXE) ${RES} ${EXPLIB} $(STATICLIB) $(LANG)
+	${RM}  $(OBJ) $(EXE) ${RES} ${EXPLIB} $(STATICLIB) $(LANG) lang/$(PROJ)_ru.res
 
 $(LANG_RU) : lang/$(PROJ)_ru.res
 	$(DLLWRAP) \

@@ -5,12 +5,10 @@
 #include <stdio.h>
 #include "diff_ext_setup_res.h"
 
-/*
 const DWORD ANCOR_LEFT  =0x000001;
 const DWORD ANCOR_TOP   =0x000002;
 const DWORD ANCOR_RIGHT =0x000004;
 const DWORD ANCOR_BOTTOM=0x000008;
-*/
 
 typedef struct {
   DWORD id;
@@ -294,18 +292,9 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
   DWORD language = 0;
   DWORD hlen;
   char language_lib[MAX_PATH];
-
-  memset(&wc,0,sizeof(wc));
-  wc.lpfnWndProc = DefDlgProc;
-  wc.cbWndExtra = DLGWINDOWEXTRA;
-  wc.hInstance = hinst;
-  wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-  wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
-  wc.lpszClassName = "diff-ext-setup";
-  RegisterClass(&wc);
-
-  SetThreadLocale(MAKELCID(MAKELANGID(LANG_RUSSIAN, SUBLANG_DEFAULT), SORT_DEFAULT));
-  InitCommonControls();
+  HGLOBAL dialog_handle;
+  HRSRC resource_handle;
+  DLGTEMPLATE* dialog;
 
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext\\", 0, KEY_READ, &key) == ERROR_SUCCESS) {
     hlen = sizeof(DWORD);
@@ -321,7 +310,29 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
   if(resource == NULL)
     resource = hinst;
 
-  ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC) DialogFunc);
+  memset(&wc,0,sizeof(wc));
+  wc.lpfnWndProc = DefDlgProc;
+  wc.cbWndExtra = DLGWINDOWEXTRA;
+  wc.hInstance = hinst;
+  wc.hIcon = LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON));
+  wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+  wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
+  wc.lpszClassName = "diff-ext-setup";
+  RegisterClass(&wc);
+
+  SetThreadLocale(MAKELCID(MAKELANGID(LANG_RUSSIAN, SUBLANG_DEFAULT), SORT_DEFAULT));
+  InitCommonControls();
+
+  resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), RT_DIALOG);
+  dialog_handle = LoadResource(resource, resource_handle);
+  dialog = (DLGTEMPLATE*)LockResource(dialog_handle);
+
+/*  can not do because have to specify hinst as module instance and load dialog from translated resource only dll...
+  ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)DialogFunc);
+*/  
+  ret = DialogBoxIndirect(hinst, dialog, NULL, (DLGPROC)DialogFunc);
+
+  FreeResource(dialog);
 /*
   {
     char* message;
