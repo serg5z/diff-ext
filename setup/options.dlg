@@ -15,11 +15,11 @@ BEGIN
     GROUPBOX      "Diff command", 			
                   ID_GROUP, 
                   7, 7, 214, 46,
-		  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
+		  WS_VISIBLE 
     EDITTEXT      
                   ID_DIFF_COMMAND, 
                   14, 18, 145, 14, 
-                  ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+                  ES_AUTOHSCROLL | WS_VISIBLE | WS_BORDER | WS_TABSTOP
                   
     PUSHBUTTON    "Browse...",
                   ID_BROWSE, 
