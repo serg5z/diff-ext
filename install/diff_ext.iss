@@ -1,5 +1,6 @@
 [Setup]
-Compression=zip
+Compression=lzma
+SolidCompression=yes
 AppName=diff_ext
 AppId=A0482097-C69D-4DEC-8AB6-D3A259ACC151
 AppVerName=diff_ext 1.0
@@ -17,6 +18,7 @@ PrivilegesRequired=none
 ShowLanguageDialog=yes
 
 LicenseFile=..\LICENSE.rtf
+
 [Files]
 Source: ..\build\diff_ext.dll; DestDir: {app}; Flags: regserver restartreplace uninsrestartdelete
 Source: ..\build\diff_ext_setup.exe; DestDir: {app}; Flags:
@@ -27,6 +29,7 @@ Source: ..\build\diff_ext_setup1049.dll; DestDir: {app}; Flags:
 Source: ..\LICENSE; DestDir: {app}; Flags: uninsremovereadonly; Attribs: readonly
 
 Source: ..\LICENSE_RU; DestDir: {app}; Attribs: readonly; Flags: uninsremovereadonly; Languages: ru
+
 [Icons]
 Name: {group}\setup; Filename: {app}\diff_ext_setup.exe; WorkingDir: {app}
 Name: {group}\Uninstall diff-ext; Filename: {uninstallexe}
@@ -49,5 +52,4 @@ Root: HKLM; Subkey: Software\Z; Flags: uninsdeletekeyifempty uninsdeletevalue
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl; LicenseFile: ..\LICENSE.rtf
 Name: ru; MessagesFile: russian.isl; LicenseFile: ..\LICENSE_RU.rtf
-[_ISTool]
-Use7zip=false
+

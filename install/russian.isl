@@ -1,415 +1,296 @@
+; *** Inno Setup version 4.1.4+ Russian messages ***
+;
+; Translation is made by Dmitry Kann, http://devtools.narod.ru/
+; The highest accuracy was the first priority.
+;
+; Note: When translating this text, do not add periods (.) to the end of
+; messages that didn't have them already, because on those messages Inno
+; Setup adds the periods automatically (appending a period would result in
+; two periods being displayed).
+;
+; $Id$
+
 [LangOptions]
-
 LanguageName=Russian
-
 LanguageID=$0419
-
-;Если текст отображается крякозябрами, раскомментируйте эти значения
-
-;DialogFontName=MS Shell Dlg
-
+; If the language you are translating to requires special font faces or
+; sizes, uncomment any of the following entries and change them accordingly.
+;DialogFontName=
 ;DialogFontSize=8
-
-;DialogFontStandardHeight=13
-
-;TitleFontName=Arial
-
-;TitleFontSize=29
-
 ;WelcomeFontName=Verdana
-
 ;WelcomeFontSize=12
-
+;TitleFontName=Arial
+;TitleFontSize=29
 ;CopyrightFontName=Arial
-
 ;CopyrightFontSize=8
 
 [Messages]
 
-SelectLanguageTitle=Язык установки
-
-SelectLanguageLabel=Пожалуйста, выберите язык установки:
-
+; *** Application titles
 SetupAppTitle=Установка
-
-SetupWindowTitle=Установка %1
-
+SetupWindowTitle=Установка - %1
 UninstallAppTitle=Удаление
+UninstallAppFullTitle=Удаление - %1
 
-UninstallAppFullTitle=Удаление %1
-
+; *** Misc. common
 InformationTitle=Информация
-
 ConfirmTitle=Подтверждение
-
 ErrorTitle=Ошибка
 
-SetupLdrStartupMessage=Вы желаете установить программу %1 на свой компьютер?
+; *** SetupLdr messages
+SetupLdrStartupMessage=Данная программа установит %1 на ваш компьютер, продолжить?
+LdrCannotCreateTemp=Невозможно создать временный файл. Установка прервана
+LdrCannotExecTemp=Невозможно выполнить файл во временном каталоге. Установка прервана
 
-LdrCannotCreateTemp=Невозможно создать временный файл. Установка прервана.
+; *** Startup error messages
+LastErrorMessage=%1.%n%nОшибка %2: %3
+SetupFileMissing=Файл %1 отсутствует в папке установки. Пожалуйста, устраните проблему или получите новую версию программы.
+SetupFileCorrupt=Этот установочный файл поврежден. Файл %1 будет пропущен при установке. Пожалуйста, получите новую копию программы.
+SetupFileCorruptOrWrongVer=Эти установочные файлы повреждены или несовместимы с данной версией установки. Пожалуйста, устраните проблему или получите новую копию программы.
+NotOnThisPlatform=Эта программа не будет работать в %1.
+OnlyOnThisPlatform=Эта программа должна работать только в %1.
+WinVersionTooLowError=Эта программа требует %1 версии %2 или выше.
+WinVersionTooHighError=Программа не может быть установлена в %1 версии %2 или выше.
+AdminPrivilegesRequired=Чтобы установить данную программу, Вы должны зарегистрироваться в системе как Администратор.
+PowerUserPrivilegesRequired=Чтобы установить эту программу, вы должны выполнить вход в систему как Администратор или член группы «Опытные пользователи» (Power Users).
+SetupAppRunningError=Обнаружена запущенная копия %1.%n%nПожалуйста, закройте все копии приложения, затем нажмите «OK», чтобы продолжить, или «Отмена» для выхода.
+UninstallAppRunningError=Программа удаления обнаружила запущенную копию %1.%n%nПожалуйста, закройте все копии приложения, затем нажмите «OK», чтобы продолжить, или «Отмена» для выхода.
 
-LdrCannotExecTemp=Невозможно запустить файл из временной папки. Установка прервана.
+; *** Misc. errors
+ErrorCreatingDir=Невозможно создать папку "%1"
+ErrorTooManyFilesInDir=Невозможно создать файл в папке "%1", слишком много файлов
 
-LastErrorMessage=%1.%n%nОшибка %2: %3.
-
-SetupFileMissing=Файл %1 отсутствует в папке установки. Пожалуйста, устраните эту проблему или получите новую копию программы.
-
-SetupFileCorrupt=Установочные файлы повреждены. Пожалуйста, получите новую копию программы.
-
-SetupFileCorruptOrWrongVer=Установочные файлы повреждены или несовместимы с данной версии программы установки. Пожалуйста, устраните эту проблему или получите новую копию программы.
-
-NotOnThisPlatform=Эта программа не может выполняться на %1.
-
-OnlyOnThisPlatform=Эта программа должна выполняться на %1.
-
-WinVersionTooLowError=Для работы программы необходим %1 версии %2 или выше.
-
-WinVersionTooHighError=Эта программа не может быть установлена на %1 версии %2 или выше.
-
-AdminPrivilegesRequired=Вы должны иметь права администратора для установки данной программы.
-
-PowerUserPrivilegesRequired=Вы должны войти в систему как администратор или Power User для установки данной программы.
-
-SetupAppRunningError=Программа установки обнаружила, что в настоящее время выполняется %1.%n%nПожалуйста, закройте все запущенные копии этой программы и нажмите кнопку "OK" для продолжения или "Отмена" для выхода из программы установки.
-
-UninstallAppRunningError=Программа установки обнаружила, что в настоящее время выполняется %1.%n%nПожалуйста, закройте все запущенные копии этой программы и нажмите кнопку "OK" для продолжения или "Отмена" для выхода из программы установки.
-
-ErrorCreatingDir=Невозможно создать папку "%1".
-
-ErrorTooManyFilesInDir=Невозможно создать файл в папке "%1", потому что она содержит слишком много файлов.
-
-ExitSetupTitle=Выход из программы установки.
-
-ExitSetupMessage=Установка не завершена. При выходе из программы%nустановки приложение не будет установлено%n%nМожно будет запустить программу установки позже%nдля завершения установки.%n%nВы желаете выйти из программы установки?
-
-AboutSetupMenuItem=&О программе установки...
-
-AboutSetupTitle=О программе установки
-
-AboutSetupMessage=%1 версия %2%n%3%n%nДомашняя страница: %1%n%4
-
+; *** Setup common messages
+ExitSetupTitle=Выход из программы установки
+ExitSetupMessage=Установка не завершена. Если Вы выйдете, программа не будет установлена.%n%nВы можете установить программу в другой раз.%n%nВыйти из программы?
+AboutSetupMenuItem=&О программе...
+AboutSetupTitle=О программе
+AboutSetupMessage=%1 версия %2%n%3%n%nДомашняя страница %1:%n%4
 AboutSetupNote=
 
+; *** Buttons
 ButtonBack=< &Назад
-
 ButtonNext=&Далее >
-
 ButtonInstall=&Установить
-
-ButtonOK=&OK
-
-ButtonCancel=О&тмена
-
+ButtonOK=OK
+ButtonCancel=Отмена
 ButtonYes=&Да
-
-ButtonYesToAll=Да для &всех
-
+ButtonYesToAll=Да для &Всех
 ButtonNo=&Нет
+ButtonNoToAll=Н&ет для Всех
+ButtonFinish=&Завершить
+ButtonBrowse=&Обзор...
 
-ButtonNoToAll=Н&ет для всех
+; *** "Select Language" dialog messages
+ButtonWizardBrowse=&Обзор
+ButtonNewFolder=&Создать папку
+SelectLanguageTitle=Выберите язык установки
+SelectLanguageLabel=Выберите язык, который будет использован в  процессе установки:
 
-ButtonFinish=&Готово
-
-ButtonBrowse=О&бзор...
-
-ClickNext=Нажмите кнопку "Далее" для продолжения или "Отмена" для выхода из программы установки.
-
+; *** Common wizard text
+ClickNext=Нажмите «Далее» для продолжения или «Отмена» для выхода из программы.
 BeveledLabel=
 
-WelcomeLabel1=Вас приветствует Мастер установки [name]
+; *** "Welcome" wizard page
+BrowseDialogTitle=Обзор папок
+BrowseDialogLabel=Выберите папку из списка и нажмите «ОК».
+NewFolderName=Новая папка
+WelcomeLabel1=Добро пожаловать в программу установки [name]
+WelcomeLabel2=Программа установит [name/ver] на ваш компьютер.%n%nРекомендуется закрыть все прочие приложения перед продолжением установки.
 
-WelcomeLabel2=Перед запуском программы установки рекомендуется закрыть все программы Windows.%n%nВНИМАНИЕ! Данная программа защищена законами об авторских правах и международными соглашениями.%n%nНезаконное воспроизведение или распространение данной программы или любой ее части влечет гражданскую и уголовную ответственность.
-
+; *** "Password" wizard page
 WizardPassword=Пароль
-
-PasswordLabel1=Программа установки защищена паролем.
-
-PasswordLabel3=Пожалуйста, введите пароль и нажмите кнопку "Далее" для продолжения. Пароль является регистро-зависимым.
-
+PasswordLabel1=Эта программа защищена паролем.
+PasswordLabel3=Пожалуйста, наберите пароль, потом нажмите «Далее». Пароли необходимо вводить с учётом регистра.
 PasswordEditLabel=&Пароль:
+IncorrectPassword=Введенный Вами пароль неверен. Пожалуйста, попробуйте снова.
 
-IncorrectPassword=Введен неверный пароль. Пожалуйста, введите верный пароль и нажмите кнопку "Далее" для продолжения.
+; *** "License Agreement" wizard page
+WizardLicense=Лицензионное Соглашение
+LicenseLabel=Пожалуйста, прочтите следующую важную информацию перед продолжением.
+LicenseLabel3=Пожалуйста, прочтите следующее Лицензионное Соглашение. Вы должны принять условия этого соглашения перед тем, как продолжить.
+LicenseAccepted=Я &принимаю условия соглашения
+LicenseNotAccepted=Я &не принимаю условия соглашения
 
-WizardLicense=Лицензионное соглашение
+; *** "Information" wizard pages
+WizardInfoBefore=Информация
+InfoBeforeLabel=Пожалуйста, прочитайте следующую важную информацию прежде, чем продолжить.
+InfoBeforeClickLabel=Когда Вы будете готовы продолжить установку, нажмите «Далее».
+WizardInfoAfter=Информация
+InfoAfterLabel=Пожалуйста прочитайте следующую важную информацию прежде, чем продолжить.
+InfoAfterClickLabel=Когда Вы будете готовы продолжить установку, нажмите «Далее».
 
-LicenseLabel=Для продолжения необходимо принять условия лицензионного соглашения, приведенного ниже.
-
-LicenseLabel3=
-
-LicenseAccepted=Я &принимаю условия лицензионного соглашения
-
-LicenseNotAccepted=Я &не принимаю условия лицензионного соглашения
-
-WizardInfoBefore=Сведения
-
-InfoBeforeLabel=Здесь описываются различные сведения.
-
-InfoBeforeClickLabel=
-
-WizardInfoAfter=Сведения
-
-InfoAfterLabel=Здесь описываются различные дополнительные сведения.
-
-InfoAfterClickLabel=
-
-WizardUserInfo=Сведения о пользователе
-
-UserInfoDesc=Пожалуйста, введите следующую информацию
-
-UserInfoName=Ваше полное &имя:
-
+; *** "User Information" wizard page
+WizardUserInfo=Информация о пользователе
+UserInfoDesc=Пожалуйста, введите данные о себе.
+UserInfoName=&Имя и фамилия пользователя:
 UserInfoOrg=&Организация:
-
 UserInfoSerial=&Серийный номер:
+UserInfoNameRequired=Вы должны ввести имя.
 
-UserInfoNameRequired=Вы долны ввести свои полные имя и фамилию.
-
-WizardSelectDir=Папка назначения
-
-SelectDirDesc=Выбор папки, в которую будет установлено приложение
-
-SelectDirLabel=Пожалуйста, выберите папку, в которую должна быть установлена программа и нажмите кнопку "Далее".
-
-DiskSpaceMBLabel=Для установки программы требуется [mb] Мб свободного места на диске.
-
-ToUNCPathname=Программа установки не может установить программу в данную сетевую папку, возможно, из-за того, вы не ввели букву сетевого диска.
-
-InvalidPath=Вы должны ввести полный путь к папке, например:%n%nC:\APP%n%nили сетевой путь в следующей форме:%n%n\\server\share
-
-InvalidDrive=Диск или сетевой путь, выбранный Вами, не существует. Пожалуйста, выберите другую папку.
-
-DiskSpaceWarningTitle=Недостаточно свободного места на диске
-
-DiskSpaceWarning=Для установки необходимо, как минимум, %1 Кб свободного места на диске, но на выбранном Вами диске доступно только %2 Кб.%n%nВы желаете продолжить установку, несмотря на это?
-
-BadDirName32=Имя папки не может содержать следующие символы:%n%n%1
-
+; *** "Select Destination Directory" wizard page
+WizardSelectDir=Выбор папки установки
+SelectDirDesc=В какую папку вы хотите установить [name]?
+SelectDirLabel2=Программе установит [name] в следующую папку.%n%nНажмите «Далее», чтобы продолжить. Если Вы хотите выбрать другую папку для установки, нажмите «Обзор».
+DiskSpaceMBLabel=Требуется как минимум [mb] Мб свободного дискового пространства.
+ToUNCPathname=Установка не может выполняться в папку по её сетевому имени. Если Вы устанавливаете в сетевую папку, Вы должны подключить её в виде сетевого диска.
+InvalidPath=Вы должны указать полный путь с буквой диска; например:%n%nC:\APP%n%nили в форме UNC:%n%n\\имя_сервера\имя_ресурса
+InvalidDrive=Выбранный Вами диск или сетевой путь не существуют или недоступны. Пожалуйста, выберите другой.
+DiskSpaceWarningTitle=Недостаточно места на диске
+DiskSpaceWarning=Установка требует не менее %1 Кб свободного места, а на выбранном Вами диске доступно только %2 Кб.%n%nВы желаете тем не менее продолжить установку?
+DirNameTooLong=Имя папки или путь к ней превышают допустимую длину.
+InvalidDirName=Указанное имя папки недопустимо.
+BadDirName32=Имя папки не может содержать символов: %n%n%1
 DirExistsTitle=Папка существует
-
-DirExists=Папка%n%1%nуже существует. Вы желаете произвести установку в нее?
-
+DirExists=Папка%n%n%1%n%nуже существует. Всё равно установить в эту папку?
 DirDoesntExistTitle=Папка не существует
+DirDoesntExist=Папка%n%n%1%n%nне существует. Вы хотите создать её?
 
-DirDoesntExist=Папка%n%1%nне существует. Вы желаете создать ее?
-
+; *** "Select Components" wizard page
 WizardSelectComponents=Выбор компонентов
-
-SelectComponentsDesc=Выберите компоненты, которые необходимо установить
-
-SelectComponentsLabel2=Типы установки и список доступных компонентов:
-
+SelectComponentsDesc=Какие компоненты должны быть установлены?
+SelectComponentsLabel2=Выберите компоненты, которые вы хотите установить; снимите флажки с компонентов, устанавливать которые не требуется. Нажмите «Далее», когда Вы будете готовы продолжить.
 FullInstallation=Полная установка
-
+; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Компактная установка
-
 CustomInstallation=Выборочная установка
-
-NoUninstallWarningTitle=Компонент существует
-
-NoUninstallWarning=Программа установки обнаружила на Вашем компьютере следующие уже установленные компоненты программы:%n%n%1%n%nОтмена их установки не позволит затем удалить их.%n%nПродолжить?
-
+NoUninstallWarningTitle=Наличие компонентов
+NoUninstallWarning=Программа установки обнаружила, что следующие компоненты уже установлены на вашем компьютере:%n%n%1%n%nОтмена выбора этих компонент не удалит их.%n%nПродолжить?
 ComponentSize1=%1 Кб
-
 ComponentSize2=%1 Мб
+ComponentsDiskSpaceMBLabel=Текущий выбор требует не менее [mb] Мб на диске.
 
-ComponentsDiskSpaceMBLabel=Данный выбор требует, как минимум, [mb] Мб свободного места на диске.
+; *** "Select Additional Tasks" wizard page
+WizardSelectTasks=Выбор дополнительных задач
+SelectTasksDesc=Какие дополнительные задачи необходимо выполнить?
+SelectTasksLabel2=Выберите дополнительные задачи, которые должны выполниться при установке [name], после этого нажмите «Далее»:
 
-WizardSelectTasks=Дополнительно
-
-SelectTasksDesc=Выбор дополнительных параметров установки программы
-
-SelectTasksLabel2=Выберите дополнительные параметры установки программы [name] и нажмите кнопку "Далее".
-
-WizardSelectProgramGroup=Выбор папки в меню "Пуск"
-
-SelectStartMenuFolderDesc=Выберите папку в меню "Пуск", где должны быть созданы значки для программы.
-
-SelectStartMenuFolderLabel=
-
-NoIconsCheck=&Не создавать значки
-
+; *** "Select Start Menu Folder" wizard page
+WizardSelectProgramGroup=Выберите папку в Меню «Пуск»
+SelectStartMenuFolderDesc=Где программа установки должна создать ярлыки?
+SelectStartMenuFolderLabel2=Программа установки создаст ярлыки программы в следующей папке меню «Пуск».%n%nНажмите «Далее», чтобы продолжить. Если Вы хотите выбрать другую папку, нажмите «Обзор».
+NoIconsCheck=&Не создавать значков
 MustEnterGroupName=Вы должны ввести имя папки.
+GroupNameTooLong=Имя папки группы или путь к ней превышают допустимую длину.
+InvalidGroupName=Указанное имя папки недопустимо.
+BadGroupName=Имя папки не может содержать символов:%n%n%1
+NoProgramGroupCheck2=&Не создавать папку в Меню «Пуск»
 
-BadGroupName=Имя папки не может содержать следующие символы:%n%n%1
-
-NoProgramGroupCheck2=&Не создавать папку в меню "Пуск"
-
-WizardReady=Все готово для установки программы
-
-ReadyLabel1=Для установки [name] на Ваш компьютер нажмите кнопку "Установить".
-
-ReadyLabel2a=Параметры установки:
-
-ReadyLabel2b=Параметры установки:
-
+; *** "Ready to Install" wizard page
+WizardReady=Всё готово к установке
+ReadyLabel1=Программа установки готова начать установку [name] на ваш компьютер.
+ReadyLabel2a=Нажмите «Установить», чтобы продолжить или «Назад», если Вы хотите просмотреть или изменить опции установки.
+ReadyLabel2b=Нажмите «Установить», чтобы продолжить.
 ReadyMemoUserInfo=Информация о пользователе:
-
 ReadyMemoDir=Папка установки:
-
 ReadyMemoType=Тип установки:
-
 ReadyMemoComponents=Выбранные компоненты:
+ReadyMemoGroup=Папка в меню «Пуск»:
+ReadyMemoTasks=Дополнительные задачи:
 
-ReadyMemoGroup=Папка в меню "Пуск":
-
-ReadyMemoTasks=Дополнительно:
-
+; *** "Preparing to Install" wizard page
 WizardPreparing=Подготовка к установке
+PreparingDesc=Программа установки подготавливается к установке [name] на Ваш компьютер.
+PreviousInstallNotCompleted=Установка или удаление предыдущей программы не были завершены. Вам потребуется перезагрузить Ваш компьютер, чтобы завершить ту установку.%n%nПосле перезагрузки запустите вновь Программу установки, чтобы завершить установку [name].
+CannotContinue=Невозможно продолжить установку. Нажмите «Отмена» для выхода из программы.
 
-PreparingDesc=Программа установки готовится к инсталляции [name] на Ваш компьютер.
+; *** "Installing" wizard page
+WizardInstalling=Установка...
+InstallingLabel=Пожалуйста, подождите, пока [name] установится на Ваш компьютер.
 
-PreviousInstallNotCompleted=Установка/удаление предыдущей программы не было завершена. Вам необходимо перезагрузить компьютер для завершения установки и запустить после этого програму установки заново для завершения установки [name].
-
-CannotContinue=Невозможно продолжить установку.%nНажмите кнопку "Отмена" для выхода.
-
-WizardInstalling=Установка программы
-
-InstallingLabel=Пожалуйста, подождите, пока программа установки устанавливает [name] на Ваш компьютер.
-
-FinishedHeadingLabel=Установка [name] успешно завершена
-
-FinishedLabelNoIcons=Программа [name] была успешно установлена на Ваш компьютер.
-
-FinishedLabel=Программа [name] была успешно установлена на Ваш компьютер.%n%nДля запуска программы выберите соответствующий значок в меню "Пуск".
-
-ClickFinish=Нажмите кнопку "Готово" для выхода из программы установки.
-
-FinishedRestartLabel=Для завершения установки [name] необходимо перезагрузить компьютер. Вы желаете сделать это сейчас?
-
-FinishedRestartMessage=Для завершения установки [name] необходимо перезагрузить компьютер. Вы желаете сделать это сейчас?
-
-ShowReadmeCheck=Прочитать файл ReadMe
-
-YesRadio=&Да, я хочу перезагрузить компьютер сейчас
-
-NoRadio=&Нет, я хочу перезагрузить компьютер позже
-
+; *** "Setup Completed" wizard page
+FinishedHeadingLabel=Завершение Мастера установки [name]
+FinishedLabelNoIcons=Программа [name] установлена на Ваш компьютер.
+FinishedLabel=Программа [name] установлена на ваш компьютер. Приложение можно запустить с помощью соответствующего значка.
+ClickFinish=Нажмите «Завершить», чтобы выйти из программы установки.
+FinishedRestartLabel=Для завершения установки [name] требуется перезагрузить компьютер. Произвести перезагрузку сейчас?
+FinishedRestartMessage=Для завершения установки [name] требуется перезагрузить компьютер.%n%nПроизвести перезагрузку сейчас?
+ShowReadmeCheck=Я хочу просмотреть файл README
+YesRadio=&Да, перезагрузить компьютер сейчас
+NoRadio=&Нет, я произведу перезагрузку позже
+; used for example as 'Run MyProg.exe'
 RunEntryExec=Запустить %1
+; used for example as 'View Readme.txt'
+RunEntryShellExec=Просмотреть %1
 
-RunEntryShellExec=Прочитать %1
-
-ChangeDiskTitle=Программе установки необходим следующий диск
-
-SelectDirectory=Выберите папку
-
-SelectDiskLabel2=Пожалуйста, вставьте диск %1 и нажмите кнопку "OK@.%n%nЕсли файлы на этом диске не будут найдены, выберите путь, где они находятся.
-
+; *** "Setup Needs the Next Disk" stuff
+ChangeDiskTitle=Необходимо вставить следующий диск
+SelectDiskLabel2=Пожалуйста, вставьте диск %1 и нажмите «OK».%n%nЕсли файлы этого диска могут быть найдены в папке, отличающейся от показанной ниже, введите правильный путь или нажмите «Обзор».
 PathLabel=&Путь:
+FileNotInDir2=Файл "%1" не найден в "%2". Пожалуйста, вставьте правильный диск или выберите другую папку.
+SelectDirectoryLabel=Пожалуйста, укажите путь к следующему диску.
 
-FileNotInDir2=Файл "%1" не найден на "%2". Пожалуйста, вставьте диск, на котором находятся файлы программы установки или выберите другую папку.
+; *** Installation phase messages
+SetupAborted=Установка не была завершена.%n%nПожалуйста, устраните проблему и начните снова.
+EntryAbortRetryIgnore=Нажмите «Повтор», чтобы повторить попытку, «Пропустить», чтобы пропустить файл, или «Отказ» для отмены установки.
 
-SelectDirectoryLabel=Пожалуйста, укажите размещение следующего диска.
-
-SetupAborted=Установка не завершена.%n%nПожалуйста, устраните проблему и запустите программу установки снова
-
-EntryAbortRetryIgnore=Нажмите кнопку "Прервать" для отмены установки, "Повтор" для повторения текущей операции или "Пропустить" для пропуска процесса (не рекомендуется).
-
+; *** Installation status messages
 StatusCreateDirs=Создание папок...
-
-StatusExtractFiles=Распаковка и копирование файлов...
-
-StatusCreateIcons=Создание значков...
-
-StatusCreateIniEntries=Создание и редактирование INI-файлов...
-
-StatusCreateRegistryEntries=Создание и редактирование ключей реестра...
-
-StatusRegisterFiles=Регистрирование типов файлов...
-
-StatusSavingUninstall=Сохранение информации о деинсталляции...
-
+StatusExtractFiles=Распаковка файлов...
+StatusCreateIcons=Создание ярлыков программы...
+StatusCreateIniEntries=Создание INI-файлов...
+StatusCreateRegistryEntries=Создание записей реестра...
+StatusRegisterFiles=Регистрация файлов...
+StatusSavingUninstall=Сохранение информации для удаления...
 StatusRunProgram=Завершение установки...
+StatusRollback=Откат изменений...
 
-StatusRollback=Сохранение информации...
+; *** Misc. errors
+ErrorInternal2=Внутренняя ошибка: %1
+ErrorFunctionFailedNoCode=%1: сбой
+ErrorFunctionFailed=%1: сбой; код %2
+ErrorFunctionFailedWithMessage=%1: сбой; код %2.%n%3
+ErrorExecutingProgram=Невозможно выполнить файл:%n%1
 
-ErrorInternal2=Внутренняя ошибка: %1.
-
-ErrorFunctionFailedNoCode=%1 - ошибка.
-
-ErrorFunctionFailed=%1 - ошибка: код %2.
-
-ErrorFunctionFailedWithMessage=%1 - ошибка: код %2.%n%3.
-
-ErrorExecutingProgram=Невозможно запустить файл:%n%1
-
+; *** Registry errors
 ErrorRegOpenKey=Ошибка открытия ключа реестра:%n%1\%2
-
 ErrorRegCreateKey=Ошибка создания ключа реестра:%n%1\%2
+ErrorRegWriteKey=Ошибка записи в ключ реестра:%n%1\%2
 
-ErrorRegWriteKey=Ошибка редактирования ключа реестра:%n%1\%2
+; *** INI errors
+ErrorIniEntry=Ошибка создания записи в INI-файле "%1".
 
-ErrorIniEntry=Ошибка редактирования инициализационного файла:%n"%1".
+; *** File copying errors
+FileAbortRetryIgnore=Нажмите «Повтор», чтобы повторить, «Пропустить», чтобы пропустить файл (не рекомендуется) или «Отказ» для выхода.
+FileAbortRetryIgnore2=Нажмите «Повтор», чтобы повторить, «Пропустить», чтобы игнорировать ошибку (не рекомендуется) или «Отказ» для выхода.
+SourceIsCorrupted=Исходный файл поврежден
+SourceDoesntExist=Исходный файл "%1" не существует
+ExistingFileReadOnly=Существующий файл помечен как «файл только для чтения».%n%nНажмите «Повтор» для удаления атрибута «только для чтения», «Пропустить», чтобы пропустить файл или «Отказ» для выхода.
+ErrorReadingExistingDest=Произошла ошибка при попытке чтения существующего файла:
+FileExists=Файл уже существует.%n%nПерезаписать его?
+ExistingFileNewer=Существующий файл более новый, чем устанавливаемый. Рекомендуется сохранить существующий файл.%n%nВы хотите сохранить существующий файл?
+ErrorChangingAttr=Произошла ошибка при попытке изменения атрибутов существующего файла:
+ErrorCreatingTemp=Произошла ошибка при попытке создания файла в указанной папке:
+ErrorReadingSource=Произошла ошибка при попытке чтения исходного файла:
+ErrorCopying=Произошла ошибка при попытке копирования файла:
+ErrorReplacingExistingFile=Произошла ошибка при попытке замены существующего файла:
+ErrorRestartReplace=Ошибка RestartReplace:
+ErrorRenamingTemp=Произошла ошибка при попытке переименования файла в указанной папке:
+ErrorRegisterServer=Невозможно зарегистрировать DLL/OCX: %1
+ErrorRegisterServerMissingExport=Точка входа функции DllRegisterServer не найдена
+ErrorRegisterTypeLib=Невозможно зарегистрировать библиотеку типов (Type Library): %1
 
-FileAbortRetryIgnore=Нажмите кнопку "Прервать" для отмены установки, "Повтор" для повторения копирования файла или "Пропустить" для пропуска файла (не рекомендуется).
+; *** Post-installation errors
+ErrorOpeningReadme=Произошла ошибка при попытке открытия файла README.
+ErrorRestartingComputer=Программа установки не может перезапустить компьютер. Пожалуйста, выполните это самостоятельно.
 
-FileAbortRetryIgnore2=Нажмите кнопку "Прервать" для отмены установки, "Повтор" для повторения текущей операции или "Пропустить" для пропуска процесса (не рекомендуется).
+; *** Uninstaller messages
+UninstallNotFound=Файл "%1" не существует, удалить его невозможно.
+UninstallOpenError=Невозможно открыть файл "%1". Удаление невозможно
+UninstallUnsupportedVer=Файл протокола для удаления "%1" не распознан данной версией программы-деинсталлятора. Удаление невозможно
+UninstallUnknownEntry=Встретился неизвестный пункт (%1) в файле протокола для удаления
+ConfirmUninstall=Вы действительно хотите удалить %1 и все компоненты программы?
+OnlyAdminCanUninstall=Эта программа может быть удалена только пользователем с административными привилегиями.
+UninstallStatusLabel=Пожалуйста, подождите, пока %1 будет удалена с Вашего компьютера.
+UninstalledAll=Программа %1 была полностью удалена с Вашего компьютера.
+UninstalledMost=Удаление %1 завершено.%n%nЧасть элементов не удалось удалить. Вы можете удалить их самостоятельно.
+UninstalledAndNeedsRestart=Для завершения удаления %1 необходимо произвести перезагрузку Вашего компьютера.%n%nВыполнить перезагрузку сейчас?
+UninstallDataCorrupted=Файл "%1" поврежден, удалить его невозможно
 
-SourceIsCorrupted=Исходный файл поврежден.
-
-SourceDoesntExist=Исходный файл "%1" не существует.
-
-ExistingFileReadOnly=Существующий файл имеет атрибут "Только чтение".%n%nНажмите кнопку "Прервать" для отмены установки, "Повтор" снятия этого атрибута или "Пропустить" для пропуска файла(не рекомендуется).
-
-ErrorReadingExistingDest=Ошибка при попытке чтения существующего файла:
-
-FileExists=Файл уже существует.%n%Вы желаете заменить его?
-
-ExistingFileNewer=Существующий файл новее, чем тот, который программа установки пытается установить. Рекомендуется сохранить существующий файл.%n%nВы желаете это сделать?
-
-ErrorChangingAttr=Ошибка при смене атрибутов существующего файла:
-
-ErrorCreatingTemp=Ошибка при создании файла в папке установки:
-
-ErrorReadingSource=Ошибка при чтении исходного файла:
-
-ErrorCopying=Ошибка при копировании файла:
-
-ErrorReplacingExistingFile=Ошибка при замене существующего файла:
-
-ErrorRestartReplace=Ошибка RestartReplace
-
-ErrorRenamingTemp=Ошибка при переименовании файла в папке установки:
-
-ErrorRegisterServer=Невозможно зарегистрировать библиотеку DLL/OCX: %1
-
-ErrorRegisterServerMissingExport=Экспорт DllRegisterServer не найден.
-
-ErrorRegisterTypeLib=Невозможно зарегистрировать библиотеку типов: %1
-
-ErrorOpeningReadme=Ошибка при открытии файла ReadMe.
-
-ErrorRestartingComputer=Невозможно перезагрузить компьютер. Пожалуйста, сделайте это вручную.
-
-UninstallNotFound=Файл "%1" не существует. Невозможно продолжить удаление.
-
-UninstallUnsupportedVer=Файл журнала деинсталляции "%1" имеет формат, не поддерживаемый программой деинсталляции. Невозможно продолжить удаление.
-
-UninstallUnknownEntry=Неизвестнвй параметр (%1) обнаружен в файле журнала
-
-ConfirmUninstall=Вы действительно желаете удалить программу %1 и все ее компоненты?
-
-OnlyAdminCanUninstall=Для удаления программы Вы должны иметь права администратора.
-
-UninstallStatusLabel=Пожалуйста, подождите, пока %1 удаляется с Вашего компьютера.
-
-UninstalledAll=Программа %1 была успешно удалена с Вашего компьютера.
-
-UninstalledMost=Удаление программы %1 завершено.%n%Некоторые компоненты программы не могут быть удалены. Вы должны удалить их вручную.
-
-UninstalledAndNeedsRestart=Для завершения удаления %1 Ваш компьютер должен быть перезагружен.%n%nВы желаете выполнить перезагрузку сейчас?
-
-UninstallDataCorrupted="%1" файл поврежден. Невозможно продолжить удаление.
-
-UninstallOpenError=Не удается открыть файл "%1" . Деинсталляция не может быть произведена
-
-ConfirmDeleteSharedFileTitle=Общедоступные файлы
-
-ConfirmDeleteSharedFile2=Программа деинсталляции обнаружила, что следующие общедоступные файлы больше не используются никакими программами. Вы желаете их удалить?%n%nВНИМАНИЕ! Если какие-то программы все еще используют эти файлы, то данные программы могут оказаться неработоспособными после удаления этих файлов.
-
+; *** Uninstallation phase messages
+ConfirmDeleteSharedFileTitle=Удалить совместно используемый файл?
+ConfirmDeleteSharedFile2=Система указывает, что следующий совместно используемый файл больше не используется никакими другими приложениями. Подтверждаете удаление файла?%n%nЕсли какие-либо программы всё еще используют этот файл, и он будет удалён, они не смогут работать правильно. Если Вы не уверены, выберите «Нет». Оставленный файл не навредит Вашей системе.
 SharedFileNameLabel=Имя файла:
-
-SharedFileLocationLabel=Размещение:
-
-WizardUninstalling=Состояние процесса удаления
-
+SharedFileLocationLabel=Расположение:
+WizardUninstalling=Состояние удаления
 StatusUninstalling=Удаление %1...
