@@ -3,7 +3,7 @@ Compression=lzma
 SolidCompression=yes
 AppName=diff_ext
 AppId=A0482097-C69D-4DEC-8AB6-D3A259ACC151
-AppVerName=diff_ext 1.3
+AppVerName=diff_ext 1.3.1
 AppPublisher=Z
 DefaultDirName={pf}\Z\diff_ext
 DefaultGroupName=Z\diff_ext
@@ -41,7 +41,8 @@ Filename: {app}\diff_ext_setup.exe
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: string; ValueName: log_file; ValueData: <path to log>; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: string; ValueName: diff; ValueData: <path to diff>; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: string; ValueName: home; ValueData: {app}; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: language; ValueData: 1033; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: language; ValueData: 1033; Flags: uninsdeletekey createvalueifdoesntexist; Languages: en
+Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: language; ValueData: 1049; Flags: uninsdeletekey createvalueifdoesntexist; Languages: ru
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: log; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff_ext; ValueType: dword; ValueName: log_level; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff_ext\history; Flags: uninsdeletekeyifempty uninsdeletevalue
