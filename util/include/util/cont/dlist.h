@@ -169,7 +169,7 @@ class DLIST {
         }
         
         bool done() const {
-          return (_current == &_list->_root);
+          return (_current == &(_list->_root));
         }
 
       private:

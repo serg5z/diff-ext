@@ -36,6 +36,10 @@ class SERVER {
     DLIST<STRING>* recent_files();
     
     void save_history() const;
+    
+    unsigned int history_size() const {
+      return _history_size;
+    }
   
   private:
     SERVER();
