@@ -21,8 +21,8 @@
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,1,0,40
- PRODUCTVERSION 1,1,0,40
+ FILEVERSION 1,2,0,51
+ PRODUCTVERSION 1,2,0,51
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -40,14 +40,14 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "Comments", ""
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diff shell extension setup"
-            VALUE "FileVersion", "Release 1.1"
+            VALUE "FileVersion", "Release 1.2"
             VALUE "InternalName", "diff shell extension setup"
             VALUE "LegalCopyright", "Copyright © 2003, 2004 Sergey Zorin"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "diff_ext_setup.exe"
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "Release 1.1"
+            VALUE "ProductVersion", "Release 1.2"
         }
     }
     BLOCK "VarFileInfo"
@@ -72,7 +72,7 @@ BEGIN
     CONTROL         "", 
 		  ID_TAB, 
 		  "SysTabControl32", 
-		  WS_TABSTOP, 
+		  WS_TABSTOP | WS_CLIPSIBLINGS,
 		  6, 6, 228, 98
     DEFPUSHBUTTON "OK", 
                   IDOK, 

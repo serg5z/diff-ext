@@ -18,6 +18,7 @@
 #include <initguid.h>
 
 #include <log/log.h>
+#include <log/log_message.h>
 #include <log/file_sink.h>
 
 #include "server.h"
@@ -195,6 +196,9 @@ SERVER::recent_files() {
       for(unsigned int i = 0; !stop && (no[i] != 0) && (i < history_size); i++) {
         len = MAX_PATH;
 	if(RegQueryValueEx(key, no[i], 0, 0, (BYTE*)file, &len) == ERROR_SUCCESS) {
+	  //~ char str[256];
+	  //~ sprintf(str, "SERVER::recent_files: len=%d", len);
+	  //~ LOG::instance()->debug(LOG_MESSAGE(str));
 	  if(len > 0) {
 	    new_history->push_back(file);
 	  }

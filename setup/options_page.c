@@ -169,7 +169,9 @@ options_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             static int first = 1;
             if((first != 0) && (HIWORD(w_param) == EN_SETFOCUS)) {
               SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETSEL, 0, 0);
+/*	      
               SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETMARGINS, EC_RIGHTMARGIN, MAKELPARAM(0, 30));
+*/	      
               first = 0;
             }
           }

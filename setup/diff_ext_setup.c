@@ -282,15 +282,16 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
         HWND tab = GetDlgItem(dialog, ID_TAB);
         int page = TabCtrl_GetCurSel(tab);
       
+        layout(dialog);
+      
 	GetClientRect(tab, &tab_rect);
 
 	TabCtrl_AdjustRect(tab, FALSE, &tab_rect);
 
 	MapWindowPoints(tab, dialog, (LPPOINT)&tab_rect, 2);
 /**/
-        layout(dialog);
       
-        MoveWindow(pages[page]->page, tab_rect.left, tab_rect.top, tab_rect.right-tab_rect.left, tab_rect.bottom-tab_rect.top, FALSE);
+        MoveWindow(pages[page]->page, tab_rect.left, tab_rect.top, tab_rect.right-tab_rect.left, tab_rect.bottom-tab_rect.top, TRUE);
         layout(pages[page]->page);
 /* redraw them all*/
         GetWindowRect(dialog, &rect);

@@ -345,8 +345,8 @@ create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
 }
 
 void
-layout(HWND hwndDlg) {
-  LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(hwndDlg, DWLP_USER);
+layout(HWND dialog) {
+  LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(dialog, DWLP_USER);
   LAYOUT_ITEM_LIST* current =  (LAYOUT_ITEM_LIST*)(layout->control_layout);
 
   RECT dialog_rect;
@@ -354,8 +354,8 @@ layout(HWND hwndDlg) {
   
   HDWP position_handle = BeginDeferWindowPos(16); /* store number of controls inside LAYOUT structure */
   
-  GetClientRect(hwndDlg, &dialog_rect);
-  
+  GetClientRect(dialog, &dialog_rect);
+
   while(current != 0) {
     RECT rect;
     LAYOUT_ITEM* item = &(current->item);
@@ -364,14 +364,14 @@ layout(HWND hwndDlg) {
     int w;
     int h;
     
-    current_control = GetDlgItem(hwndDlg, item->id);
+    current_control = GetDlgItem(dialog, item->id);
 
     rect.left = item->top_left.x;
     rect.top = item->top_left.y;
     rect.right = item->bottom_right.x;
     rect.bottom = item->bottom_right.y;
     
-    MapDialogRect(hwndDlg, &rect);
+    MapDialogRect(dialog, &rect);
 
     if(item->top_left.anchor & ANCOR_RIGHT) {
       rect.left += dialog_rect.right;
