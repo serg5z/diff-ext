@@ -13,8 +13,6 @@
 #include <windowsx.h>
 #include <shlobj.h>
 
-#include <olectl.h>
-
 #include <util/cont/deque.h>
 #include <util/string.h>
 
