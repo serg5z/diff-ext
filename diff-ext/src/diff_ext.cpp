@@ -22,8 +22,24 @@ const UINT IDM_DIFF_WITH_BASE=50;
 DEQUE<STRING> DIFF_EXT::_recent_files(4);
 
 DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(""), _file_name2(""), _language(1033), _ref_count(0L) {
-  if(_recent_files.size() == 0)
-    _recent_files = DEQUE<STRING>(8);
+  HKEY key;
+  DWORD history_size = 8;
+  DWORD len;
+  
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\DIFF_EXT\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    len = sizeof(DWORD);
+    RegQueryValueEx(key, TEXT("history_size"), 0, NULL, (BYTE*)&history_size, &len);
+    
+    if(history_size > 64) {
+      history_size = 64;
+    }
+
+    RegCloseKey(key);
+  }
+  
+  MessageBox(0, "here we are, in the constructor :(", "", MB_OK);
+//  if(_recent_files.size() == 0)
+    _recent_files = DEQUE<STRING>(history_size);
 
   _resource = SERVER::instance()->handle();
   
