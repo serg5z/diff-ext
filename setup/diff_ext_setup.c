@@ -11,286 +11,12 @@
 #include <commctrl.h>
 #include <string.h>
 #include <stdio.h>
+
+#include "layout.h"
+
 #include "diff_ext_setup_res.h"
 
-const DWORD ANCOR_LEFT  =0x000001;
-const DWORD ANCOR_TOP   =0x000002;
-const DWORD ANCOR_RIGHT =0x000004;
-const DWORD ANCOR_BOTTOM=0x000008;
-
-typedef struct {
-  DWORD id;
-  DWORD top_left_anchor;
-  DWORD bottom_right_anchor;
-} LAYOUT_ITEM_RC;
-
-typedef struct {
-  int x;
-  int y;
-  DWORD anchor;
-} LAYOUT_COORD;
-
-typedef struct {
-  DWORD id;
-  LAYOUT_COORD top_left;
-  LAYOUT_COORD bottom_right;
-} LAYOUT_ITEM;
-
-typedef struct LAYOUT_ITEM_LIST {
-  LAYOUT_ITEM item;
-  struct LAYOUT_ITEM_LIST* next;
-} LAYOUT_ITEM_LIST;
-
-LAYOUT_ITEM_LIST* dialog_layout_root;
-HANDLE resource;
-
 static BOOL CALLBACK DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
-
-static BOOL
-is_extended_dialog(DLGTEMPLATE* tpl) {
-  return (HIWORD(tpl->style) == 0xffff);
-}
-
-static DLGITEMTEMPLATE*
-first_item(DLGTEMPLATE* tpl) {
-  WORD* current;
-  
-  current = (WORD*)(tpl+1);
-  
-/* skip menu */  
-  if((*current) == 0xffff) {
-    current++;
-  }
-  else {
-    while((*current) != 0) {
-      current++;
-    }
-  }
-  current++;
-  
-/* skip class */    
-  if((*current) == 0xffff) {
-    current++;
-  }
-  else {
-    while((*current) != 0) {
-      current++;
-    }
-  }
-  current++;
-
-/* skip title */    
-  if((*current) == 0xffff) {
-    current++;
-  }
-  else {
-    while((*current) != 0) {
-      current++;
-    }
-  }
-  current++;
-  
-  if (tpl->style & DS_SETFONT) {
-    current++;
-    while((*current) != 0) {
-      current++;
-    }
-    current++;
-  }
-  
-  return (DLGITEMTEMPLATE*)(((DWORD)current+3) & ~(DWORD)3 );
-}
-
-static DLGITEMTEMPLATE*
-next_item(DLGITEMTEMPLATE* tpl) {
-  WORD* current;
-  WORD extra_size;
-  
-  tpl++;
-  current = (WORD*)tpl;
-  
-/* skip class */    
-  if((*current) == 0xffff) {
-    current++;
-  }
-  else {
-    while((*current) != 0) {
-      current++;
-    }
-  }
-  current++;
-
-/* skip text */    
-  if((*current) == 0xffff) {
-    current++;
-  }
-  else {
-    while((*current) != 0) {
-      current++;
-    }
-  }
-  current++;
-  
-/* testme!!! */  
-  extra_size = *current;
-  if(extra_size > 0) {
-    current = (WORD*)((BYTE*)current + extra_size);
-  }
-  else {
-    current++;
-  }
-  
-  return (DLGITEMTEMPLATE*)(((DWORD)current+3) & ~(DWORD)3 );
-}
-
-static void
-init_layout() {
-  HGLOBAL layout_table_handle;
-  HGLOBAL dialog_handle;
-  HRSRC resource_handle;
-  LAYOUT_ITEM_RC* layout_table;
-  DLGTEMPLATE* dialog;
-  DLGITEMTEMPLATE* dialog_item;
-  DWORD layout_resource_size;
-  int i;
-  int n;
-  LAYOUT_ITEM_LIST* prev;
-  
-  dialog_layout_root = (LAYOUT_ITEM_LIST*)malloc(sizeof(LAYOUT_ITEM_LIST));
-  prev  = dialog_layout_root;
-    
-  resource_handle = FindResource(resource, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT), RT_RCDATA);
-  layout_table_handle = LoadResource(resource, resource_handle);
-  layout_resource_size = SizeofResource(resource, resource_handle);
-  layout_table = (LAYOUT_ITEM_RC*)LockResource(layout_table_handle);
-
-  resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), RT_DIALOG);
-  dialog_handle = LoadResource(resource, resource_handle);
-  dialog = (DLGTEMPLATE*)LockResource(dialog_handle);
-  
-  dialog_item = first_item(dialog);
-  
-  for(n = 0; n < dialog->cdit; n++) {
-    for(i = 0; i < layout_resource_size/sizeof(LAYOUT_ITEM_RC); i++) {
-      if(layout_table[i].id == dialog_item->id) {
-        LAYOUT_ITEM_LIST* item = (LAYOUT_ITEM_LIST*)malloc(sizeof(LAYOUT_ITEM_LIST));
-        
-        item->item.id = layout_table[i].id;
-        item->item.top_left.anchor = layout_table[i].top_left_anchor;
-        item->item.bottom_right.anchor = layout_table[i].bottom_right_anchor;
-        
-        if(item->item.top_left.anchor & ANCOR_RIGHT) {
-          item->item.top_left.x = dialog_item->x - dialog->cx;
-        }
-    
-        if(item->item.top_left.anchor & ANCOR_LEFT) {
-          item->item.top_left.x = dialog_item->x;
-        }
-    
-        if(item->item.top_left.anchor & ANCOR_TOP) {
-          item->item.top_left.y = dialog_item->y;
-        }
-    
-        if(item->item.top_left.anchor & ANCOR_BOTTOM) {
-          item->item.top_left.y = dialog_item->y - dialog->cy;
-        }
-    
-        if(item->item.bottom_right.anchor & ANCOR_RIGHT) {
-          item->item.bottom_right.x = dialog_item->x - dialog->cx + dialog_item->cx;
-        }
-    
-        if(item->item.bottom_right.anchor & ANCOR_LEFT) {
-          item->item.bottom_right.x = dialog_item->x + dialog_item->cx;
-        }
-    
-        if(item->item.bottom_right.anchor & ANCOR_TOP) {
-          item->item.bottom_right.y = dialog_item->y + dialog_item->cy;
-        }
-    
-        if(item->item.bottom_right.anchor & ANCOR_BOTTOM) {
-          item->item.bottom_right.y = dialog_item->y - dialog->cy + dialog_item->cy;
-        }
-    
-        prev->next = item;
-        prev = item;
-        prev->next = 0;
-      }
-    }
-
-    dialog_item = next_item(dialog_item);
-  }
-  
-  FreeResource(dialog);
-  FreeResource(layout_table_handle);
-}
-
-static void
-layout(HWND hwndDlg) {
-  LAYOUT_ITEM_LIST* current = dialog_layout_root->next;
-  RECT dialog_rect;
-  HWND current_control;
-  
-  GetClientRect(hwndDlg, &dialog_rect);
-  
-  while(current != 0) {
-    RECT rect;
-    LAYOUT_ITEM* item = &(current->item);
-    int x;
-    int y;
-    int w;
-    int h;
-    
-    current_control = GetDlgItem(hwndDlg, item->id);
-
-    rect.left = item->top_left.x;
-    rect.top = item->top_left.y;
-    rect.right = item->bottom_right.x;
-    rect.bottom = item->bottom_right.y;
-    
-    MapDialogRect(hwndDlg, &rect);
-
-    if(item->top_left.anchor & ANCOR_RIGHT) {
-      rect.left += dialog_rect.right;
-    }
-
-    if(item->top_left.anchor & ANCOR_LEFT) {
-      rect.left += dialog_rect.left;
-    }
-
-    if(item->top_left.anchor & ANCOR_TOP) {
-      rect.top += dialog_rect.top;
-    }
-
-    if(item->top_left.anchor & ANCOR_BOTTOM) {
-      rect.top += dialog_rect.bottom;
-    }
-
-    if(item->bottom_right.anchor & ANCOR_RIGHT) {
-      rect.right += dialog_rect.right;
-    }
-
-    if(item->bottom_right.anchor & ANCOR_LEFT) {
-      rect.right += dialog_rect.left;
-    }
-
-    if(item->bottom_right.anchor & ANCOR_TOP) {
-      rect.bottom += dialog_rect.top;
-    }
-
-    if(item->bottom_right.anchor & ANCOR_BOTTOM) {
-      rect.bottom += dialog_rect.bottom;
-    }
-
-    w = rect.right-rect.left;
-    h = rect.bottom-rect.top;
-    x = rect.left;
-    y = rect.top;
-
-    MoveWindow(current_control, x, y, w, h, FALSE);
-    
-    current = current->next;
-  }
-}
 
 int APIENTRY
 WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
@@ -303,6 +29,8 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
   HGLOBAL dialog_handle;
   HRSRC resource_handle;
   DLGTEMPLATE* dialog;
+  HANDLE resource;
+  LAYOUT* layout;
 
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Z\\diff_ext\\", 0, KEY_READ, &key) == ERROR_SUCCESS) {
     hlen = sizeof(DWORD);
@@ -328,17 +56,18 @@ WinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPSTR lpCmdLine, int nCmdShow) {
   wc.lpszClassName = "diff-ext-setup";
   RegisterClass(&wc);
 
-  SetThreadLocale(MAKELCID(MAKELANGID(LANG_RUSSIAN, SUBLANG_DEFAULT), SORT_DEFAULT));
+  SetThreadLocale(LOCALE_USER_DEFAULT);
   InitCommonControls();
 
   resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), RT_DIALOG);
   dialog_handle = LoadResource(resource, resource_handle);
   dialog = (DLGTEMPLATE*)LockResource(dialog_handle);
 
+  layout = create_layout(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
 /*  can not do because have to specify hinst as module instance and load dialog from translated resource only dll...
   ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)DialogFunc);
 */  
-  ret = DialogBoxIndirect(hinst, dialog, NULL, (DLGPROC)DialogFunc);
+  ret = DialogBoxIndirectParam(hinst, dialog, NULL, (DLGPROC)DialogFunc, (LPARAM)layout);
 
   FreeResource(dialog);
 /*
@@ -449,7 +178,7 @@ InitializeApp(HWND hDlg,WPARAM wParam, LPARAM lParam) {
   SetDlgItemText(hDlg, ID_DIFF_COMMAND, command);
   SendDlgItemMessage(hDlg, ID_DIFF_COMMAND, EM_SETLIMITTEXT, MAX_PATH, 0);
   
-  init_layout();
+  SetWindowLongPtr(hDlg, DWLP_USER, lParam);
 }
 
 static BOOL CALLBACK
@@ -528,14 +257,15 @@ DialogFunc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
 
     case WM_GETMINMAXINFO: {
+        LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(hwndDlg, DWLP_USER);
         MINMAXINFO* min_max_info = (MINMAXINFO*)lParam;
         RECT client;
         WINDOWINFO info;
 
         client.top = 0;
-        client.bottom = 95;
+        client.bottom = layout->height;
         client.left = 0;
-        client.right = 195;
+        client.right = layout->width;
 
         MapDialogRect(hwndDlg, &client);
         GetWindowInfo(hwndDlg, &info);
