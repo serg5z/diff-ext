@@ -13,9 +13,6 @@
 
 template <class T>
 class LIST {
-  private:
-    friend class LIST<T>::ITERATOR;
-      
   public:
     class NODE {
       private:
@@ -26,18 +23,18 @@ class LIST {
         NODE() : _next(0) {
         }
       
-        NODE(T data, LIST<T>::NODE* next) : _data(data), _next(next) {
+        NODE(T data, typename LIST<T>::NODE* next) : _data(data), _next(next) {
         }
 
-        void link(LIST<T>::NODE* next) {
+        void link(typename LIST<T>::NODE* next) {
           _next = next;
         }
 
-        LIST<T>::NODE* next() {
+        typename LIST<T>::NODE* next() {
           return _next;
         }
 
-        const LIST<T>::NODE* next() const {
+        const typename LIST<T>::NODE* next() const {
           return _next;
         }
 
@@ -48,7 +45,7 @@ class LIST {
 
       private:
         T _data;
-        LIST<T>::NODE* _next;
+        typename LIST<T>::NODE* _next;
     };
     
     class ITERATOR {
@@ -86,13 +83,13 @@ class LIST {
           return (_owner == c._owner);
         }
 
-        LIST<T>::ITERATOR operator++() {
+        typename LIST<T>::ITERATOR operator++() {
           _current = _current->next();
 
           return *this;
         }
 
-        LIST<T>::ITERATOR operator++(int) {
+        typename LIST<T>::ITERATOR operator++(int) {
           ITERATOR tmp = *this;
 
           ++(*this);
@@ -100,8 +97,8 @@ class LIST {
           return tmp;
         }
 
-        LIST<T>::ITERATOR operator--() {
-          LIST<T>::NODE* tmp = _current;
+        typename LIST<T>::ITERATOR operator--() {
+          typename LIST<T>::NODE* tmp = _current;
           _current = _owner._head.next();
           
           while(_current->next() != tmp) {
@@ -111,7 +108,7 @@ class LIST {
           return *this;
         }
 
-        LIST<T>::ITERATOR operator--(int) {
+        typename LIST<T>::ITERATOR operator--(int) {
           ITERATOR tmp = *this;
 
           --(*this);
@@ -119,11 +116,11 @@ class LIST {
           return tmp;
         }
 
-        const LIST<T>::NODE* operator*() const {
+        const typename LIST<T>::NODE* operator*() const {
           return _current;
         }
 
-        LIST<T>::NODE* operator*() {
+        typename LIST<T>::NODE* operator*() {
           return _current;
         }
 
@@ -136,10 +133,13 @@ class LIST {
         }
 
       private:
-        LIST<T>::NODE* _current;
+        typename LIST<T>::NODE* _current;
         LIST<T>* _owner;
     };
     
+  private:
+    friend class LIST<T>::ITERATOR;
+          
   public:
     LIST() {
       _head.link(&_head);
@@ -155,7 +155,7 @@ class LIST {
     }
     
     void append(T data) {
-      LIST<T>::NODE* current = &_head;
+      typename LIST<T>::NODE* current = &_head;
       
       while(current->next() != &_head) {
         current = current->next();
@@ -165,7 +165,7 @@ class LIST {
     }
     
     void append(LIST<T>::NODE* node) {
-      LIST<T>::NODE* current = &_head;
+      typename LIST<T>::NODE* current = &_head;
       
       while(current->next() != &_head) {
         current = current->next();
@@ -175,7 +175,7 @@ class LIST {
     }
     
     void insert(LIST<T>::NODE* position, T data) {
-      LIST<T>::NODE* node = new NODE(data, position->next());
+      typename LIST<T>::NODE* node = new NODE(data, position->next());
       insert(position, node);
     }
     
@@ -193,7 +193,7 @@ class LIST {
     void unlink(LIST<T>::NODE* node) {
       assert(_count > 0);
       assert(node != &_head);
-      LIST<T>::NODE* current = &_head;
+      typename LIST<T>::NODE* current = &_head;
       bool found = true;
       
       while((current->next() != node) && found) {
@@ -214,7 +214,7 @@ class LIST {
     }
     
     void clear() {
-      LIST<T>::NODE* current;
+      typename LIST<T>::NODE* current;
       
       while((current = _head.hext()) != &_head) {
         remove(current);
@@ -228,7 +228,7 @@ class LIST {
     }
     
   private:
-    LIST<T>::NODE _head;
+    typename LIST<T>::NODE _head;
     unsigned int _count;
 };
 

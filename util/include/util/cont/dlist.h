@@ -19,13 +19,13 @@ class DLIST {
         friend class DLIST<T>;
       
       private:
-        NODE(DLIST<T>::NODE* next = 0, DLIST<T>::NODE* previous = 0) : _next(next), _previous(previous) {
+        NODE(typename DLIST<T>::NODE* next = 0, typename DLIST<T>::NODE* previous = 0) : _next(next), _previous(previous) {
         }
         
-        NODE(T data, DLIST<T>::NODE* next = 0, DLIST<T>::NODE* previous = 0) : _data(data), _next(next), _previous(previous) {
+        NODE(T data, typename DLIST<T>::NODE* next = 0, typename DLIST<T>::NODE* previous = 0) : _data(data), _next(next), _previous(previous) {
         }
         
-        void append(DLIST<T>::NODE& to) {
+        void append(typename DLIST<T>::NODE& to) {
           _next = to._next;
           _previous = &to;
           if(to._next != 0) {
@@ -34,7 +34,7 @@ class DLIST {
           to._next = this;
         }
 	
-        void append(DLIST<T>::NODE* to) {
+        void append(typename DLIST<T>::NODE* to) {
           _next = to->_next;
           _previous = to;
           if(to->_next != 0) {
@@ -43,7 +43,7 @@ class DLIST {
           to->_next = this;
         }
 	
-        void prepend(DLIST<T>::NODE& to) {
+        void prepend(typename DLIST<T>::NODE& to) {
           _next = &to;
           _previous = to._previous;
           if(to._previous->_next != 0) {
@@ -52,7 +52,7 @@ class DLIST {
           to._previous = this;
         }
 	
-        void prepend(DLIST<T>::NODE* to) {
+        void prepend(typename DLIST<T>::NODE* to) {
           _next = to;
           _previous = to->_previous;
           if(to->_previous->_next != 0) {
@@ -75,30 +75,30 @@ class DLIST {
         }
 	
       public:
-	T data() {
-	  return _data;
-	}
+        T data() {
+          return _data;
+        }
         
-        DLIST<T>::NODE* next() {
+        typename DLIST<T>::NODE* next() {
           return _next;
         }
 	
-        const DLIST<T>::NODE* next() const {
+        const typename DLIST<T>::NODE* next() const {
           return _next;
         }
 	
-        DLIST<T>::NODE* previous() {
+        typename DLIST<T>::NODE* previous() {
           return _previous;
         }
 	
-        const DLIST<T>::NODE* previous() const {
+        const typename DLIST<T>::NODE* previous() const {
           return _previous;
         }
 	
       private:
-	T _data;
-	DLIST<T>::NODE* _next;
-	DLIST<T>::NODE* _previous;
+        T _data;
+        typename DLIST<T>::NODE* _next;
+        typename DLIST<T>::NODE* _previous;
     };
     
     class ITERATOR {
@@ -106,7 +106,7 @@ class DLIST {
         friend class DLIST<T>;
           
       private:
-        ITERATOR(DLIST<T>* list, DLIST<T>::NODE* node) {
+        ITERATOR(DLIST<T>* list, typename DLIST<T>::NODE* node) {
           _current = node;
           _list = list;
         }
@@ -132,13 +132,13 @@ class DLIST {
           return !(*this == c);
         }
 
-        DLIST<T>::ITERATOR operator++() {
+        typename DLIST<T>::ITERATOR operator++() {
           _current = _current->next();
 
           return *this;
         }
 
-        DLIST<T>::ITERATOR operator++(int) {
+        typename DLIST<T>::ITERATOR operator++(int) {
           ITERATOR tmp = *this;
 
           ++(*this);
@@ -146,13 +146,13 @@ class DLIST {
           return tmp;
         }
 
-        DLIST<T>::ITERATOR operator--() {
+        typename DLIST<T>::ITERATOR operator--() {
           _current = _current->previous();
 
           return *this;
         }
 
-        DLIST<T>::ITERATOR operator--(int) {
+        typename DLIST<T>::ITERATOR operator--(int) {
           ITERATOR tmp = *this;
 
           --(*this);
@@ -160,11 +160,11 @@ class DLIST {
           return tmp;
         }
 
-        const DLIST<T>::NODE* operator*() const {
+        const typename DLIST<T>::NODE* operator*() const {
           return _current;
         }
 
-        DLIST<T>::NODE* operator*() {
+        typename DLIST<T>::NODE* operator*() {
           return _current;
         }
         
@@ -173,7 +173,7 @@ class DLIST {
         }
 
       private:
-        DLIST<T>::NODE* _current;
+        typename DLIST<T>::NODE* _current;
         DLIST<T>* _list;
     };
     
@@ -188,7 +188,7 @@ class DLIST {
       append(tail(), data);
     }
     
-    void append(DLIST<T>::NODE* node) {
+    void append(typename DLIST<T>::NODE* node) {
       append(tail(), node);
     }
     
@@ -196,12 +196,12 @@ class DLIST {
       prepend(head(), data);
     }
     
-    void prepend(DLIST<T>::NODE* node) {
+    void prepend(typename DLIST<T>::NODE* node) {
       prepend(head(), node);
     }
     
     void append(DLIST<T>::ITERATOR pos, T data) {
-      DLIST<T>::NODE* node = new NODE(data);
+      typename DLIST<T>::NODE* node = new NODE(data);
       
       node->append(*pos);
       
@@ -209,14 +209,14 @@ class DLIST {
     }
     
     void prepend(DLIST<T>::ITERATOR pos, T data) {
-      DLIST<T>::NODE* node = new NODE(data);
+      typename DLIST<T>::NODE* node = new NODE(data);
       
       node->prepend(*pos);
       
       _count++;
     }
     
-    void append(DLIST<T>::ITERATOR pos, DLIST<T>::NODE* node) {
+    void append(DLIST<T>::ITERATOR pos, typename DLIST<T>::NODE* node) {
       assert(node != 0);
       node->unlink();
       node->append(*pos);
@@ -224,7 +224,7 @@ class DLIST {
       _count++;
     }
     
-    void prepend(DLIST<T>::ITERATOR pos, DLIST<T>::NODE* node) {
+    void prepend(DLIST<T>::ITERATOR pos, typename DLIST<T>::NODE* node) {
       assert(node != 0);
       node->unlink();
       node->prepend(*pos);
@@ -233,14 +233,14 @@ class DLIST {
     }
     
     void unlink(DLIST<T>::ITERATOR& pos) {
-      DLIST<T>::NODE* node = (*pos);
+      typename DLIST<T>::NODE* node = (*pos);
       pos++;
       node->unlink();
       _count--;
     }
     
     void remove(DLIST<T>::ITERATOR& pos) {
-      DLIST<T>::NODE* node = (*pos);
+      typename DLIST<T>::NODE* node = (*pos);
       pos++;
       node->unlink();
       _count--;
@@ -256,19 +256,19 @@ class DLIST {
     }
     
     void clear() {
-      DLIST<T>::ITERATOR i = head();
+      typename DLIST<T>::ITERATOR i = head();
       
       while(!i.done()) {
         remove(i);
       }
     }
     
-    DLIST<T>::ITERATOR head() {
-      return DLIST<T>::ITERATOR(this, _root._next);
+    typename DLIST<T>::ITERATOR head() {
+      return typename DLIST<T>::ITERATOR(this, _root._next);
     }
     
-    DLIST<T>::ITERATOR tail() {
-      return DLIST<T>::ITERATOR(this, _root._previous);
+    typename DLIST<T>::ITERATOR tail() {
+      return typename DLIST<T>::ITERATOR(this, _root._previous);
     }
     
   private:
