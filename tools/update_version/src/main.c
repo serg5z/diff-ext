@@ -35,7 +35,7 @@ usage(char* program_name) {
   "\t--input\t\tinput file name. if '-' is specified, or unspecified\n"
   "\t\t\tstandart input is used.\n"
   "\t--output\toutput file name. if '-' is specified, or unspecified\n"
-  "\t\t\tstandart input is used.\n"
+  "\t\t\tstandart output is used.\n"
   "\t--help\t\tprints out usage help.\n";
 
   printf(message, program_name, program_name);
@@ -71,9 +71,6 @@ update_version(FILE* input, FILE* output) {
 
   memset(&fileversion_re, 0, sizeof(regex_t));
   memset(&productversion_re, 0, sizeof(regex_t));
-
-  regfree(&fileversion_re);
-  regfree(&productversion_re);
 
   if ((ret=regcomp(&fileversion_re, fileversion_re_str, REG_ICASE )) != 0) {
     regerror(ret, &fileversion_re, buffer, sizeof(buffer)/sizeof(buffer[0]));
