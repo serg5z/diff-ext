@@ -96,52 +96,52 @@ update_version(FILE* input, FILE* output) {
     while(fgets(buffer, 4096, input)) {
       regmatch_t version[10];
       if((regexec(&fileversion_re, buffer, 10, version, 0) == 0) || 
-	 (regexec(&productversion_re, buffer, 10, version, 0) == 0)) {
-	char tmp[8] = "";
-	char space[5][4096] = {"", "", "", "", ""};
-	int new_build;
-	
-	if(version[1].rm_so >= 0) { /* may be 0 for the first one */
-	  strncpy(space[0], buffer+version[1].rm_so, min(version[1].rm_eo-version[1].rm_so, 4096));
-	}
-	if(version[2].rm_so > 0) {
-	  memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
-	  strncpy(tmp, buffer+version[2].rm_so, min(version[2].rm_eo-version[2].rm_so, 8));
-	  major = atoi(tmp);
-	}
-	if(version[3].rm_so > 0) {
-	  strncpy(space[1], buffer+version[3].rm_so, min(version[3].rm_eo-version[3].rm_so, 4096));
-	}
-	if(version[4].rm_so > 0) {
-	  memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
-	  strncpy(tmp, buffer+version[4].rm_so, min(version[4].rm_eo-version[4].rm_so, 8));
-	  minor = atoi(tmp);
-	}
-	if(version[5].rm_so > 0) {
-	  strncpy(space[2], buffer+version[5].rm_so, min(version[5].rm_eo-version[5].rm_so, 4096));
-	}
-	if(version[6].rm_so > 0) {
-	  memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
-	  strncpy(tmp, buffer+version[6].rm_so, min(version[6].rm_eo-version[6].rm_so, 8));
-	  patch = atoi(tmp);
-	}
-	if(version[7].rm_so > 0) {
-	  strncpy(space[3], buffer+version[7].rm_so, min(version[7].rm_eo-version[7].rm_so, 4096));
-	}
-	if(version[8].rm_so > 0) {
-	  memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
-	  strncpy(tmp, buffer+version[8].rm_so, min(version[8].rm_eo-version[8].rm_so, 8));
-	  build = atoi(tmp);
-	}
-	if(version[9].rm_so > 0) {
-	  strncpy(space[4], buffer+version[9].rm_so, min(version[9].rm_eo-version[9].rm_so, 4096));
-	}
-	
-	new_build = build+1;
-	
-	fprintf(output, "%s%d%s%d%s%d%s%d%s", space[0], major, space[1], minor, space[2], patch, space[3], new_build, space[4]);
+         (regexec(&productversion_re, buffer, 10, version, 0) == 0)) {
+        char tmp[8] = "";
+        char space[5][4096] = {"", "", "", "", ""};
+        int new_build;
+      
+        if(version[1].rm_so >= 0) { /* may be 0 for the first one */
+          strncpy(space[0], buffer+version[1].rm_so, min(version[1].rm_eo-version[1].rm_so, 4096));
+        }
+        if(version[2].rm_so > 0) {
+          memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
+          strncpy(tmp, buffer+version[2].rm_so, min(version[2].rm_eo-version[2].rm_so, 8));
+          major = atoi(tmp);
+        }
+        if(version[3].rm_so > 0) {
+          strncpy(space[1], buffer+version[3].rm_so, min(version[3].rm_eo-version[3].rm_so, 4096));
+        }
+        if(version[4].rm_so > 0) {
+          memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
+          strncpy(tmp, buffer+version[4].rm_so, min(version[4].rm_eo-version[4].rm_so, 8));
+          minor = atoi(tmp);
+        }
+        if(version[5].rm_so > 0) {
+          strncpy(space[2], buffer+version[5].rm_so, min(version[5].rm_eo-version[5].rm_so, 4096));
+        }
+        if(version[6].rm_so > 0) {
+          memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
+          strncpy(tmp, buffer+version[6].rm_so, min(version[6].rm_eo-version[6].rm_so, 8));
+          patch = atoi(tmp);
+        }
+        if(version[7].rm_so > 0) {
+          strncpy(space[3], buffer+version[7].rm_so, min(version[7].rm_eo-version[7].rm_so, 4096));
+        }
+        if(version[8].rm_so > 0) {
+          memset(tmp, 0, sizeof(tmp)/sizeof(tmp[0]));
+          strncpy(tmp, buffer+version[8].rm_so, min(version[8].rm_eo-version[8].rm_so, 8));
+          build = atoi(tmp);
+        }
+        if(version[9].rm_so > 0) {
+          strncpy(space[4], buffer+version[9].rm_so, min(version[9].rm_eo-version[9].rm_so, 4096));
+        }
+        
+        new_build = build+1;
+        
+        fprintf(output, "%s%d%s%d%s%d%s%d%s", space[0], major, space[1], minor, space[2], patch, space[3], new_build, space[4]);
       } else {
-	fputs(buffer, output);
+        fputs(buffer, output);
       }
     }
   }
@@ -166,10 +166,10 @@ main(int argc, char** argv) {
         index++;
         input_name = argv[index];
         index++;
-	
+        
         if(input_name == 0) {
           usage(argv[0]);
-	  index = argc;
+          index = argc;
         }
       } else if(strcmp(argv[index], "--output") == 0) {
         index++;
@@ -184,17 +184,16 @@ main(int argc, char** argv) {
         index = argc;
         output_name = 0;
         input_name = 0;
-	input = 0;
-	output = 0;
-      }
-      else {
+        input = 0;
+        output = 0;
+      } else {
         fprintf(stderr, "Unknown option '%s'\n\n", argv[index]);
         usage(argv[0]);
         index = argc;
-	input_name = 0;
-	output_name = 0;
-	input = 0;
-	output = 0;
+        input_name = 0;
+        output_name = 0;
+        input = 0;
+        output = 0;
       }
     }
   }
@@ -210,40 +209,40 @@ main(int argc, char** argv) {
         perror("rename");
       }
       else {
-	remove_input = 1;
-	
-	input = fopen(tmp_name, "r");
-	if(input == 0) {
-	  perror("fopen(...,\"r\")");
-	  fprintf(stderr, "Can not open '%s' for reading.\n", tmp_name);
-	}
-	else {
-	  output = fopen(output_name, "w");
-	  
-	  if(output == 0) {
-	    perror(argv[0]);
-	    fprintf(stderr, "Can not open '%s' for writing.\n", output_name);
-	    rename(tmp_name, input_name);
-	  }
-	  
-	  input_name = tmp_name;
-	}
+        remove_input = 1;
+        
+        input = fopen(tmp_name, "r");
+        if(input == 0) {
+          perror("fopen(...,\"r\")");
+          fprintf(stderr, "Can not open '%s' for reading.\n", tmp_name);
+        }
+        else {
+          output = fopen(output_name, "w");
+          
+          if(output == 0) {
+            perror(argv[0]);
+            fprintf(stderr, "Can not open '%s' for writing.\n", output_name);
+            rename(tmp_name, input_name);
+          }
+          
+          input_name = tmp_name;
+        }
       }
     } else {
       if(strcmp(output_name, "-") != 0) {
-	output = fopen(output_name, "w");
-	
-	if(output == 0) {
-	  fprintf(stderr, "Can not open '%s' for writing.\n", output_name);
-	}
+        output = fopen(output_name, "w");
+        
+        if(output == 0) {
+          fprintf(stderr, "Can not open '%s' for writing.\n", output_name);
+        }
       }
       
       if(strcmp(input_name, "-") != 0) {
-	input = fopen(input_name, "r");
+        input = fopen(input_name, "r");
   
-	if(input == 0) {
-	  fprintf(stderr, "Can not open '%s' for reading.\n", input_name);
-	}
+        if(input == 0) {
+          fprintf(stderr, "Can not open '%s' for reading.\n", input_name);
+        }
       }
     }
     
@@ -264,7 +263,7 @@ main(int argc, char** argv) {
       ret = remove(input_name);
       
       if(ret != 0) {
-	perror("Can not remove tmp file");
+        perror("Can not remove tmp file");
       }
     }
   } else {
