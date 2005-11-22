@@ -10,6 +10,7 @@
 #include <commctrl.h>
 #include <string.h>
 #include <stdio.h>
+#include <tchar.h>
 
 #include "layout.h"
 #include "page.h"
@@ -52,7 +53,7 @@ WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
   
       RegCloseKey(key);
   
-      sprintf(language_lib, "diff_ext_setup%ld.dll", language);
+      _stprintf(language_lib, TEXT("diff_ext_setup%ld.dll"), language);
     }
   
     resource = LoadLibrary(language_lib);

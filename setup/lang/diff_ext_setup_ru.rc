@@ -5,11 +5,14 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
+#pragma code_page(1251)
 
 #ifndef __BORLANDC__
 #include <windows.h>
 #endif
 #include "../diff_ext_setup.rh"
+
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 #ifndef __LCC__
   #ifdef __MINGW32__
@@ -18,8 +21,6 @@
 
 1 MANIFEST "diff_ext_setup.manifest"
 #endif
-
-LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 1,3,0,0
@@ -57,7 +58,7 @@ VS_VERSION_INFO VERSIONINFO
     }
 }
 
-main_icon ICON "de.ico"
+MAIN_ICON ICON "de.ico"
 
 #include "options_ru.dlg"
 #include "logging_ru.dlg"
@@ -67,7 +68,7 @@ IDD_MAINDIALOG DIALOGEX
 70, 60, 242, 129
 STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Установки diff_ext"
-FONT 8, "Helv"
+FONT 8, "Ms Shell Dlg"
 CLASS "diff-ext-setup"
 BEGIN
     CONTROL         "", 

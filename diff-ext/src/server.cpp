@@ -244,7 +244,7 @@ SERVER::save_history() const {
 	STRING str = (*i)->data();
 	LPSTR c_str = str;
 	if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, str.length()) != ERROR_SUCCESS) {
-          TRACE trace(__func__, __FILE__, __LINE__, 4);
+          TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
           HKEY history_entry;
           if(RegCreateKeyEx(key, no[n], 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &history_entry, 0) == ERROR_SUCCESS) {
             if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, str.length()) != ERROR_SUCCESS) {

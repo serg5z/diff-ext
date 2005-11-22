@@ -5,11 +5,12 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
+#pragma code_page(1251)
 
 IDD_OPTIONS DIALOGEX
 0, 0, 228, 75
 STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK | WS_CLIPSIBLINGS //| WS_CLIPCHILDREN
-FONT 8, "Helv"
+FONT 8, "Ms Shell Dlg"
 EXSTYLE WS_EX_CONTROLPARENT
 BEGIN
     GROUPBOX      "Программа сравнения", 			

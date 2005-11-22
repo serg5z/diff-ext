@@ -8,7 +8,7 @@ WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
 
 CXXFLAGS += -g -I../../util/include
-CFLAGS += -Wall -ansi -pedantic -g -I../../util/include
+CFLAGS += -D_UNICODE -DUNICODE -Wall -ansi -pedantic -g -I../../util/include
 LIBS :=  -lcomdlg32 -lcomctl32 -lversion
 LDFLAGS += -mwindows
 RES  := diff_ext_setup.res

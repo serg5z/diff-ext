@@ -35,7 +35,7 @@ init(HWND dialog, WPARAM not_used_1, LPARAM l_param) {
     
     GetFileVersionInfo(path, 0, file_versioninfo_size, file_versioninfo);
     
-    VerQueryValue(file_versioninfo, "\\VarFileInfo\\Translation", (void**)&translations, &length);
+    VerQueryValue(file_versioninfo, TEXT("\\VarFileInfo\\Translation"), (void**)&translations, &length);
     
     if(length > 0) {
       wsprintf(version_block, TEXT("\\StringFileInfo\\%04x%04x\\ProductVersion"), translations[0].language, translations[0].codepage);

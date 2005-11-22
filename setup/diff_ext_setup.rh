@@ -11,20 +11,20 @@
 #define 	IDD_OPTIONS 300
 #define 	IDD_LOGGING 400
 
-#define	ID_LANGUAGE	101L
-#define	ID_DIFF_COMMAND	102L
-#define	ID_GROUP	103L
-#define	ID_BROWSE	105L
-#define	ID_ABOUT	106L
-#define	ID_DIFF_DIRS	107L
-#define      ID_APPLY	108L
-#define	ID_VERSION 109L
-#define   	ID_TAB 110L
-#define      ID_LOG_PATH 111L
-#define	ID_ENABLE_LOGGING 112L
-#define	ID_LOG_LEVEL_LABEL 113L
-#define	ID_LOG_LEVEL 114L
-#define	ID_LOG_LEVEL_BUTTON 115L
+#define	ID_LANGUAGE	101
+#define	ID_DIFF_COMMAND	102
+#define	ID_GROUP	103
+#define	ID_BROWSE	105
+#define	ID_ABOUT	106
+#define	ID_DIFF_DIRS	107
+#define      ID_APPLY	108
+#define	ID_VERSION 109
+#define   	ID_TAB 110
+#define      ID_LOG_PATH 111
+#define	ID_ENABLE_LOGGING 112
+#define	ID_LOG_LEVEL_LABEL 113
+#define	ID_LOG_LEVEL 114
+#define	ID_LOG_LEVEL_BUTTON 115
 #define	IDS_HELPMENU	2010
 #define	MAIN_ICON 1
 

@@ -5,6 +5,7 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
+#pragma code_page(1251)
 
 IDD_ABOUT DIALOGEX 
 10, 10, 214, 73

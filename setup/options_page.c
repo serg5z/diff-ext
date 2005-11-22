@@ -5,6 +5,10 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
+ #include <windows.h>
+ #include <stdio.h>
+ #include <tchar.h>
+ 
 #include "layout.h"
 #include "page.h"
 
@@ -30,7 +34,7 @@ apply(PAGE* page) {
   language = SendDlgItemMessage(page->page, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
 
   RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_SET_VALUE, &key);
-  RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, lstrlen(command));
+  RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, MAX_PATH);
   RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
   RegCloseKey(key);
 }
@@ -97,10 +101,10 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   }
   
   locale_info_size = GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, 0, 0);
-  locale_info = (TCHAR*)malloc(locale_info_size);
+  locale_info = (TCHAR*)malloc(locale_info_size*sizeof(TCHAR));
   GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
 
-  SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
+  curr = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
   SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETITEMDATA, curr, 1033);
 
   if(language == 1033) {
@@ -108,9 +112,8 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   }
 
   free(locale_info); 
-  curr++;
 
-  lstrcat(home, "\\");
+  lstrcat(home, TEXT("\\"));
   lstrcat(home, prefix);
   lstrcat(home, root);
   lstrcat(home, suffix);
@@ -120,22 +123,15 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     BOOL stop = FALSE;
 
     while(stop == FALSE) {
-      TCHAR* str = file_info.cFileName+sizeof(prefix)/sizeof(prefix[0])-1;
-      DWORD lang_id;
-
-      str[sizeof(root)/sizeof(root[0])-1] = 0;
-
-#ifdef UNICODE
-      lang_id = _wtoi(str);
-#else
-	  lang_id = atoi(str);
-#endif
+      DWORD lang_id = 0;
+      
+      _stscanf(file_info.cFileName, TEXT("diff_ext_setup%4u.dll"), &lang_id);
 
       locale_info_size = GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, 0, 0);
-      locale_info = (TCHAR*)malloc(locale_info_size);
+      locale_info = (TCHAR*)malloc(locale_info_size*sizeof(TCHAR));
       GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
 
-      SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
+      curr = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
       SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETITEMDATA, curr, lang_id);
 
       if(lang_id == language) {
@@ -145,12 +141,11 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
       free(locale_info);
 
       stop = !FindNextFile(file, &file_info);
-      curr++;
     }
 
     FindClose(file);
   }
-
+  
   SetDlgItemText(dialog, ID_DIFF_COMMAND, command);
   SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, MAX_PATH, 0);
 

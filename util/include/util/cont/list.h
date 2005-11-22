@@ -58,28 +58,28 @@ class LIST {
           _owner = &list;
         }
 
-        ITERATOR(const LIST<T>::ITERATOR& c) {
+        ITERATOR(const typename LIST<T>::ITERATOR& c) {
           _current = c._current;
           _owner = c._owner;
         }
 
-        ITERATOR& operator=(const LIST<T>::ITERATOR& c) {
+        ITERATOR& operator=(const typename LIST<T>::ITERATOR& c) {
           _current = c._current;
           _owner = c._owner;
 
           return *this;
         }
 
-        bool operator==(const LIST<T>::ITERATOR& c) const {
+        bool operator==(const typename LIST<T>::ITERATOR& c) const {
           assert(compatible_with(c));
           return (compatible_with(c) && (_current == c._current));
         }
 
-        bool operator !=(const LIST<T>::ITERATOR& c) const {
+        bool operator !=(const typename LIST<T>::ITERATOR& c) const {
           return !(*this == c);
         }
 
-        bool compatible_with(const LIST<T>::ITERATOR& c) const {
+        bool compatible_with(const typename LIST<T>::ITERATOR& c) const {
           return (_owner == c._owner);
         }
 
@@ -150,7 +150,7 @@ class LIST {
       insert(&_head, data);
     }
     
-    void prepend(LIST<T>::NODE* node) {
+    void prepend(typename LIST<T>::NODE* node) {
       insert(&_head, node);
     }
     
@@ -164,7 +164,7 @@ class LIST {
       insert(current, data);
     }
     
-    void append(LIST<T>::NODE* node) {
+    void append(typename LIST<T>::NODE* node) {
       typename LIST<T>::NODE* current = &_head;
       
       while(current->next() != &_head) {
@@ -174,23 +174,23 @@ class LIST {
       insert(current, node);
     }
     
-    void insert(LIST<T>::NODE* position, T data) {
+    void insert(typename LIST<T>::NODE* position, T data) {
       typename LIST<T>::NODE* node = new NODE(data, position->next());
       insert(position, node);
     }
     
-    void insert(LIST<T>::NODE* position, LIST<T>::NODE* node) {
+    void insert(typename LIST<T>::NODE* position, typename LIST<T>::NODE* node) {
       node->link(position->next());
       position->link(node);
       _count++;
     }
     
-    void remove(LIST<T>::NODE* node) {
+    void remove(typename LIST<T>::NODE* node) {
       unlink(node);
       delete node;
     }
     
-    void unlink(LIST<T>::NODE* node) {
+    void unlink(typename LIST<T>::NODE* node) {
       assert(_count > 0);
       assert(node != &_head);
       typename LIST<T>::NODE* current = &_head;

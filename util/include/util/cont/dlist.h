@@ -112,23 +112,23 @@ class DLIST {
         }
 
       public:
-        ITERATOR(const DLIST<T>::ITERATOR& c) {
+        ITERATOR(const typename DLIST<T>::ITERATOR& c) {
           _current = c._current;
           _list = c._list;
         }
 
-        ITERATOR& operator=(const DLIST<T>::ITERATOR& c) {
+        ITERATOR& operator=(const typename DLIST<T>::ITERATOR& c) {
           _current = c._current;
           _list = c._list;
 
           return *this;
         }
 
-        bool operator==(const DLIST<T>::ITERATOR& c) const {
+        bool operator==(const typename DLIST<T>::ITERATOR& c) const {
           return ((_list == c._list) && (_current == c._current));
         }
 
-        bool operator !=(const DLIST<T>::ITERATOR& c) const {
+        bool operator !=(const typename DLIST<T>::ITERATOR& c) const {
           return !(*this == c);
         }
 
@@ -200,7 +200,7 @@ class DLIST {
       prepend(head(), node);
     }
     
-    void append(DLIST<T>::ITERATOR pos, T data) {
+    void append(typename DLIST<T>::ITERATOR pos, T data) {
       typename DLIST<T>::NODE* node = new NODE(data);
       
       node->append(*pos);
@@ -208,7 +208,7 @@ class DLIST {
       _count++;
     }
     
-    void prepend(DLIST<T>::ITERATOR pos, T data) {
+    void prepend(typename DLIST<T>::ITERATOR pos, T data) {
       typename DLIST<T>::NODE* node = new NODE(data);
       
       node->prepend(*pos);
@@ -216,7 +216,7 @@ class DLIST {
       _count++;
     }
     
-    void append(DLIST<T>::ITERATOR pos, typename DLIST<T>::NODE* node) {
+    void append(typename DLIST<T>::ITERATOR pos, typename DLIST<T>::NODE* node) {
       assert(node != 0);
       node->unlink();
       node->append(*pos);
@@ -224,7 +224,7 @@ class DLIST {
       _count++;
     }
     
-    void prepend(DLIST<T>::ITERATOR pos, typename DLIST<T>::NODE* node) {
+    void prepend(typename DLIST<T>::ITERATOR pos, typename DLIST<T>::NODE* node) {
       assert(node != 0);
       node->unlink();
       node->prepend(*pos);
@@ -232,14 +232,14 @@ class DLIST {
       _count++;
     }
     
-    void unlink(DLIST<T>::ITERATOR& pos) {
+    void unlink(typename DLIST<T>::ITERATOR& pos) {
       typename DLIST<T>::NODE* node = (*pos);
       pos++;
       node->unlink();
       _count--;
     }
     
-    void remove(DLIST<T>::ITERATOR& pos) {
+    void remove(typename DLIST<T>::ITERATOR& pos) {
       typename DLIST<T>::NODE* node = (*pos);
       pos++;
       node->unlink();
