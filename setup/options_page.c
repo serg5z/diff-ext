@@ -34,7 +34,7 @@ apply(PAGE* page) {
   language = SendDlgItemMessage(page->page, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
 
   RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_SET_VALUE, &key);
-  RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, MAX_PATH);
+  RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, _tcslen(command)*sizeof(TCHAR));
   RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
   RegCloseKey(key);
 }

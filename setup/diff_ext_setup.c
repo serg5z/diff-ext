@@ -34,7 +34,9 @@ static WINDOW_PLACEMENT* window_placement = 0;
 static PAGE* pages[2];
 
 #ifdef __MINGW32__
-//Wait for wide startup module from MinGW
+/*
+Wait for wide startup module from MinGW
+*/
 int APIENTRY
 WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
 #else  

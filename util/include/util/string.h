@@ -54,6 +54,11 @@ class STRING {
       return _tcslen(_str);
     }
     
+    // String length in bytes. May differ from length() for Unicode or MBCS
+    int size() const {
+      return length()*sizeof(TCHAR);
+    }
+    
     STRING substr(int from, int to) const {
       STRING tmp;
       

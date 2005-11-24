@@ -6,6 +6,7 @@
  *
  */
 #include <windows.h>
+#include <tchar.h>
 #include <commctrl.h>
 
 #include "layout.h"
@@ -35,7 +36,7 @@ apply(PAGE* page) {
   }
 
   RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_SET_VALUE, &key);
-  RegSetValueEx(key, TEXT("log_file"), 0, REG_SZ, (const BYTE*)log_path, lstrlen(log_path));
+  RegSetValueEx(key, TEXT("log_file"), 0, REG_SZ, (const BYTE*)log_path, _tcslen(log_path)*sizeof(TCHAR));
   RegSetValueEx(key, TEXT("log_level"), 0, REG_DWORD, (const BYTE*)&level, sizeof(level));
   RegSetValueEx(key, TEXT("log"), 0, REG_DWORD, (const BYTE*)&enabled, sizeof(enabled));
   RegCloseKey(key);

@@ -240,11 +240,11 @@ SERVER::save_history() const {
       while(!i.done()) {
 	STRING str = (*i)->data();
 	LPTSTR c_str = str;
-	if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, str.length()) != ERROR_SUCCESS) {
+	if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, str.size()) != ERROR_SUCCESS) {
 //          TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
           HKEY history_entry;
           if(RegCreateKeyEx(key, no[n], 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &history_entry, 0) == ERROR_SUCCESS) {
-            if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, str.length()) != ERROR_SUCCESS) {
+            if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, str.size()) != ERROR_SUCCESS) {
               LPTSTR message;
               FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
                 GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
@@ -309,7 +309,7 @@ SERVER::do_register() {
 
         _stprintf(szData, entry[i].value, server_path);
 
-        result = RegSetValueEx(key, entry[i].name, 0, REG_SZ, (LPBYTE)szData, (_tcslen(szData) + 1)*sizeof(TCHAR));
+        result = RegSetValueEx(key, entry[i].name, 0, REG_SZ, (LPBYTE)szData, _tcslen(szData)*sizeof(TCHAR));
       }
       
       RegCloseKey(key);
@@ -324,7 +324,7 @@ SERVER::do_register() {
         //if necessary, create the value string
         _stprintf(szData, TEXT("%s"), class_id);
     
-        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)szData, (_tcslen(szData) + 1)*sizeof(TCHAR));
+        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)szData, _tcslen(szData)*sizeof(TCHAR));
     
         RegCloseKey(key);
     
@@ -345,7 +345,7 @@ SERVER::do_register() {
       
             lstrcpy(szData, TEXT("diff-ext"));
       
-            result = RegSetValueEx(key, class_id, 0, REG_SZ, (LPBYTE)szData, (_tcslen(szData) + 1)*sizeof(TCHAR));
+            result = RegSetValueEx(key, class_id, 0, REG_SZ, (LPBYTE)szData, _tcslen(szData)*sizeof(TCHAR));
       
             RegCloseKey(key);
             
