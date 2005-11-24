@@ -5,7 +5,7 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
-
+#include <tchar.h>
 #include <assert.h>
 #include <stdio.h>
 
@@ -23,8 +23,8 @@ const UINT IDM_DIFF_LATER=30;
 const UINT IDM_DIFF_WITH=40;
 const UINT IDM_DIFF_WITH_BASE=50;
 
-DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(""), _file_name2(""), _language(1033), _ref_count(0L) {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(TEXT("")), _file_name2(TEXT("")), _language(1033), _ref_count(0L) {
+//  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
   
   _recent_files = SERVER::instance()->recent_files();
 
@@ -34,7 +34,7 @@ DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(""), _file_name2(""), _language(
 }
 
 DIFF_EXT::~DIFF_EXT() {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(TEXT(__f__), TEXT(__FILE__), __LINE__);
   
   if(_resource != SERVER::instance()->handle()) {
     FreeLibrary(_resource);
@@ -45,7 +45,7 @@ DIFF_EXT::~DIFF_EXT() {
 
 STDMETHODIMP
 DIFF_EXT::QueryInterface(REFIID refiid, void** ppv) {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
 
   HRESULT ret = E_NOINTERFACE;
   *ppv = 0;
@@ -67,14 +67,14 @@ DIFF_EXT::QueryInterface(REFIID refiid, void** ppv) {
 
 STDMETHODIMP_(ULONG)
 DIFF_EXT::AddRef() {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
 
   return InterlockedIncrement((LPLONG)&_ref_count);
 }
 
 STDMETHODIMP_(ULONG)
 DIFF_EXT::Release() {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
 
   ULONG ret = 0L;
   
@@ -89,22 +89,21 @@ DIFF_EXT::Release() {
 
 void
 DIFF_EXT::initialize_language() {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
 
   HKEY key;
   DWORD language = 0;
   DWORD len;
-  TCHAR language_lib[MAX_PATH];
 
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\DIFF_EXT\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
-    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
     len = sizeof(DWORD);
     RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &len);
 
     RegCloseKey(key);
 
     if(language != _language) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 5);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 5);
       _language = language;
       
       if(_resource != SERVER::instance()->handle()) {
@@ -112,19 +111,32 @@ DIFF_EXT::initialize_language() {
       }
       
       if(_language != 1033) {
-        TRACE trace(__FUNCTION__, __FILE__, __LINE__, 6);
-	GetModuleFileName(SERVER::instance()->handle(), language_lib, sizeof(language_lib)/sizeof(language_lib[0]));
+//        TRACE trace(__FUNCTION__, __FILE__, __LINE__, 6);
+        TCHAR language_lib[MAX_PATH];
+        TCHAR* dot;
 	
-	wsprintf(language_lib+strlen(language_lib)-4, "%ld.dll", language);
+        GetModuleFileName(SERVER::instance()->handle(), language_lib, sizeof(language_lib)/sizeof(language_lib[0]));
+        dot = _tcsrchr(language_lib, TEXT('.'));
+        _stprintf(dot, TEXT("%lu.dll"), language);
 	
 	_resource = LoadLibrary(language_lib);
 
 	if(_resource == 0) {
+          LPTSTR message;
+          FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
+            GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+            (LPTSTR) &message, 0, 0);
+          MessageBox(0, message, TEXT("GetLastError"), MB_OK | MB_ICONINFORMATION);
+      
+          LocalFree(message);
+          
+          GetModuleFileName(SERVER::instance()->handle(), language_lib, sizeof(language_lib)/sizeof(language_lib[0]));
+          MessageBox(0, language_lib, TEXT("GetLastError"), MB_OK | MB_ICONINFORMATION);
+          
 	  _resource = SERVER::instance()->handle();
 	  _language = 1033;
  	}
-      }
-      else {
+      } else {
 	_resource = SERVER::instance()->handle();
       }
     }
@@ -133,7 +145,7 @@ DIFF_EXT::initialize_language() {
 
 STDMETHODIMP
 DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY /*key not used*/) {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
 
   FORMATETC format = {CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
   STGMEDIUM medium;
@@ -141,7 +153,7 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
   HRESULT ret = E_INVALIDARG;
 
   if(data->GetData(&format, &medium) == S_OK) {
-    TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//    TRACE trace(__FUNCTION__, __FILE__, __LINE__);
     HDROP drop = (HDROP)medium.hGlobal;
     _n_files = DragQueryFile(drop, 0xFFFFFFFF, 0, 0);
 
@@ -150,14 +162,14 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
     initialize_language();
     
     if(_n_files == 1) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
       DragQueryFile(drop, 0, tmp, MAX_PATH);
 
       _file_name1 = STRING(tmp);
 
       ret = S_OK;
     } else if(_n_files == 2) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
       DragQueryFile(drop, 1, tmp, MAX_PATH);
 
       _file_name1 = STRING(tmp);
@@ -175,14 +187,14 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
 
 STDMETHODIMP
 DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*last_cmd not used*/, UINT flags) {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
   
   TCHAR resource_string[256];
   int resource_string_length;
   HRESULT ret = MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, 0);
 
   if(!(flags & CMF_DEFAULTONLY)) {
-    TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//    TRACE trace(__FUNCTION__, __FILE__, __LINE__);
     MENUITEMINFO item_info;
 
     ZeroMemory(&item_info, sizeof(item_info));
@@ -194,7 +206,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
     position++;
 
     if(_n_files == 1) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
       resource_string_length = LoadString(_resource, DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
@@ -207,17 +219,18 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       }
       
       STRING str(resource_string);
-      LPSTR c_str;
+      LPTSTR c_str;
       UINT state = MFS_DISABLED;
 
+      //TODO: Use FormatMessage here
       if(_recent_files->count() > 0) {
-	TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//	TRACE trace(__FUNCTION__, __FILE__, __LINE__);
 	DLIST<STRING>::ITERATOR i = _recent_files->head();
         
         state = MFS_ENABLED;
-	str += " '";
+	str += TEXT(" '");
         str += cut_to_length((*i)->data());
-	str += "'";
+	str += TEXT("'");
       }
 
       c_str = str;
@@ -259,7 +272,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 
       int n = 0;
       while(!i.done()) {
-	TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//	TRACE trace(__FUNCTION__, __FILE__, __LINE__);
 	
         str = cut_to_length((*i)->data());
         c_str = str;
@@ -298,7 +311,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
     } else if(_n_files == 2) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
       
       resource_string_length = LoadString(_resource, DIFF_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
@@ -312,7 +325,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       }
       
       STRING str(resource_string); //= "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
-      LPSTR c_str = str;
+      LPTSTR c_str = str;
 
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
@@ -324,7 +337,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
     } else {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
       assert(false);
     }
 
@@ -344,7 +357,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 
 STDMETHODIMP
 DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
 
   HRESULT ret = NOERROR;
 
@@ -352,19 +365,19 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
 
   if(HIWORD(ici->lpVerb) == 0) {
     if(LOWORD(ici->lpVerb) == IDM_DIFF) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       diff();
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_WITH) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       diff_with(0);
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_LATER) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       diff_later();
     } else if((LOWORD(ici->lpVerb) >= IDM_DIFF_WITH_BASE) && (LOWORD(ici->lpVerb) < IDM_DIFF_WITH_BASE+_recent_files->count())) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       diff_with(LOWORD(ici->lpVerb)-IDM_DIFF_WITH_BASE);
     } else {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       ret = E_INVALIDARG;
       assert(0);
     }
@@ -375,15 +388,14 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
 
 STDMETHODIMP
 DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT cchMax) {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
   HRESULT ret = NOERROR;
   TCHAR resource_string[256];
   int resource_string_length;
   
   if(uFlags == GCS_HELPTEXT) {
     if(idCmd == IDM_DIFF) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       resource_string_length = LoadString(_resource, DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
@@ -395,15 +407,15 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	}
       }
       
-      lstrcpyn(pszName, resource_string, cchMax);
+      lstrcpyn((LPTSTR)pszName, resource_string, cchMax);
     } else if(idCmd == IDM_DIFF_WITH) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
         DLIST<STRING>::ITERATOR i = _recent_files->head();
-	LPSTR file_name1 = _file_name1;
-	LPSTR file_name2 = (*i)->data();
-	LPSTR message;
-	LPSTR args[] = {file_name1, file_name2};
+	LPTSTR file_name1 = _file_name1;
+	LPTSTR file_name2 = (*i)->data();
+	LPTSTR message;
+        void* args[] = {(void*)file_name1, (void*)file_name2};
 
 	resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
 	
@@ -416,15 +428,15 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	  }
 	}
 	
-	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
-	lstrcpyn(pszName, message, cchMax);
+	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, (char**)args);
+	lstrcpyn((LPTSTR)pszName, message, cchMax);
 	LocalFree(message);
       }
       else {
-	lstrcpyn(pszName, TEXT(""), cchMax);
+	lstrcpyn((LPTSTR)pszName, TEXT(""), cchMax);
       }
     } else if(idCmd == IDM_DIFF_LATER) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       resource_string_length = LoadString(_resource, DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
@@ -436,15 +448,15 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	}
       }
       
-      LPSTR file_name1 = _file_name1;
-      LPSTR message;
-      LPSTR args[] = {file_name1};
+      LPTSTR file_name1 = _file_name1;
+      LPTSTR message;
+      void* args[] = {(void*)file_name1};
 
-      FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
-      lstrcpyn(pszName, message, cchMax);
+      FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, (char**)args);
+      lstrcpyn((LPTSTR)pszName, message, cchMax);
       LocalFree(message);
     } else if((idCmd >= IDM_DIFF_WITH_BASE) && (idCmd < IDM_DIFF_WITH_BASE+_recent_files->count())) {
-      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
 	resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
@@ -457,23 +469,23 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	  }
 	}
 	unsigned int num = idCmd-IDM_DIFF_WITH_BASE;
-	LPSTR file_name1 = _file_name1;
+	LPTSTR file_name1 = _file_name1;
 	
 	DLIST<STRING>::ITERATOR i = _recent_files->head();
 	for(unsigned int j = 0; j < num; j++)
 	  i++;
       
-	LPSTR file_name2 = (*i)->data();
-	LPSTR message;
-	LPSTR args[] = {file_name1, file_name2};
+	LPTSTR file_name2 = (*i)->data();
+	LPTSTR message;
+        void* args[] = {file_name1, file_name2};
 
-	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, args);
-	lstrcpyn(pszName, message, cchMax);
+	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, (char**)args);
+	lstrcpyn((LPTSTR)pszName, message, cchMax);
 	LocalFree(message);
       }
       else {
-        TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-	lstrcpyn(pszName, TEXT(""), cchMax);
+//        TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+	lstrcpyn((LPTSTR)pszName, TEXT(""), cchMax);
       }
     }
   }
@@ -483,7 +495,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 
 void
 DIFF_EXT::diff() {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
   //~ FILE* f = fopen("d:/DIFF_EXT.log", "a");
   //~ MessageBox(_hwnd, "diff", "command", MB_OK);
   STARTUPINFO si;
@@ -496,17 +508,15 @@ DIFF_EXT::diff() {
   ZeroMemory(command, sizeof(command));
 
   if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
-    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
     if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command, &length) != ERROR_SUCCESS) {
-      command[0] = '\0';
-    } else {
-      command[length] = '\0';
+      command[0] = TEXT('\0');
     }
 
     RegCloseKey(key);
   } else {
-    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-    char* message;
+//    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+    LPTSTR message;
 
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
       GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
@@ -517,28 +527,19 @@ DIFF_EXT::diff() {
     LocalFree(message);
   }
 
-  lstrcat(command," \"");
-  lstrcpyn(tmp, _file_name1, MAX_PATH);
-  lstrcat(command, tmp);
-  lstrcat(command,"\" \"");
-  lstrcpyn(tmp, _file_name2, MAX_PATH);
-  lstrcat(command, tmp);
-  lstrcat(command,"\"");
+  _tcscat(command, TEXT(" \""));
+  _tcsncpy(tmp, _file_name1, MAX_PATH);
+  _tcscat(command, tmp);
+  _tcscat(command, TEXT("\" \""));
+  _tcsncpy(tmp, _file_name2, MAX_PATH);
+  _tcscat(command, tmp);
+  _tcscat(command, TEXT("\""));
 
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
 
   if (CreateProcess(0, command, 0, 0, FALSE, 0, 0, 0, &si, &pi) == 0) {
-    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-/*
-    LPTSTR message;
-    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
-      GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-      (LPTSTR) &message, 0, 0);
-    MessageBox(0, message, TEXT("GetLastError"), MB_OK | MB_ICONINFORMATION);
-
-    LocalFree(message);
-*/
+//    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
     TCHAR resource_string[1024];
     TCHAR error_string[256];
     int string_length;
@@ -567,7 +568,15 @@ DIFF_EXT::diff() {
 
     MessageBox(_hwnd, resource_string, error_string, MB_OK);
   } else {
-    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+    LPTSTR message;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
+      GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+      (LPTSTR) &message, 0, 0);
+    MessageBox(0, message, TEXT("GetLastError"), MB_OK | MB_ICONINFORMATION);
+
+    LocalFree(message);
+
     CloseHandle( pi.hProcess );
     CloseHandle( pi.hThread );
   }
@@ -577,7 +586,7 @@ DIFF_EXT::diff() {
 
 void
 DIFF_EXT::diff_with(unsigned int num) {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
   //~ STRING str = "diff "+_file_name1+" and "+_recent_files->at(num);
   //~ MessageBox(_hwnd, str, "command", MB_OK);
   DLIST<STRING>::ITERATOR i = _recent_files->head();
@@ -592,7 +601,7 @@ DIFF_EXT::diff_with(unsigned int num) {
 
 void
 DIFF_EXT::diff_later() {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
   //~ FILE* f = fopen("d:/DIFF_EXT.log", "a");
   //~ MessageBox(_hwnd, "diff later", "command", MB_OK);
   bool found = false;
@@ -625,14 +634,14 @@ DIFF_EXT::diff_later() {
 
 STRING
 DIFF_EXT::cut_to_length(STRING in, int max_len) {
-  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
 
   STRING ret;
   int length = in.length();
   
   if(length > max_len) {
     ret = in.substr(0, (max_len-3)/2);
-    ret += "...";
+    ret += TEXT("...");
     ret += in.substr(length-(max_len-3)/2, STRING::end);
   }
   else {

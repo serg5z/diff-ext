@@ -5,6 +5,7 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
+#pragma code_page(1251)
 
 #include <windows.h>
 
@@ -14,8 +15,6 @@
 #define str(x) #x
 
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
-
-#pragma code_page(1251)
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 1,3,0,0

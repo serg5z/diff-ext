@@ -33,8 +33,14 @@ static HANDLE resource;
 static WINDOW_PLACEMENT* window_placement = 0;
 static PAGE* pages[2];
 
+#ifdef __MINGW32__
+//Wait for wide startup module from MinGW
 int APIENTRY
 WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
+#else  
+int APIENTRY
+_tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show) {
+#endif  
   WNDCLASS wc;
   HRESULT exit = ID_APPLY;
   HKEY key;

@@ -10,6 +10,7 @@
 #define __file_sink__
 
 #include <stdio.h>
+#include <tchar.h>
 
 #include <log/log_sink.h>
 
@@ -17,7 +18,7 @@ class LOG_MESSAGE;
 
 class FILE_SINK : public LOG_SINK {
   public:
-    FILE_SINK(const char* name, unsigned int log_level = 0);
+    FILE_SINK(const TCHAR* name, unsigned int log_level = 0);
     virtual ~FILE_SINK();
   
     virtual void debug(const LOG_MESSAGE& msg);

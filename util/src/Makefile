@@ -7,8 +7,8 @@ AR ?= ar.exe
 WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
 
-CXXFLAGS += -g -I../../util/include
-CFLAGS += -g -I../../util/include
+CXXFLAGS += -D_UNICODE -DUNICODE -g -I../../util/include
+CFLAGS += --D_UNICODE -DUNICODE g -I../../util/include
 LDFLAGS += -mwindows
 
 CXXFLAGS += -I../include

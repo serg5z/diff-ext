@@ -1,8 +1,8 @@
 #include <log/file_sink.h>
 #include <log/log_message.h>
 
-FILE_SINK::FILE_SINK(const char* name, unsigned int log_level) {
-  _file = fopen(name, "a");
+FILE_SINK::FILE_SINK(const TCHAR* name, unsigned int log_level) {
+  _file = _tfopen(name, TEXT("a"));
   _log_level = log_level;
 }
 
@@ -15,8 +15,8 @@ void
 FILE_SINK::debug(const LOG_MESSAGE& msg) {
   if(msg.log_level() < _log_level) {
     STRING m = msg.message();
-    char* str = m;
-    fprintf(_file, "DEBUG(%d): %s\n", msg.log_level(), str);
+    TCHAR* str = m;
+    _ftprintf(_file, TEXT("DEBUG(%d): %s\n"), msg.log_level(), str);
     fflush(_file);
   }
 }
@@ -25,8 +25,8 @@ void
 FILE_SINK::info(const LOG_MESSAGE& msg) {
   if(msg.log_level() < _log_level) {
     STRING m = msg.message();
-    char* str = m;
-    fprintf(_file, "INFO(%d): %s", msg.log_level(), str);
+    TCHAR* str = m;
+    _ftprintf(_file, TEXT("INFO(%d): %s"), msg.log_level(), str);
     fflush(_file);
   }
 }
@@ -35,8 +35,8 @@ void
 FILE_SINK::warning(const LOG_MESSAGE& msg) {
   if(msg.log_level() < _log_level) {
     STRING m = msg.message();
-    char* str = m;
-    fprintf(_file, "WARNING(%d): %s\n", msg.log_level(), str);
+    TCHAR* str = m;
+    _ftprintf(_file, TEXT("WARNING(%d): %s\n"), msg.log_level(), str);
     fflush(_file);
   }
 }
@@ -45,8 +45,8 @@ void
 FILE_SINK::error(const LOG_MESSAGE& msg) {
   if(msg.log_level() < _log_level) {
     STRING m = msg.message();
-    char* str = m;
-    fprintf(_file, "ERROR(%d): %s\n", msg.log_level(), str);
+    TCHAR* str = m;
+    _ftprintf(_file, TEXT("ERROR(%d): %s\n"), msg.log_level(), str);
     fflush(_file);
   }
 }
@@ -55,8 +55,8 @@ void
 FILE_SINK::failure(const LOG_MESSAGE& msg) {
   if(msg.log_level() < _log_level) {
     STRING m = msg.message();
-    char* str = m;
-    fprintf(_file, "FAILURE: %s\n", str);
+    TCHAR* str = m;
+    _ftprintf(_file, TEXT("FAILURE: %s\n"), str);
     fflush(_file);
   }
 }

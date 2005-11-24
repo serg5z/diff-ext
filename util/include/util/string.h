@@ -10,6 +10,7 @@
 #define __string_h__
 
 #include <windows.h>
+#include <tchar.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -25,7 +26,7 @@ class STRING {
       lstrcpy(_str, s);
     }
     
-    STRING(const TCHAR* str = "") {
+    STRING(const TCHAR* str = TEXT("")) {
       _str = new TCHAR[lstrlen(str)+1];
       lstrcpy(_str, str);
     }
@@ -50,7 +51,7 @@ class STRING {
     }
     
     int length() const {
-      return strlen(_str);
+      return _tcslen(_str);
     }
     
     STRING substr(int from, int to) const {

@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include <windows.h>
+#include <tchar.h>
 
 #include <shlguid.h>
 #include <olectl.h>
@@ -25,10 +26,6 @@
 
 #include "server.h"
 #include "class_factory.h"
-
-#define ARRAYSIZE(a)    (sizeof(a)/sizeof(a[0]))
-
-#define SHELLEXNAME    "diff_ext"
 
 // registry key util struct
 typedef struct {
@@ -242,9 +239,9 @@ SERVER::save_history() const {
       
       while(!i.done()) {
 	STRING str = (*i)->data();
-	LPSTR c_str = str;
+	LPTSTR c_str = str;
 	if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, str.length()) != ERROR_SUCCESS) {
-          TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+//          TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
           HKEY history_entry;
           if(RegCreateKeyEx(key, no[n], 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &history_entry, 0) == ERROR_SUCCESS) {
             if(RegSetValueEx(key, no[n], 0, REG_SZ, (const BYTE*)c_str, str.length()) != ERROR_SUCCESS) {
@@ -282,7 +279,11 @@ SERVER::do_register() {
   HRESULT ret = SELFREG_E_CLASS;
 
   if (StringFromIID(CLSID_DIFF_EXT, &tmp_guid) == S_OK) {
-    wcstombs(class_id, tmp_guid, ARRAYSIZE(class_id));
+#ifdef UNICODE    
+    _tcsncpy(class_id, tmp_guid, MAX_PATH);
+#else
+    wcstombs(class_id, tmp_guid, MAX_PATH);
+#endif
     CoTaskMemFree((void*)tmp_guid);
     
     TCHAR    subkey[MAX_PATH];
@@ -291,39 +292,39 @@ SERVER::do_register() {
     LRESULT  result = NOERROR;
     DWORD    dwDisp;
 
-    GetModuleFileName(SERVER::instance()->handle(), server_path, ARRAYSIZE(server_path));
+    GetModuleFileName(SERVER::instance()->handle(), server_path, MAX_PATH);
   
     REGSTRUCT entry[] = {
-      {TEXT("CLSID\\%s"), 0, TEXT(SHELLEXNAME)},
+      {TEXT("CLSID\\%s"), 0, TEXT("diff-ext")},
       {TEXT("CLSID\\%s\\InProcServer32"), 0, TEXT("%s")},
       {TEXT("CLSID\\%s\\InProcServer32"), TEXT("ThreadingModel"), TEXT("Apartment")}
     };
   
-    for(unsigned int i = 0; (i < ARRAYSIZE(entry)) && (result == NOERROR); i++) {
-      wsprintf(subkey, entry[i].subkey, class_id);
+    for(unsigned int i = 0; (i < sizeof(entry)/sizeof(entry[0])) && (result == NOERROR); i++) {
+      _stprintf(subkey, entry[i].subkey, class_id);
       result = RegCreateKeyEx(HKEY_CLASSES_ROOT, subkey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &dwDisp);
     
       if(result == NOERROR) {
         TCHAR szData[MAX_PATH];
 
-        wsprintf(szData, entry[i].value, server_path);
-    
-        result = RegSetValueEx(key, entry[i].name, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData) + 1);
+        _stprintf(szData, entry[i].value, server_path);
+
+        result = RegSetValueEx(key, entry[i].name, 0, REG_SZ, (LPBYTE)szData, (_tcslen(szData) + 1)*sizeof(TCHAR));
       }
       
       RegCloseKey(key);
     }
     
     if(result == NOERROR) {  
-      result = RegCreateKeyEx(HKEY_CLASSES_ROOT, TEXT("*\\shellex\\ContextMenuHandlers\\"SHELLEXNAME), 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &dwDisp);
+      result = RegCreateKeyEx(HKEY_CLASSES_ROOT, TEXT("*\\shellex\\ContextMenuHandlers\\diff-ext"), 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &dwDisp);
     
       if(result == NOERROR) {
         TCHAR szData[MAX_PATH];
     
         //if necessary, create the value string
-        wsprintf(szData, TEXT("%s"), class_id);
+        _stprintf(szData, TEXT("%s"), class_id);
     
-        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData) + 1);
+        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)szData, (_tcslen(szData) + 1)*sizeof(TCHAR));
     
         RegCloseKey(key);
     
@@ -342,9 +343,9 @@ SERVER::do_register() {
           if(result == NOERROR) {
             TCHAR szData[MAX_PATH];
       
-            lstrcpy(szData, TEXT(SHELLEXNAME));
+            lstrcpy(szData, TEXT("diff-ext"));
       
-            result = RegSetValueEx(key, class_id, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData) + 1);
+            result = RegSetValueEx(key, class_id, 0, REG_SZ, (LPBYTE)szData, (_tcslen(szData) + 1)*sizeof(TCHAR));
       
             RegCloseKey(key);
             
@@ -376,9 +377,13 @@ SERVER::do_unregister() {
   HRESULT ret = SELFREG_E_CLASS;
 
   if (StringFromIID(CLSID_DIFF_EXT, &tmp_guid) == S_OK) {
-    wcstombs(class_id, tmp_guid, ARRAYSIZE(class_id));
-    CoTaskMemFree(tmp_guid);
-
+#ifdef UNICODE    
+    _tcsncpy(class_id, tmp_guid, MAX_PATH);
+#else
+    wcstombs(class_id, tmp_guid, MAX_PATH);
+#endif
+    CoTaskMemFree((void*)tmp_guid);
+    
     LRESULT result = NOERROR;
     TCHAR subkey[MAX_PATH];
 
@@ -387,13 +392,13 @@ SERVER::do_unregister() {
       {TEXT("CLSID\\%s"), 0, 0}
     };
   
-    for(unsigned int i = 0; (i < ARRAYSIZE(entry)) && (result == NOERROR); i++) {
-      wsprintf(subkey, entry[i].subkey, class_id);
+    for(unsigned int i = 0; (i < sizeof(entry)/sizeof(entry[0])) && (result == NOERROR); i++) {
+      _stprintf(subkey, entry[i].subkey, class_id);
       result = RegDeleteKey(HKEY_CLASSES_ROOT, subkey);
     }
   
     if(result == NOERROR) {
-      result = RegDeleteKey(HKEY_CLASSES_ROOT, TEXT("*\\shellex\\ContextMenuHandlers\\"SHELLEXNAME));
+      result = RegDeleteKey(HKEY_CLASSES_ROOT, TEXT("*\\shellex\\ContextMenuHandlers\\diff-ext"));
     
       if(result == NOERROR) {
         //If running on NT, register the extension as approved.
