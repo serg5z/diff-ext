@@ -17,11 +17,10 @@
 #include "server.h"
 #include "diff_ext.rh"
 
-const UINT IDM_TEST_COMMAND=10;
-const UINT IDM_DIFF=1;
-const UINT IDM_DIFF_WITH=2;
-const UINT IDM_DIFF_LATER=3;
-const UINT IDM_DIFF_WITH_BASE=4;
+const UINT IDM_DIFF=10;
+const UINT IDM_DIFF_WITH=11;
+const UINT IDM_DIFF_LATER=12;
+const UINT IDM_DIFF_WITH_BASE=20;
 
 DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(TEXT("")), _file_name2(TEXT("")), _language(1033), _ref_count(0L) {
 //  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
@@ -208,7 +207,6 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
     position++;
 
     if(_n_files == 1) {
-      id++; // skip diff command id
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
       
       LPTSTR c_str;
@@ -249,12 +247,13 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
         c_str = resource_string;
       }
 
+      id = first_cmd + IDM_DIFF_WITH;
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
       item_info.fType = MFT_STRING;
       item_info.fState = state;
-      item_info.wID = id++;
+      item_info.wID = id;
       item_info.dwTypeData = c_str; //+filename
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
@@ -270,12 +269,13 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 	}
       }
       
+      id = first_cmd + IDM_DIFF_LATER;
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
       item_info.fType = MFT_STRING;
       item_info.fState = MFS_ENABLED;
-      item_info.wID = id++;
+      item_info.wID = id;
       item_info.dwTypeData = resource_string;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
@@ -284,6 +284,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 
       DLIST<STRING>::ITERATOR i = _recent_files->head();
 
+      id = first_cmd+IDM_DIFF_WITH_BASE;
       int n = 0;
       while(!i.done()) {
 //	TRACE trace(__FUNCTION__, __FILE__, __LINE__);
@@ -340,6 +341,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       STRING str(resource_string); //= "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
       LPTSTR c_str = str;
 
+      id = first_cmd + IDM_DIFF;
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;

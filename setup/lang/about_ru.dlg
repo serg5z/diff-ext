@@ -7,7 +7,7 @@
  */
 #pragma code_page(1251)
 
-IDD_ABOUT DIALOGEX 
+IDD_ABOUT DIALOG
 10, 10, 214, 73
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "О программе diff_ext"
@@ -17,7 +17,7 @@ BEGIN
 		  IDOK, 
 		  157, 52, 50, 14
 		  
-    ICON  "main_icon", 
+    ICON  MAIN_ICON, 
 	  203, 
 	  7, 7, 21, 20
     CTEXT "diff_ext", 
@@ -26,7 +26,7 @@ BEGIN
     CTEXT "Информация о версии отсутствует.", 
 	  ID_VERSION, 
 	  30, 22, 162, 8
-    CTEXT "© 2003-2004 Сергей Зорин. Все права защищены.", 
+    CTEXT "© 2003-2005 Сергей Зорин. Все права защищены.", 
 	  202, 
 	  7, 37, 200, 8
 END

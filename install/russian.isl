@@ -1,6 +1,6 @@
-; *** Inno Setup version 4.1.8+ Russian messages ***
+; *** Inno Setup version 5.1.0+ Russian messages ***
 ;
-; Translation is made by Dmitry Kann, http://devtools.narod.ru/
+; Translation was made by Dmitry Kann, http://www.dk-soft.org/
 ; The highest accuracy was the first priority.
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
@@ -8,21 +8,12 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; $Id$
+; $jrsoftware: issrc/Files/Languages/Russian.isl,v 1.9 2005/02/26 08:32:52 yktoo Exp $
 
 [LangOptions]
-LanguageName=Russian
+LanguageName=<0420><0443><0441><0441><043A><0438><0439>
 LanguageID=$0419
-; If the language you are translating to requires special font faces or
-; sizes, uncomment any of the following entries and change them accordingly.
-;DialogFontName=
-;DialogFontSize=8
-;WelcomeFontName=Verdana
-;WelcomeFontSize=12
-;TitleFontName=Arial
-;TitleFontSize=29
-;CopyrightFontName=Arial
-;CopyrightFontSize=8
+LanguageCodePage=1251
 
 [Messages]
 
@@ -38,7 +29,7 @@ ConfirmTitle=Подтверждение
 ErrorTitle=Ошибка
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Данная программа установит %1 на ваш компьютер, продолжить?
+SetupLdrStartupMessage=Данная программа установит %1 на Ваш компьютер, продолжить?
 LdrCannotCreateTemp=Невозможно создать временный файл. Установка прервана
 LdrCannotExecTemp=Невозможно выполнить файл во временном каталоге. Установка прервана
 
@@ -49,10 +40,12 @@ SetupFileCorrupt=Установочные файлы повреждены. Пожалуйста, получите новую копию
 SetupFileCorruptOrWrongVer=Эти установочные файлы повреждены или несовместимы с данной версией программы установки. Пожалуйста, устраните проблему или получите новую копию программы.
 NotOnThisPlatform=Эта программа не будет работать в %1.
 OnlyOnThisPlatform=Эту программу можно запускать только в %1.
+OnlyOnTheseArchitectures=Установка этой программы возможна только в версиях Windows для следующих архитектур процессоров:%n%n%1
+MissingWOW64APIs=В версии Windows, в которой Вы работаете, отсутствуют функции, необходимые для выполнения 64-битной установки. Чтобы устранить эту проблему, Вам необходимо установить пакет обновления (Service Pack) %1.
 WinVersionTooLowError=Эта программа требует %1 версии %2 или выше.
 WinVersionTooHighError=Программа не может быть установлена в %1 версии %2 или выше.
 AdminPrivilegesRequired=Чтобы установить данную программу, Вы должны выполнить вход в систему как Администратор.
-PowerUserPrivilegesRequired=Чтобы установить эту программу, вы должны выполнить вход в систему как Администратор или член группы «Опытные пользователи» (Power Users).
+PowerUserPrivilegesRequired=Чтобы установить эту программу, Вы должны выполнить вход в систему как Администратор или член группы «Опытные пользователи» (Power Users).
 SetupAppRunningError=Обнаружен запущенный экземпляр %1.%n%nПожалуйста, закройте все экземпляры приложения, затем нажмите «OK», чтобы продолжить, или «Отмена», чтобы выйти.
 UninstallAppRunningError=Деинсталлятор обнаружил запущенный экземпляр %1.%n%nПожалуйста, закройте все экземпляры приложения, затем нажмите «OK», чтобы продолжить, или «Отмена», чтобы выйти.
 
@@ -62,11 +55,12 @@ ErrorTooManyFilesInDir=Невозможно создать файл в каталоге "%1", так как в нём сл
 
 ; *** Setup common messages
 ExitSetupTitle=Выход из программы установки
-ExitSetupMessage=Установка не завершена. Если Вы выйдете, программа не будет установлена.%n%nВы можете установить программу в другой раз.%n%nВыйти из программы установки?
+ExitSetupMessage=Установка не завершена. Если Вы выйдете, программа не будет установлена.%n%nВы сможете завершить установку, запустив программу установки позже.%n%nВыйти из программы установки?
 AboutSetupMenuItem=&О программе...
 AboutSetupTitle=О программе
 AboutSetupMessage=%1, версия %2%n%3%n%nСайт %1:%n%4
 AboutSetupNote=
+TranslatorNote=Russian translation by Dmitry Kann, http://www.dk-soft.org/
 
 ; *** Buttons
 ButtonBack=< &Назад
@@ -80,21 +74,21 @@ ButtonNo=&Нет
 ButtonNoToAll=Н&ет для Всех
 ButtonFinish=&Завершить
 ButtonBrowse=&Обзор...
-
-; *** "Select Language" dialog messages
 ButtonWizardBrowse=&Обзор...
 ButtonNewFolder=&Создать папку
+
+; *** "Select Language" dialog messages
 SelectLanguageTitle=Выберите язык установки
 SelectLanguageLabel=Выберите язык, который будет использован в  процессе установки:
 
 ; *** Common wizard text
 ClickNext=Нажмите «Далее», чтобы продолжить, или «Отмена», чтобы выйти из программы установки.
 BeveledLabel=
-
-; *** "Welcome" wizard page
 BrowseDialogTitle=Обзор папок
 BrowseDialogLabel=Выберите папку из списка и нажмите «ОК».
 NewFolderName=Новая папка
+
+; *** "Welcome" wizard page
 WelcomeLabel1=Вас приветствует Мастер установки [name]
 WelcomeLabel2=Программа установит [name/ver] на Ваш компьютер.%n%nРекомендуется закрыть все прочие приложения перед тем, как продолжить.
 
@@ -128,11 +122,11 @@ UserInfoOrg=&Организация:
 UserInfoSerial=&Серийный номер:
 UserInfoNameRequired=Вы должны ввести имя.
 
-; *** "Select Destination Directory" wizard page
+; *** "Select Destination Location" wizard page
 WizardSelectDir=Выбор папки установки
-SelectDirDesc=В какую папку вы хотите установить [name]?
+SelectDirDesc=В какую папку Вы хотите установить [name]?
 SelectDirLabel3=Программа установит [name] в следующую папку.
-SelectDirBrowseLabel=Нажмите «Далее», чтобы продолжить. Если вы хотите выбрать другую папку, нажмите «Обзор».
+SelectDirBrowseLabel=Нажмите «Далее», чтобы продолжить. Если Вы хотите выбрать другую папку, нажмите «Обзор».
 DiskSpaceMBLabel=Требуется как минимум [mb] Мб свободного дискового пространства.
 ToUNCPathname=Установка не может выполняться в папку по её сетевому имени. Если Вы устанавливаете в сетевую папку, Вы должны подключить её в виде сетевого диска.
 InvalidPath=Вы должны указать полный путь с буквой диска; например:%n%nC:\APP%n%nили в форме UNC:%n%n\\имя_сервера\имя_ресурса
@@ -150,13 +144,13 @@ DirDoesntExist=Папка%n%n%1%n%nне существует. Вы хотите создать её?
 ; *** "Select Components" wizard page
 WizardSelectComponents=Выбор компонентов
 SelectComponentsDesc=Какие компоненты должны быть установлены?
-SelectComponentsLabel2=Выберите компоненты, которые вы хотите установить; снимите флажки с компонентов, устанавливать которые не требуется. Нажмите «Далее», когда Вы будете готовы продолжить.
+SelectComponentsLabel2=Выберите компоненты, которые Вы хотите установить; снимите флажки с компонентов, устанавливать которые не требуется. Нажмите «Далее», когда Вы будете готовы продолжить.
 FullInstallation=Полная установка
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Компактная установка
 CustomInstallation=Выборочная установка
 NoUninstallWarningTitle=Установленные компоненты
-NoUninstallWarning=Программа установки обнаружила, что следующие компоненты уже установлены на вашем компьютере:%n%n%1%n%nОтмена выбора этих компонент не удалит их.%n%nПродолжить?
+NoUninstallWarning=Программа установки обнаружила, что следующие компоненты уже установлены на Вашем компьютере:%n%n%1%n%nОтмена выбора этих компонент не удалит их.%n%nПродолжить?
 ComponentSize1=%1 Кб
 ComponentSize2=%1 Мб
 ComponentsDiskSpaceMBLabel=Текущий выбор требует не менее [mb] Мб на диске.
@@ -170,8 +164,7 @@ SelectTasksLabel2=Выберите дополнительные задачи, которые должны выполниться при
 WizardSelectProgramGroup=Выберите папку в меню «Пуск»
 SelectStartMenuFolderDesc=Где программа установки должна создать ярлыки?
 SelectStartMenuFolderLabel3=Программа создаст ярлыки в следующей папке меню «Пуск».
-SelectStartMenuFolderBrowseLabel=Нажмите «Далее», чтобы продолжить. Если вы хотите выбрать другую папку, нажмите «Обзор».
-NoIconsCheck=&Не создавать значков
+SelectStartMenuFolderBrowseLabel=Нажмите «Далее», чтобы продолжить. Если Вы хотите выбрать другую папку, нажмите «Обзор».
 MustEnterGroupName=Вы должны ввести имя папки.
 GroupNameTooLong=Имя папки группы или путь к ней превышают допустимую длину.
 InvalidGroupName=Указанное имя папки недопустимо.
@@ -203,7 +196,7 @@ InstallingLabel=Пожалуйста, подождите, пока [name] установится на Ваш компьютер.
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Завершение Мастера установки [name]
 FinishedLabelNoIcons=Программа [name] установлена на Ваш компьютер.
-FinishedLabel=Программа [name] установлена на ваш компьютер. Приложение можно запустить с помощью соответствующего значка.
+FinishedLabel=Программа [name] установлена на Ваш компьютер. Приложение можно запустить с помощью соответствующего значка.
 ClickFinish=Нажмите «Завершить», чтобы выйти из программы установки.
 FinishedRestartLabel=Для завершения установки [name] требуется перезагрузить компьютер. Произвести перезагрузку сейчас?
 FinishedRestartMessage=Для завершения установки [name] требуется перезагрузить компьютер.%n%nПроизвести перезагрузку сейчас?
@@ -282,6 +275,7 @@ UninstallOpenError=Невозможно открыть файл "%1". Деинсталляция невозможна
 UninstallUnsupportedVer=Файл протокола для деинсталляции "%1" не распознан данной версией программы-деинсталлятора. Деинсталляция невозможна
 UninstallUnknownEntry=Встретился неизвестный пункт (%1) в файле протокола для деинсталляции
 ConfirmUninstall=Вы действительно хотите удалить %1 и все компоненты программы?
+UninstallOnlyOnWin64=Данную программу возможно деинсталлировать только в среде 64-битной Windows.
 OnlyAdminCanUninstall=Эта программа может быть деинсталлирована только пользователем с административными привилегиями.
 UninstallStatusLabel=Пожалуйста, подождите, пока %1 будет удалена с Вашего компьютера.
 UninstalledAll=Программа %1 была полностью удалена с Вашего компьютера.
@@ -296,3 +290,18 @@ SharedFileNameLabel=Имя файла:
 SharedFileLocationLabel=Расположение:
 WizardUninstalling=Состояние деинсталляции
 StatusUninstalling=Деинсталляция %1...
+
+; The custom messages below aren't used by Setup itself, but if you make
+; use of them in your scripts, you'll want to translate them.
+
+[CustomMessages]
+
+NameAndVersion=%1, версия %2
+AdditionalIcons=Дополнительные значки:
+CreateDesktopIcon=Создать значок на &Рабочем столе
+CreateQuickLaunchIcon=Создать значок в &Панели быстрого запуска
+ProgramOnTheWeb=Сайт %1 в Интернете
+UninstallProgram=Деинсталлировать %1
+LaunchProgram=Запустить %1
+AssocFileExtension=Св&язать %1 с файлами, имеющими расширение %2
+AssocingFileExtension=Связывание %1 с файлами %2...

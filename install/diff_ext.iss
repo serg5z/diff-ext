@@ -3,13 +3,13 @@ Compression=lzma/normal
 SolidCompression=yes
 AppName=diff_ext
 AppId=A0482097-C69D-4DEC-8AB6-D3A259ACC151
-AppVerName=diff_ext 1.3.2
+AppVerName=diff_ext 1.4
 AppPublisher=Z
 DefaultDirName={pf}\Z\diff_ext
 DefaultGroupName=Z\diff_ext
 DisableProgramGroupPage=false
 OutputDir=.
-OutputBaseFilename=diff_ext-1.3.2
+OutputBaseFilename=diff_ext-1.4
 
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
 ; MinVersion=4,3.51
@@ -21,9 +21,9 @@ LicenseFile=..\LICENSE.rtf
 
 [Files]
 Source: ..\build\diff_ext.dll; DestDir: {app}; Flags: regserver restartreplace uninsrestartdelete
-Source: ..\build\diff_ext_setup.exe; DestDir: {app}; Flags:
-Source: ..\build\diff_ext1049.dll; DestDir: {app}; Flags:
-Source: ..\build\diff_ext_setup1049.dll; DestDir: {app}; Flags:
+Source: ..\build\diff_ext_setup.exe; DestDir: {app}; Flags: 
+Source: ..\build\diff_ext1049.dll; DestDir: {app}; Flags: 
+Source: ..\build\diff_ext_setup1049.dll; DestDir: {app}; Flags: 
 ;restartreplace uninsrestartdelete ignoreversion
 ;regserver restartreplace uninsrestartdelete uninsremovereadonly
 Source: ..\LICENSE; DestDir: {app}; Flags: uninsremovereadonly; Attribs: readonly
