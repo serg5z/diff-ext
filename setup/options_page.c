@@ -1,14 +1,22 @@
 /*
- * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ * Copyright (c) 2003-2005, Sergey Zorin. All rights reserved.
  *
  * This software is distributable under the BSD license. See the terms
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
- #include <windows.h>
+ #define INITGUID
  #include <stdio.h>
+ #include <windows.h>
  #include <tchar.h>
- 
+
+#include <shlguid.h>
+#include <olectl.h>
+#include <objidl.h>
+
+#include <objbase.h>
+#include <initguid.h>
+
 #include "layout.h"
 #include "page.h"
 
@@ -22,21 +30,64 @@ typedef struct {
 
 static BOOL CALLBACK options_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param);
 
+DEFINE_GUID(CLSID_DIFF_EXT, 0xA0482097, 0xC69D, 0x4DEC, 0x8A, 0xB6, 0xD3, 0xA2, 0x59, 0xAC, 0xC1, 0x51);
+
 static void
 apply(PAGE* page) {
   HKEY key;
   TCHAR command[MAX_PATH];
   LRESULT language;
   LRESULT idx;
+  LRESULT compare_folders;
   
   GetDlgItemText(page->page, ID_DIFF_COMMAND, command, MAX_PATH);
   idx = SendDlgItemMessage(page->page, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
   language = SendDlgItemMessage(page->page, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
 
-  RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_SET_VALUE, &key);
+  RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_SET_VALUE, &key);
   RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, _tcslen(command)*sizeof(TCHAR));
   RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
   RegCloseKey(key);
+  
+  compare_folders = SendDlgItemMessage(page->page, ID_DIFF_DIRS, BM_GETCHECK, 0, 0);
+  
+  if(compare_folders == BST_CHECKED) {
+    LRESULT  result = NOERROR;
+    DWORD disp;
+    LPWSTR  tmp_guid;
+    TCHAR class_id[MAX_PATH];
+    
+    if(StringFromIID(&CLSID_DIFF_EXT, &tmp_guid) == S_OK) {
+      TCHAR value[MAX_PATH];
+#ifdef UNICODE    
+      _tcsncpy(class_id, tmp_guid, MAX_PATH);
+#else
+      wcstombs(class_id, tmp_guid, MAX_PATH);
+#endif
+      CoTaskMemFree((void*)tmp_guid);
+    
+      _stprintf(value, TEXT("%s"), class_id);
+      
+      result = RegCreateKeyEx(HKEY_CLASSES_ROOT, TEXT("Folder\\shellex\\ContextMenuHandlers\\diff-ext"), 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &disp);
+    
+      if(result == NOERROR) {
+        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)value, _tcslen(value)*sizeof(TCHAR));
+        
+        RegCloseKey(key);
+      }
+      
+      result = RegCreateKeyEx(HKEY_CLASSES_ROOT, TEXT("Directory\\shellex\\ContextMenuHandlers\\diff-ext"), 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &disp);
+    
+      if(result == NOERROR) {
+        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)value, _tcslen(value)*sizeof(TCHAR));
+        
+        RegCloseKey(key);
+      }
+    }
+  } else {
+    RegDeleteKey(HKEY_CLASSES_ROOT, TEXT("Folder\\shellex\\ContextMenuHandlers\\diff-ext"));
+    RegDeleteKey(HKEY_CLASSES_ROOT, TEXT("Directory\\shellex\\ContextMenuHandlers\\diff-ext"));
+  }
 }
 
 PAGE* 
@@ -80,9 +131,41 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   TCHAR suffix[] = TEXT(".dll");
   TCHAR* locale_info;
   int locale_info_size;
-  int curr = 0;
+  int curr = 0;  
+  LPWSTR  tmp_guid;
+  TCHAR class_id[MAX_PATH];
   
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if(StringFromIID(&CLSID_DIFF_EXT, &tmp_guid) == S_OK) {
+    TCHAR clsid[MAX_PATH] = TEXT("");
+#ifdef UNICODE    
+    _tcsncpy(class_id, tmp_guid, MAX_PATH);
+#else
+    wcstombs(class_id, tmp_guid, MAX_PATH);
+#endif
+    CoTaskMemFree((void*)tmp_guid);
+    
+    if (RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT("Folder\\shellex\\ContextMenuHandlers\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+      DWORD hlen = MAX_PATH;
+    
+      RegQueryValueEx(key, TEXT(""), 0, NULL, (BYTE*)clsid, &hlen);
+      
+      if(_tcsncmp(clsid, class_id, MAX_PATH) == 0) {
+        SendDlgItemMessage(dialog, ID_DIFF_DIRS, BM_SETCHECK, BST_CHECKED, 0);
+      }
+    }
+    
+    if (RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT("Directory\\shellex\\ContextMenuHandlers\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+      DWORD hlen = MAX_PATH;
+    
+      RegQueryValueEx(key, TEXT(""), 0, NULL, (BYTE*)clsid, &hlen);
+      
+      if(_tcsncmp(clsid, class_id, MAX_PATH) == 0) {
+        SendDlgItemMessage(dialog, ID_DIFF_DIRS, BM_SETCHECK, BST_CHECKED, 0);
+      }
+    }
+  }
+  
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     DWORD hlen = MAX_PATH;
   
     RegQueryValueEx(key, TEXT("diff"), 0, NULL, (BYTE*)command, &hlen);

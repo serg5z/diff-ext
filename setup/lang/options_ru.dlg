@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ * Copyright (c) 2003-2005, Sergey Zorin. All rights reserved.
  *
  * This software is distributable under the BSD license. See the terms
  * of the BSD license in the LICENSE file provided with this software.
@@ -27,8 +27,7 @@ BEGIN
                   163, 18, 50, 14
     AUTOCHECKBOX  "ћожет сравнивать директории",
                   ID_DIFF_DIRS, 
-                  14, 36, 120, 10,
-                  WS_DISABLED
+                  14, 36, 120, 10
     LTEXT         "язык",
                   104, 
                   7, 60, 35, 8

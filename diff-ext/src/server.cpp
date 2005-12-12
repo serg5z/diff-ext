@@ -1,11 +1,10 @@
 /*
- * Copyright (c) 2003, Sergey Zorin. All rights reserved.
+ * Copyright (c) 2003-2005, Sergey Zorin. All rights reserved.
  *
  * This software is distributable under the BSD license. See the terms
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
-
 #include <stdio.h>
 
 #include <windows.h>
@@ -114,7 +113,7 @@ SERVER::SERVER()  : _refference_count(0), _recent_files(0), _file_sink(0) {
   LRESULT enabled = 0;
   LRESULT level = 0;
     
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     DWORD hlen = MAX_PATH;
   
     RegQueryValueEx(key, TEXT("log_file"), 0, NULL, (BYTE*)log_path, &hlen);
@@ -167,7 +166,7 @@ SERVER::recent_files() {
   DWORD history_size = 8;
   DWORD len;
   
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\DIFF_EXT\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     len = sizeof(DWORD);
     RegQueryValueEx(key, TEXT("history_size"), 0, NULL, (BYTE*)&history_size, &len);
     
@@ -198,7 +197,7 @@ SERVER::recent_files() {
     
     delete _recent_files;
   } else { // read history from the registry
-    if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\DIFF_EXT\\history\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\history\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
       TCHAR file[MAX_PATH];
       bool stop = false;
       
@@ -231,7 +230,7 @@ SERVER::save_history() const {
   DWORD len;
 
   if(_recent_files != 0) {
-    if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\DIFF_EXT\\history\\"), 0, KEY_SET_VALUE, &key) == ERROR_SUCCESS) {
+    if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\history\\"), 0, KEY_SET_VALUE, &key) == ERROR_SUCCESS) {
       len = MAX_PATH;
       int n = 0;
       
