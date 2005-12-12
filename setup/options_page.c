@@ -152,6 +152,8 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
       if(_tcsncmp(clsid, class_id, MAX_PATH) == 0) {
         SendDlgItemMessage(dialog, ID_DIFF_DIRS, BM_SETCHECK, BST_CHECKED, 0);
       }
+      
+      RegCloseKey(key);
     }
     
     if (RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT("Directory\\shellex\\ContextMenuHandlers\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
@@ -162,10 +164,12 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
       if(_tcsncmp(clsid, class_id, MAX_PATH) == 0) {
         SendDlgItemMessage(dialog, ID_DIFF_DIRS, BM_SETCHECK, BST_CHECKED, 0);
       }
+      
+      RegCloseKey(key);
     }
   }
   
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     DWORD hlen = MAX_PATH;
   
     RegQueryValueEx(key, TEXT("diff"), 0, NULL, (BYTE*)command, &hlen);

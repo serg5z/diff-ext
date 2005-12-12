@@ -55,7 +55,7 @@ _tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show)
   LAYOUT* layout;
 
   while(exit == ID_APPLY) {
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
       hlen = sizeof(DWORD);
       RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &hlen);
   
@@ -216,7 +216,7 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	    DWORD hlen;
 	    unsigned int i;
 
-	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 	      hlen = sizeof(DWORD);
 	      if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&old_language, &hlen) != ERROR_SUCCESS) {
 		old_language = 1033;
@@ -229,7 +229,7 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	      pages[i]->apply(pages[i]);
 	    }
 	    
-	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 	      hlen = sizeof(DWORD);
 	      if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &hlen) != ERROR_SUCCESS) {
 		language = 1033;

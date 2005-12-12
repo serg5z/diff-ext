@@ -35,7 +35,7 @@ apply(PAGE* page) {
     enabled = 1;
   }
 
-  RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_SET_VALUE, &key);
+  RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_SET_VALUE, &key);
   RegSetValueEx(key, TEXT("log_file"), 0, REG_SZ, (const BYTE*)log_path, _tcslen(log_path)*sizeof(TCHAR));
   RegSetValueEx(key, TEXT("log_level"), 0, REG_DWORD, (const BYTE*)&level, sizeof(level));
   RegSetValueEx(key, TEXT("log"), 0, REG_DWORD, (const BYTE*)&enabled, sizeof(enabled));
@@ -110,7 +110,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   LRESULT enabled = 0;
   LRESULT level = 1;
     
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff_ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     DWORD hlen = MAX_PATH;
   
     RegQueryValueEx(key, TEXT("log_file"), 0, NULL, (BYTE*)log_path, &hlen);
