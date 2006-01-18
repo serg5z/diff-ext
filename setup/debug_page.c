@@ -180,11 +180,11 @@ debug_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
 	      unsigned int length = lstrlen(log_path);
 	      
 	      if((length > 3) && (ofn.nFilterIndex == 1)) {
-		if((log_path[length-4] != '.') && 
-		   (log_path[length-3] != 'l') && 
-		   (log_path[length-2] != 'o') && 
-		   (log_path[length-1] != 'g')) {
-		  lstrcat(log_path, ".log");
+		if((log_path[length-4] != TEXT('.')) && 
+		   (log_path[length-3] != TEXT('l')) && 
+		   (log_path[length-2] != TEXT('o')) && 
+		   (log_path[length-1] != TEXT('g'))) {
+		  lstrcat(log_path, TEXT(".log"));
 	        }
 	      }
 	      

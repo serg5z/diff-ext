@@ -5,7 +5,6 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
-
 #include "layout.h"
 
 static const DWORD ANCOR_LEFT  =0x000001;
@@ -208,6 +207,44 @@ next_extended_item(DLGITEMTEMPLATEEX* tpl) {
   return (DLGITEMTEMPLATEEX*)(((DWORD)current+3) & ~(DWORD)3);
 }
 
+static LRESULT
+dialog_procedure(HWND dialog, UINT message, WPARAM w_param, LPARAM l_param) {
+  LRESULT result = 0;
+  
+  if(message == WM_GETMINMAXINFO) {
+    LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(dialog, DWLP_USER);
+    MINMAXINFO* min_max_info = (MINMAXINFO*)l_param;
+    RECT client;
+    WINDOWINFO info;
+
+    if(layout != 0) {
+      client.top = 0;
+      client.bottom = layout->height;
+      client.left = 0;
+      client.right = layout->width;
+    } else {
+      GetClientRect(dialog, &client);
+    }
+
+    MapDialogRect(dialog, &client);
+    GetWindowInfo(dialog, &info);
+    AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);
+
+    min_max_info->ptMinTrackSize.x = client.right-client.left;
+    min_max_info->ptMinTrackSize.y = client.bottom-client.top;
+  } else {
+    if(message == WM_SIZE) {
+      layout(dialog);
+      /*InvalidateRect(dialog, 0, TRUE);*/
+    }
+    
+    result = DefDlgProc(dialog, message, w_param, l_param);
+  }
+
+  return result;
+}
+
+
 LAYOUT*
 create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
   HGLOBAL layout_table_handle;
@@ -224,6 +261,20 @@ create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
   int controls_count;
   LAYOUT_ITEM_LIST* prev;
   LAYOUT* layout = (LAYOUT*)malloc(sizeof(LAYOUT));
+  WNDCLASS wc;
+  HINSTANCE instance;
+  
+  instance = GetModuleHandle(0);
+
+  memset(&wc,0,sizeof(wc));
+  wc.lpfnWndProc = dialog_procedure;
+  wc.cbWndExtra = DLGWINDOWEXTRA;
+  wc.hInstance = instance;
+  wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+  wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
+  wc.lpszClassName = DIALOG_WITH_LAYOUT_CLASS;
+  UnregisterClass(wc.lpszClassName, instance);
+  RegisterClass(&wc);
 
   layout->control_layout = 0;
   prev  = layout->control_layout;
@@ -347,74 +398,76 @@ create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
 void
 layout(HWND dialog) {
   LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(dialog, DWLP_USER);
-  LAYOUT_ITEM_LIST* current =  (LAYOUT_ITEM_LIST*)(layout->control_layout);
-
-  RECT dialog_rect;
-  HWND current_control;
+  if(layout != 0) {
+    LAYOUT_ITEM_LIST* current =  (LAYOUT_ITEM_LIST*)(layout->control_layout);
   
-  HDWP position_handle = BeginDeferWindowPos(16); /* store number of controls inside LAYOUT structure */
+    RECT dialog_rect;
+    HWND current_control;
+    
+    HDWP position_handle = BeginDeferWindowPos(16); /* store number of controls inside LAYOUT structure */
+    
+    GetClientRect(dialog, &dialog_rect);
   
-  GetClientRect(dialog, &dialog_rect);
-
-  while(current != 0) {
-    RECT rect;
-    LAYOUT_ITEM* item = &(current->item);
-    int x;
-    int y;
-    int w;
-    int h;
+    while(current != 0) {
+      RECT rect;
+      LAYOUT_ITEM* item = &(current->item);
+      int x;
+      int y;
+      int w;
+      int h;
+      
+      current_control = GetDlgItem(dialog, item->id);
+  
+      rect.left = item->top_left.x;
+      rect.top = item->top_left.y;
+      rect.right = item->bottom_right.x;
+      rect.bottom = item->bottom_right.y;
+      
+      MapDialogRect(dialog, &rect);
+  
+      if(item->top_left.anchor & ANCOR_RIGHT) {
+        rect.left += dialog_rect.right;
+      }
+  
+      if(item->top_left.anchor & ANCOR_LEFT) {
+        rect.left += dialog_rect.left;
+      }
+  
+      if(item->top_left.anchor & ANCOR_TOP) {
+        rect.top += dialog_rect.top;
+      }
+  
+      if(item->top_left.anchor & ANCOR_BOTTOM) {
+        rect.top += dialog_rect.bottom;
+      }
+  
+      if(item->bottom_right.anchor & ANCOR_RIGHT) {
+        rect.right += dialog_rect.right;
+      }
+  
+      if(item->bottom_right.anchor & ANCOR_LEFT) {
+        rect.right += dialog_rect.left;
+      }
+  
+      if(item->bottom_right.anchor & ANCOR_TOP) {
+        rect.bottom += dialog_rect.top;
+      }
+  
+      if(item->bottom_right.anchor & ANCOR_BOTTOM) {
+        rect.bottom += dialog_rect.bottom;
+      }
+  
+      w = rect.right-rect.left;
+      h = rect.bottom-rect.top;
+      x = rect.left;
+      y = rect.top;
+  
+  /*    MoveWindow(current_control, x, y, w, h, FALSE);*/
+      position_handle = DeferWindowPos(position_handle, current_control, 0, x, y, w, h, SWP_NOZORDER);
+      
+      current = current->next;
+    }
     
-    current_control = GetDlgItem(dialog, item->id);
-
-    rect.left = item->top_left.x;
-    rect.top = item->top_left.y;
-    rect.right = item->bottom_right.x;
-    rect.bottom = item->bottom_right.y;
-    
-    MapDialogRect(dialog, &rect);
-
-    if(item->top_left.anchor & ANCOR_RIGHT) {
-      rect.left += dialog_rect.right;
-    }
-
-    if(item->top_left.anchor & ANCOR_LEFT) {
-      rect.left += dialog_rect.left;
-    }
-
-    if(item->top_left.anchor & ANCOR_TOP) {
-      rect.top += dialog_rect.top;
-    }
-
-    if(item->top_left.anchor & ANCOR_BOTTOM) {
-      rect.top += dialog_rect.bottom;
-    }
-
-    if(item->bottom_right.anchor & ANCOR_RIGHT) {
-      rect.right += dialog_rect.right;
-    }
-
-    if(item->bottom_right.anchor & ANCOR_LEFT) {
-      rect.right += dialog_rect.left;
-    }
-
-    if(item->bottom_right.anchor & ANCOR_TOP) {
-      rect.bottom += dialog_rect.top;
-    }
-
-    if(item->bottom_right.anchor & ANCOR_BOTTOM) {
-      rect.bottom += dialog_rect.bottom;
-    }
-
-    w = rect.right-rect.left;
-    h = rect.bottom-rect.top;
-    x = rect.left;
-    y = rect.top;
-
-/*    MoveWindow(current_control, x, y, w, h, FALSE);*/
-    position_handle = DeferWindowPos(position_handle, current_control, 0, x, y, w, h, SWP_NOZORDER);
-    
-    current = current->next;
+    EndDeferWindowPos(position_handle);
   }
-  
-  EndDeferWindowPos(position_handle);
 }

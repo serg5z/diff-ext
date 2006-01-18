@@ -10,6 +10,9 @@
 #define __layout_h__
 
 #include <windows.h>
+#include <tchar.h>
+
+#define DIALOG_WITH_LAYOUT_CLASS _T("dialog_with_layuot")
 
 typedef struct {
   int width;

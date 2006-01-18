@@ -43,7 +43,6 @@ WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
 int APIENTRY
 _tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show) {
 #endif  
-  WNDCLASS wc;
   HRESULT exit = ID_APPLY;
   HKEY key;
   DWORD language = 0;
@@ -69,17 +68,6 @@ _tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show)
     if(resource == NULL) {
       resource = instance;
     }
-  
-    memset(&wc,0,sizeof(wc));
-    wc.lpfnWndProc = DefDlgProc;
-    wc.cbWndExtra = DLGWINDOWEXTRA;
-    wc.hInstance = instance;
-    wc.hIcon = LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON));
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
-    wc.lpszClassName = TEXT("diff-ext-setup");
-    UnregisterClass(wc.lpszClassName, instance);
-    RegisterClass(&wc);
   
     SetThreadLocale(LOCALE_USER_DEFAULT);
     InitCommonControls();
@@ -113,6 +101,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   TCHAR page_2_label[32];
   int resource_string_length;
 
+  SetClassLong(dialog, GCL_HICON, (long)LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON)));
   pages[0] = create_options_page(resource, dialog);
   pages[1] = create_debug_page(resource, dialog);
 
@@ -253,27 +242,6 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       break;
 
-    case WM_GETMINMAXINFO: {
-        LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(dialog, DWLP_USER);
-        MINMAXINFO* min_max_info = (MINMAXINFO*)lParam;
-        RECT client;
-        WINDOWINFO info;
-
-        client.top = 0;
-        client.bottom = layout->height;
-        client.left = 0;
-        client.right = layout->width;
-
-        MapDialogRect(dialog, &client);
-        GetWindowInfo(dialog, &info);
-        AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);
-
-        min_max_info->ptMinTrackSize.x = client.right-client.left;
-        min_max_info->ptMinTrackSize.y = client.bottom-client.top;
-        ret = TRUE;
-      }
-      break;
-
     case WM_MOVE: {
         RECT rect;
         
@@ -290,8 +258,6 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
         RECT tab_rect;
         HWND tab = GetDlgItem(dialog, ID_TAB);
         int page = TabCtrl_GetCurSel(tab);
-      
-        layout(dialog);
       
 	GetClientRect(tab, &tab_rect);
 
@@ -310,8 +276,6 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
         window_placement->height = rect.bottom-rect.top;
 
 /*	RedrawWindow(dialog, 0, 0, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW);*/
-        InvalidateRect(dialog, 0, TRUE);
-
 	ret = TRUE;
       }
       break;
