@@ -33,6 +33,28 @@ static HANDLE resource;
 static WINDOW_PLACEMENT* window_placement = 0;
 static PAGE* pages[2];
 
+static WNDPROC old_button_procedure;
+static LRESULT
+new_button_procedure(HWND button, UINT message, WPARAM w_param, LPARAM l_param) {
+  LRESULT result= CallWindowProc(old_button_procedure, button, message, w_param, l_param);
+  if(message == WM_LBUTTONUP) {
+    MessageBox(0, TEXT("A button has been clicked"), TEXT("Info"), MB_OK);
+  }
+  
+  return result;
+}
+
+static void
+subclass_button() {
+  HWND tmp;
+  
+  tmp = CreateWindow(TEXT("BUTTON"), TEXT("tmp"), WS_POPUP, 0, 0, 50, 50, 0, NULL, GetModuleHandle(0), NULL);
+  
+  old_button_procedure = (WNDPROC)SetClassLong(tmp, GCL_WNDPROC, (DWORD)new_button_procedure);
+  
+  DestroyWindow(tmp);
+}
+
 #ifdef __MINGW32__
 /*
 Wait for wide startup module from MinGW
@@ -52,6 +74,8 @@ _tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show)
   HRSRC resource_handle;
   DLGTEMPLATE* dialog;
   LAYOUT* layout;
+  
+  subclass_button();
 
   while(exit == ID_APPLY) {
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
@@ -76,15 +100,28 @@ _tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show)
     dialog_handle = LoadResource(resource, resource_handle);
     dialog = (DLGTEMPLATE*)LockResource(dialog_handle);
   
-    layout = create_layout(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
+/*    layout = create_layout(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));*/
   /*  can not do because have to specify hinst as module instance and load dialog from translated resource only dll...
     ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)main_dialog_func);
   */  
-    exit = DialogBoxIndirectParam(instance, dialog, NULL, (DLGPROC)main_dialog_func, (LPARAM)layout);
-  
+/*    exit = DialogBoxIndirectParam(instance, dialog, NULL, (DLGPROC)main_dialog_func, (LPARAM)layout);*/
+    init_layout();
+    exit = DialogBoxIndirect(instance, dialog, NULL, (DLGPROC)main_dialog_func);
+/*     
+ *     {
+ *       LPTSTR message;
+ *       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
+ *         GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
+ *         (LPTSTR) &message, 0, 0);
+ *       MessageBox(0, message, TEXT("Save history after expand"), MB_OK | MB_ICONINFORMATION);
+ *   
+ *       LocalFree(message);
+ *     }
+ *   
+ */
     FreeResource(dialog);
     FreeLibrary(resource);
-    free(layout);
+/*    free(layout);*/
   }
   
   return exit;
@@ -158,7 +195,9 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   TabCtrl_InsertItem(tab, 1, &item1);
   TabCtrl_InsertItem(tab, 2, &item2);  
   
-  SetWindowLongPtr(dialog, DWLP_USER, l_param);
+/*  SetWindowLongPtr(dialog, DWLP_USER, l_param);*/
+  SetWindowLongPtr(dialog, DWLP_USER, create_layout2(resource, dialog, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT)));
+/*  SetWindowLongPtr(dialog, DWLP_USER, create_layout(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT)));*/
   
   if(window_placement == 0) {
     RECT rect;

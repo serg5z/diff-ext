@@ -5,6 +5,7 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
+#include <stdio.h>
 #include "layout.h"
 
 static const DWORD ANCOR_LEFT  =0x000001;
@@ -226,9 +227,9 @@ dialog_procedure(HWND dialog, UINT message, WPARAM w_param, LPARAM l_param) {
       GetClientRect(dialog, &client);
     }
 
-    MapDialogRect(dialog, &client);
+/*    MapDialogRect(dialog, &client);*/
     GetWindowInfo(dialog, &info);
-    AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);
+/*    AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);*/
 
     min_max_info->ptMinTrackSize.x = client.right-client.left;
     min_max_info->ptMinTrackSize.y = client.bottom-client.top;
@@ -244,6 +245,150 @@ dialog_procedure(HWND dialog, UINT message, WPARAM w_param, LPARAM l_param) {
   return result;
 }
 
+static void
+dump_layout(LAYOUT* layout) {
+  LAYOUT_ITEM_LIST* current = (LAYOUT_ITEM_LIST*)layout->control_layout;
+  
+  _tprintf(TEXT("layout: %dx%d\n"), layout->width, layout->height);
+  while(current != 0) {
+    _tprintf(TEXT("control: %d\n"), current->item.id);
+    _tprintf(TEXT("\ttop left: (%d, %d)\n"), current->item.top_left.x, current->item.top_left.y);
+    _tprintf(TEXT("\tbottom right: (%d, %d)\n"), current->item.bottom_right.x, current->item.bottom_right.y);
+    current = current->next;
+  }
+  
+  _tprintf(TEXT("---------------------------\n"));
+  
+  fflush(stdout);
+}
+
+struct LAYOUT_CHILD_PARAM {
+  LAYOUT* layout;
+  LAYOUT_ITEM_RC* layout_table;
+  unsigned int n;
+  RECT dialog_rect;
+};
+
+static BOOL CALLBACK 
+layout_child(HWND control, LPARAM l_param) {
+  struct LAYOUT_CHILD_PARAM* param = (struct ENUM_PROC_PARAM*)l_param;
+  DWORD item_id = GetDlgCtrlID(control);
+  RECT control_rect;
+  LAYOUT_ITEM_LIST* prev;
+  int dialog_width = param->dialog_rect.right - param->dialog_rect.left;
+  int dialog_height = param->dialog_rect.bottom - param->dialog_rect.top;
+  int i;
+  
+  GetWindowRect(control, &control_rect);
+
+  prev  = param->layout->control_layout;
+  
+  for(i = 0; i < param->n; i++) {
+    if(param->layout_table[i].id == item_id) {
+      LAYOUT_ITEM_LIST* item = (LAYOUT_ITEM_LIST*)malloc(sizeof(LAYOUT_ITEM_LIST));
+      
+      item->item.id = item_id;
+      item->item.top_left.anchor = param->layout_table[i].top_left_anchor;
+      item->item.bottom_right.anchor = param->layout_table[i].bottom_right_anchor;
+      item->next = param->layout->control_layout;
+
+      if(item->item.top_left.anchor & ANCOR_RIGHT) {
+        item->item.top_left.x = control_rect.left - param->dialog_rect.left - dialog_width;
+      }
+  
+      if(item->item.top_left.anchor & ANCOR_LEFT) {
+        item->item.top_left.x = control_rect.left - param->dialog_rect.left;
+      }
+  
+      if(item->item.top_left.anchor & ANCOR_TOP) {
+        item->item.top_left.y = control_rect.top - param->dialog_rect.top;
+      }
+  
+      if(item->item.top_left.anchor & ANCOR_BOTTOM) {
+        item->item.top_left.y = control_rect.top - param->dialog_rect.top - dialog_height;
+      }
+  
+      if(item->item.bottom_right.anchor & ANCOR_RIGHT) {
+        item->item.bottom_right.x = control_rect.right - param->dialog_rect.left - dialog_width;
+      }
+  
+      if(item->item.bottom_right.anchor & ANCOR_LEFT) {
+        item->item.bottom_right.x = control_rect.right - param->dialog_rect.left;
+      }
+  
+      if(item->item.bottom_right.anchor & ANCOR_TOP) {
+        item->item.bottom_right.y = control_rect.bottom - param->dialog_rect.top;
+      }
+  
+      if(item->item.bottom_right.anchor & ANCOR_BOTTOM) {
+        item->item.bottom_right.y = control_rect.bottom - param->dialog_rect.top - dialog_height;
+      }
+  
+      param->layout->control_layout = item;
+    }
+  }
+  
+  return TRUE;
+}
+
+void
+init_layout() {
+  WNDCLASS wc;
+  HINSTANCE instance;
+  
+  instance = GetModuleHandle(0);
+
+  memset(&wc,0,sizeof(wc));
+  wc.lpfnWndProc = dialog_procedure;
+  wc.cbWndExtra = DLGWINDOWEXTRA;
+  wc.hInstance = instance;
+  wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+  wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
+  wc.lpszClassName = DIALOG_WITH_LAYOUT_CLASS;
+  UnregisterClass(wc.lpszClassName, instance);
+  RegisterClass(&wc);
+}
+
+LAYOUT* 
+create_layout2(HANDLE resource, HWND dialog, LPCTSTR layout_name) {
+  HGLOBAL layout_table_handle;
+  HRSRC resource_handle;
+  DWORD layout_resource_size;
+  LAYOUT* layout = (LAYOUT*)malloc(sizeof(LAYOUT));
+  LAYOUT_ITEM_RC* layout_table;
+  struct LAYOUT_CHILD_PARAM l_param;
+  POINT p;
+  RECT dialog_rect;
+
+  resource_handle = FindResource(resource, layout_name, RT_RCDATA);
+  layout_table_handle = LoadResource(resource, resource_handle);
+  layout_resource_size = SizeofResource(resource, resource_handle);
+  layout_table = (LAYOUT_ITEM_RC*)LockResource(layout_table_handle);
+  
+  l_param.layout = layout;
+  l_param.layout_table = layout_table;
+  l_param.n = layout_resource_size/sizeof(LAYOUT_ITEM_RC);
+  GetClientRect(dialog, &l_param.dialog_rect);
+  p.x = l_param.dialog_rect.right;
+  p.y = l_param.dialog_rect.bottom;
+  ClientToScreen(dialog, &p);
+  l_param.dialog_rect.right = p.x;
+  l_param.dialog_rect.bottom = p.y;
+  p.x = 0;
+  p.y = 0;
+  ClientToScreen(dialog, &p);
+  l_param.dialog_rect.left = p.x;
+  l_param.dialog_rect.top = p.y;
+  GetWindowRect(dialog, &dialog_rect);
+  layout->width = dialog_rect.right - dialog_rect.left;
+  layout->height = dialog_rect.bottom - dialog_rect.top;
+
+  layout->control_layout = 0;
+  
+  EnumChildWindows(dialog, layout_child, (LPARAM)&l_param);
+
+  return layout;
+}
 
 LAYOUT*
 create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
@@ -373,8 +518,7 @@ create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
         if(layout->control_layout == 0) {
           layout->control_layout = item;
           prev = (LAYOUT_ITEM_LIST*)layout->control_layout;
-        }
-        else {
+        } else {
           prev->next = item;
           prev = item;
         }
@@ -398,6 +542,11 @@ create_layout(HANDLE resource, LPCTSTR dialog_name, LPCTSTR layout_name) {
 void
 layout(HWND dialog) {
   LAYOUT* layout = (LAYOUT*)GetWindowLongPtr(dialog, DWLP_USER);
+  
+  if(layout != 0) {
+    dump_layout(layout);
+  }
+  
   if(layout != 0) {
     LAYOUT_ITEM_LIST* current =  (LAYOUT_ITEM_LIST*)(layout->control_layout);
   
@@ -423,7 +572,7 @@ layout(HWND dialog) {
       rect.right = item->bottom_right.x;
       rect.bottom = item->bottom_right.y;
       
-      MapDialogRect(dialog, &rect);
+/*      MapDialogRect(dialog, &rect);*/
   
       if(item->top_left.anchor & ANCOR_RIGHT) {
         rect.left += dialog_rect.right;
@@ -462,7 +611,6 @@ layout(HWND dialog) {
       x = rect.left;
       y = rect.top;
   
-  /*    MoveWindow(current_control, x, y, w, h, FALSE);*/
       position_handle = DeferWindowPos(position_handle, current_control, 0, x, y, w, h, SWP_NOZORDER);
       
       current = current->next;
