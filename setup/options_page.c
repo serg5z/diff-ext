@@ -98,21 +98,18 @@ create_options_page(HANDLE resource, HWND parent) {
     HGLOBAL dialog_handle;
     HRSRC resource_handle;
     DLGTEMPLATE* dialog_template;
-    LAYOUT* layout;
-    WINDOW_DATA* data = (WINDOW_DATA*)malloc(sizeof(WINDOW_DATA));
     
     page->apply = apply;
     
-    layout = create_layout(resource, MAKEINTRESOURCE(IDD_OPTIONS), MAKEINTRESOURCE(ID_OPTIONS_LAYOUT));
+/*    layout = create_layout(resource, MAKEINTRESOURCE(IDD_OPTIONS), MAKEINTRESOURCE(ID_OPTIONS_LAYOUT));*/
     
     resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_OPTIONS), RT_DIALOG);
     dialog_handle = LoadResource(resource, resource_handle);
     dialog_template = (DLGTEMPLATE*)LockResource(dialog_handle);
   
-    memcpy(&(data->layout), layout, sizeof(LAYOUT));
-    data->page = page;
-    free(layout);
-    page->page = CreateDialogIndirectParam(resource, dialog_template, parent, (DLGPROC)options_func, (LPARAM)data);
+    page->page = CreateDialogIndirect(resource, dialog_template, parent, (DLGPROC)options_func);
+
+    attach_layout(resource, page->page, MAKEINTRESOURCE(ID_OPTIONS_LAYOUT));
   }
   
   return (PAGE*)page;
@@ -235,8 +232,6 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   
   SetDlgItemText(dialog, ID_DIFF_COMMAND, command);
   SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, MAX_PATH, 0);
-
-  SetWindowLongPtr(dialog, DWLP_USER, l_param);
 }
 
 static BOOL CALLBACK

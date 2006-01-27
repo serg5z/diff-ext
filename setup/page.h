@@ -15,9 +15,4 @@ typedef struct __PAGE {
   void (*apply)(struct __PAGE*);
 } PAGE;
 
-typedef struct {
-  LAYOUT layout;
-  void* page;
-} WINDOW_DATA;
-
 #endif /*__page_h__*/

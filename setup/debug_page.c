@@ -50,21 +50,18 @@ create_debug_page(HANDLE resource, HWND parent) {
     HGLOBAL dialog_handle;
     HRSRC resource_handle;
     DLGTEMPLATE* dialog_template;
-    LAYOUT* layout;
-    WINDOW_DATA* data = (WINDOW_DATA*)malloc(sizeof(WINDOW_DATA));
     
     page->apply = apply;
     
-    layout = create_layout(resource, MAKEINTRESOURCE(IDD_LOGGING), MAKEINTRESOURCE(ID_LOGGING_LAYOUT));
+/*    layout = create_layout(resource, MAKEINTRESOURCE(IDD_LOGGING), MAKEINTRESOURCE(ID_LOGGING_LAYOUT));*/
     
     resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_LOGGING), RT_DIALOG);
     dialog_handle = LoadResource(resource, resource_handle);
     dialog_template = (DLGTEMPLATE*)LockResource(dialog_handle);
   
-    memcpy(&(data->layout), layout, sizeof(LAYOUT));
-    data->page = page;
-    free(layout);
-    page->page = CreateDialogIndirectParam(resource, dialog_template, parent, (DLGPROC)debug_func, (LPARAM)data);
+    page->page = CreateDialogIndirect(resource, dialog_template, parent, (DLGPROC)debug_func);
+    
+    attach_layout(resource, page->page, MAKEINTRESOURCE(ID_LOGGING_LAYOUT));
   }
   
   return page;
@@ -135,8 +132,6 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   SetDlgItemText(dialog, ID_LOG_PATH, log_path);
   SetDlgItemInt(dialog, ID_LOG_LEVEL, level, FALSE);
   SendMessage(log_level_button, UDM_SETRANGE, 0, (LPARAM) MAKELONG (20, 0));
-  
-  SetWindowLongPtr(dialog, DWLP_USER, l_param);
 }
 
 static BOOL CALLBACK

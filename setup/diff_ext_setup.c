@@ -73,7 +73,6 @@ _tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show)
   HGLOBAL dialog_handle;
   HRSRC resource_handle;
   DLGTEMPLATE* dialog;
-  LAYOUT* layout;
   
   subclass_button();
 
@@ -105,20 +104,19 @@ _tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show)
     ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)main_dialog_func);
   */  
 /*    exit = DialogBoxIndirectParam(instance, dialog, NULL, (DLGPROC)main_dialog_func, (LPARAM)layout);*/
-    init_layout();
     exit = DialogBoxIndirect(instance, dialog, NULL, (DLGPROC)main_dialog_func);
 /*     
- *     {
- *       LPTSTR message;
- *       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
- *         GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
- *         (LPTSTR) &message, 0, 0);
- *       MessageBox(0, message, TEXT("Save history after expand"), MB_OK | MB_ICONINFORMATION);
- *   
- *       LocalFree(message);
- *     }
- *   
- */
+     {
+       LPTSTR message;
+       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
+         GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
+         (LPTSTR) &message, 0, 0);
+       MessageBox(0, message, TEXT("Save history after expand"), MB_OK | MB_ICONINFORMATION);
+   
+       LocalFree(message);
+     }
+*/   
+
     FreeResource(dialog);
     FreeLibrary(resource);
 /*    free(layout);*/
@@ -196,7 +194,8 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   TabCtrl_InsertItem(tab, 2, &item2);  
   
 /*  SetWindowLongPtr(dialog, DWLP_USER, l_param);*/
-  SetWindowLongPtr(dialog, DWLP_USER, create_layout2(resource, dialog, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT)));
+/*  SetWindowLongPtr(dialog, DWLP_USER, create_layout2(resource, dialog, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT)));*/
+  attach_layout(resource, dialog, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
 /*  SetWindowLongPtr(dialog, DWLP_USER, create_layout(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT)));*/
   
   if(window_placement == 0) {
