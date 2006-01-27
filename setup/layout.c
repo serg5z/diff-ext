@@ -59,39 +59,19 @@ dialog_procedure(HWND dialog, UINT message, WPARAM w_param, LPARAM l_param) {
       GetClientRect(dialog, &client);
     }
 
-/*    MapDialogRect(dialog, &client);*/
     GetWindowInfo(dialog, &info);
-/*    AdjustWindowRectEx(&client, info.dwStyle, FALSE, info.dwExStyle);*/
 
     min_max_info->ptMinTrackSize.x = client.right-client.left;
     min_max_info->ptMinTrackSize.y = client.bottom-client.top;
   } else {
     if(message == WM_SIZE) {
       layout(dialog);
-      /*InvalidateRect(dialog, 0, TRUE);*/
     }
     
     result = CallWindowProc(original_procedure, dialog, message, w_param, l_param);
   }
 
   return result;
-}
-
-static void
-dump_layout(LAYOUT* layout) {
-  LAYOUT_ITEM_LIST* current = (LAYOUT_ITEM_LIST*)layout->control_layout;
-  
-  _tprintf(TEXT("layout: %dx%d\n"), layout->width, layout->height);
-  while(current != 0) {
-    _tprintf(TEXT("control: %d\n"), current->item.id);
-    _tprintf(TEXT("\ttop left: (%d, %d)\n"), current->item.top_left.x, current->item.top_left.y);
-    _tprintf(TEXT("\tbottom right: (%d, %d)\n"), current->item.bottom_right.x, current->item.bottom_right.y);
-    current = current->next;
-  }
-  
-  _tprintf(TEXT("---------------------------\n"));
-  
-  fflush(stdout);
 }
 
 struct LAYOUT_CHILD_PARAM {
@@ -233,10 +213,6 @@ detach_layout(HWND dialog) {
 void
 layout(HWND dialog) {
   LAYOUT* layout = (LAYOUT*)GetProp(dialog, MAKEINTATOM(LAYOUT_ATOM));
-  
-  if(layout != 0) {
-    dump_layout(layout);
-  }
   
   if(layout != 0) {
     LAYOUT_ITEM_LIST* current =  (LAYOUT_ITEM_LIST*)(layout->control_layout);

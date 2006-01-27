@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003-2005, Sergey Zorin. All rights reserved.
+ * Copyright (c) 2003-2006, Sergey Zorin. All rights reserved.
  *
  * This software is distributable under the BSD license. See the terms
  * of the BSD license in the LICENSE file provided with this software.
@@ -99,27 +99,13 @@ _tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show)
     dialog_handle = LoadResource(resource, resource_handle);
     dialog = (DLGTEMPLATE*)LockResource(dialog_handle);
   
-/*    layout = create_layout(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));*/
   /*  can not do because have to specify hinst as module instance and load dialog from translated resource only dll...
     ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)main_dialog_func);
   */  
-/*    exit = DialogBoxIndirectParam(instance, dialog, NULL, (DLGPROC)main_dialog_func, (LPARAM)layout);*/
     exit = DialogBoxIndirect(instance, dialog, NULL, (DLGPROC)main_dialog_func);
-/*     
-     {
-       LPTSTR message;
-       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
-         GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
-         (LPTSTR) &message, 0, 0);
-       MessageBox(0, message, TEXT("Save history after expand"), MB_OK | MB_ICONINFORMATION);
-   
-       LocalFree(message);
-     }
-*/   
 
     FreeResource(dialog);
     FreeLibrary(resource);
-/*    free(layout);*/
   }
   
   return exit;
@@ -193,10 +179,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   TabCtrl_InsertItem(tab, 1, &item1);
   TabCtrl_InsertItem(tab, 2, &item2);  
   
-/*  SetWindowLongPtr(dialog, DWLP_USER, l_param);*/
-/*  SetWindowLongPtr(dialog, DWLP_USER, create_layout2(resource, dialog, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT)));*/
   attach_layout(resource, dialog, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
-/*  SetWindowLongPtr(dialog, DWLP_USER, create_layout(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT)));*/
   
   if(window_placement == 0) {
     RECT rect;
@@ -207,8 +190,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     window_placement->y = rect.top;
     window_placement->width = rect.right-rect.left;
     window_placement->height = rect.bottom-rect.top;
-  }
-  else {
+  } else {
     MoveWindow(dialog, window_placement->x, window_placement->y, window_placement->width, window_placement->height, TRUE);
   }
   
@@ -302,19 +284,17 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	TabCtrl_AdjustRect(tab, FALSE, &tab_rect);
 
 	MapWindowPoints(tab, dialog, (LPPOINT)&tab_rect, 2);
-/**/
       
         MoveWindow(pages[page]->page, tab_rect.left, tab_rect.top, tab_rect.right-tab_rect.left, tab_rect.bottom-tab_rect.top, TRUE);
         layout(pages[page]->page);
-/* redraw them all*/
+      
         GetWindowRect(dialog, &rect);
         window_placement->x = rect.left;
         window_placement->y = rect.top;
         window_placement->width = rect.right-rect.left;
         window_placement->height = rect.bottom-rect.top;
 
-/*	RedrawWindow(dialog, 0, 0, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW);*/
-	ret = TRUE;
+        ret = TRUE;
       }
       break;
       
@@ -335,7 +315,6 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	      if(i == page) {
 		SetWindowPos(pages[i]->page, HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
 		layout(pages[i]->page);
-/*		RedrawWindow(pages[i]->page, 0, 0, RDW_ALLCHILDREN | RDW_INVALIDATE);*/
 	      } else {
 	        ShowWindow(pages[i]->page, FALSE);
 	      }
