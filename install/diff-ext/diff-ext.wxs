@@ -4,7 +4,7 @@
     # arguments for the WiX Toolset are stored here.
 
     candleArgs: 
-    lightArgs: "<projectname>.wixobj" -out "<projectname>.msi" "C:\Program Files\WixEdit\wix-2.0.3719.0\lib\wixui_mondo.wixlib" -loc "C:\Program Files\WixEdit\wix-2.0.3719.0\lib\WixUI_en-us.wxl"
+    lightArgs: "<projectname>.wixobj" -out "<projectname>.msi" "C:\Program Files\WixEdit\wix-2.0.3719.0\lib\wixui_FeatureTree.wixlib" -loc "C:\Program Files\WixEdit\wix-2.0.3719.0\lib\WixUI_en-us.wxl"
 -->
 <Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
   <Product Id="ae94efcd-e001-4383-b93a-fd132b13caba" Language="1033" Manufacturer="Sergey Zorin" Name="diff-ext" Version="1.5.0" Codepage="1252">
@@ -17,13 +17,13 @@
               <File Id="main_dll" Name="diff_ext.dll" Vital="yes" DiskId="1" />
             </Component>
             <Component Id="ru" Guid="34ef4c53-e5ce-40f8-bbbf-1b1640ffbc05">
-              <File Id="translation_ru" Name="DIFF_E~1.DLL" LongName="diff_ext1049.dll" DiskId="1" />
+              <File Id="translation_ru" Name="DIFF_E~1.DLL" LongName="diff_ext1049.dll" DiskId="2" />
             </Component>
             <Component Id="license_en" Guid="74463d97-a124-45e1-a29b-6956ab82a457">
               <File Id="license_en" Name="LICENSE" DiskId="1" />
             </Component>
             <Component Id="license_ru" Guid="93e93f9f-a3b5-4ce9-9aa6-ea42cbabbae5">
-              <File Id="LICENSE_RU" Name="LICENS~1" LongName="LICENSE_RU" DiskId="1" />
+              <File Id="LICENSE_RU" Name="LICENS~1" LongName="LICENSE_RU" DiskId="2" />
             </Component>
             <Component Id="setup" Guid="5714c8fb-0c84-47e5-b0e9-99ed0fbbc658">
               <File Id="main" Name="de_setup.exe" LongName="diff_ext_setup.exe" DiskId="1">
@@ -31,7 +31,7 @@
               </File>
             </Component>
             <Component Id="setup_ru" Guid="9b3bce07-d08c-412b-b1c6-739621ac5cf6">
-              <File Id="setup_translation_ru" Name="de_s_ru.exe" LongName="diff_ext_setup1049.dll" DiskId="1" />
+              <File Id="setup_translation_ru" Name="de_s_ru.exe" LongName="diff_ext_setup1049.dll" DiskId="2" />
             </Component>
           </Directory>
         </Directory>
@@ -42,19 +42,22 @@
         </Directory>
       </Directory>
     </Directory>
-    <Feature Id="main" Level="1" Display="expand" ConfigurableDirectory="INSTALLDIR">
-      <ComponentRef Id="main" />
-      <ComponentRef Id="license_en" />
-      <ComponentRef Id="setup" />
-    </Feature>
-    <Feature Id="ru" Level="1" Display="expand">
-      <ComponentRef Id="ru" />
-      <ComponentRef Id="license_ru" />
-      <ComponentRef Id="setup_ru" />
+    <Feature Id="Complete" Level="1" Title="Complete" Display="expand" Absent="disallow" ConfigurableDirectory="INSTALLDIR" AllowAdvertise="no" TypicalDefault="install" InstallDefault="local">
+      <Feature Id="main" Level="1" Display="expand" Title="diff-ext" Description="[MAIN_DESCRIPTION]" TypicalDefault="install" Absent="disallow" InstallDefault="followParent" AllowAdvertise="no">
+        <ComponentRef Id="main" />
+        <ComponentRef Id="license_en" />
+        <ComponentRef Id="setup" />
+      </Feature>
+      <Feature Id="ru" Display="expand" Title="Russian tanslation" Description="Russian translation" TypicalDefault="install" Absent="allow" Level="1" InstallDefault="followParent" AllowAdvertise="no">
+        <ComponentRef Id="ru" />
+        <ComponentRef Id="license_ru" />
+        <ComponentRef Id="setup_ru" />
+      </Feature>
     </Feature>
     <Media Id="1" EmbedCab="yes" DiskPrompt="disk #1" Cabinet="diff_ext.cab" CompressionLevel="high" />
     <Media Id="2" EmbedCab="yes" DiskPrompt="disk #2" Cabinet="ru.cab" CompressionLevel="high" />
     <Property Id="DiskPrompt" Value="diff-ext installation" />
+    <Property Id="MAIN_DESCRIPTION">123</Property>
     <UIRef Id="WixUI" />
   </Product>
 </Wix>
