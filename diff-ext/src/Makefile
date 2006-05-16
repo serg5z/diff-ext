@@ -88,4 +88,4 @@ $(DLL): $(OBJ)
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 .rc.res:
-	$(WINDRES)  $< -I rc -o $@ -O coff -DMING
+	$(WINDRES)  $< -J rc -o $@ -O coff -DMING

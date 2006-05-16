@@ -18,11 +18,12 @@
 #include "diff_ext.rh"
 
 const UINT IDM_DIFF=10;
+const UINT IDM_DIFF3=13;
 const UINT IDM_DIFF_WITH=11;
 const UINT IDM_DIFF_LATER=12;
 const UINT IDM_DIFF_WITH_BASE=20;
 
-DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(TEXT("")), _file_name2(TEXT("")), _language(1033), _ref_count(0L) {
+DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(TEXT("")), _file_name2(TEXT("")), _file_name3(TEXT("")), _language(1033), _ref_count(0L) {
 //  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
   
   _recent_files = SERVER::instance()->recent_files();
@@ -169,13 +170,27 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
       ret = S_OK;
     } else if(_n_files == 2) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-      DragQueryFile(drop, 1, tmp, MAX_PATH);
+      DragQueryFile(drop, 0, tmp, MAX_PATH);
 
       _file_name1 = STRING(tmp);
 
-      DragQueryFile(drop, 0, tmp, MAX_PATH);
+      DragQueryFile(drop, 1, tmp, MAX_PATH);
 
       _file_name2 = STRING(tmp);
+
+      ret = S_OK;
+    } else if((_n_files == 3) && SERVER::instance()->tree_way_compare_supported()) {
+      DragQueryFile(drop, 0, tmp, MAX_PATH);
+
+      _file_name1 = STRING(tmp);
+
+      DragQueryFile(drop, 1, tmp, MAX_PATH);
+
+      _file_name2 = STRING(tmp);
+
+      DragQueryFile(drop, 2, tmp, MAX_PATH);
+
+      _file_name3 = STRING(tmp);
 
       ret = S_OK;
     }
@@ -351,6 +366,33 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       item_info.dwTypeData = c_str;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
+    } else if((_n_files == 3) && SERVER::instance()->tree_way_compare_supported()) {
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+      
+      resource_string_length = LoadString(_resource, DIFF3_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+      
+      if(resource_string_length == 0) {
+	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF3_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	
+	if(resource_string_length == 0) {
+	  lstrcpy(resource_string, TEXT("3 way compare"));
+	  MessageBox(0, TEXT("Can not load 'DIFF3_STR' string resource"), TEXT("ERROR"), MB_OK);
+	}
+      }
+      
+      STRING str(resource_string); //= "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
+      LPTSTR c_str = str;
+
+      id = first_cmd + IDM_DIFF3;
+      ZeroMemory(&item_info, sizeof(item_info));
+      item_info.cbSize = sizeof(MENUITEMINFO);
+      item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
+      item_info.fType = MFT_STRING;
+      item_info.fState = MFS_ENABLED;
+      item_info.wID = id++;
+      item_info.dwTypeData = c_str;
+      InsertMenuItem(menu, position, TRUE, &item_info);
+      position++;
     } else {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
       assert(false);
@@ -383,6 +425,9 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
     if(LOWORD(ici->lpVerb) == IDM_DIFF) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       diff();
+    } else if(LOWORD(ici->lpVerb) == IDM_DIFF3) {
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+      diff3();
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_WITH) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       diff_with(0);
@@ -552,6 +597,101 @@ DIFF_EXT::diff() {
   _tcscat(command, tmp);
   _tcscat(command, TEXT("\" \""));
   _tcsncpy(tmp, _file_name2, MAX_PATH);
+  _tcscat(command, tmp);
+  _tcscat(command, TEXT("\""));
+
+  ZeroMemory(&si, sizeof(si));
+  si.cb = sizeof(si);
+
+  if (CreateProcess(0, command, 0, 0, FALSE, 0, 0, 0, &si, &pi) == 0) {
+//    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+    TCHAR resource_string[1024];
+    TCHAR error_string[256];
+    int string_length;
+    
+    string_length = LoadString(_resource, CREATE_PROCESS_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+  
+    if(string_length == 0) {
+      string_length = LoadString(SERVER::instance()->handle(), CREATE_PROCESS_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+      
+      if(string_length == 0) {
+	lstrcpy(resource_string, TEXT("Could not start diff command. Please run diff_ext setup program and verify your configuration."));
+	MessageBox(0, TEXT("Can not load 'CREATE_PROCESS_STR' string resource"), TEXT("ERROR"), MB_OK);
+      }
+    }
+    
+    string_length = LoadString(_resource, ERROR_STR, error_string, sizeof(error_string)/sizeof(error_string[0]));
+  
+    if(string_length == 0) {
+      string_length = LoadString(SERVER::instance()->handle(), ERROR_STR, error_string, sizeof(error_string)/sizeof(error_string[0]));
+      
+      if(string_length == 0) {
+	lstrcpy(error_string, TEXT("Error"));
+	MessageBox(0, TEXT("Can not load 'ERROR_STR' string resource"), TEXT("ERROR"), MB_OK);
+      }
+    }
+
+    MessageBox(_hwnd, resource_string, error_string, MB_OK);
+  } else {
+//    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+/*    
+    LPTSTR message;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
+      GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+      (LPTSTR) &message, 0, 0);
+    MessageBox(0, message, TEXT("GetLastError"), MB_OK | MB_ICONINFORMATION);
+
+    LocalFree(message);
+*/
+    CloseHandle( pi.hProcess );
+    CloseHandle( pi.hThread );
+  }
+
+  //~ fclose(f);
+}
+
+void
+DIFF_EXT::diff3() {
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+  //~ FILE* f = fopen("d:/DIFF_EXT.log", "a");
+  //~ MessageBox(_hwnd, "diff", "command", MB_OK);
+  STARTUPINFO si;
+  PROCESS_INFORMATION pi;
+  HKEY key;
+  DWORD length = MAX_PATH;
+  TCHAR command[MAX_PATH*3 + 6];
+  TCHAR tmp[MAX_PATH];
+
+  ZeroMemory(command, sizeof(command));
+
+  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+//    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+    if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command, &length) != ERROR_SUCCESS) {
+      command[0] = TEXT('\0');
+    }
+
+    RegCloseKey(key);
+  } else {
+//    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+    LPTSTR message;
+
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, 0,
+      GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+      (LPTSTR) &message, 0, 0);
+
+    MessageBox(0, message, TEXT("GetLastError"), MB_OK | MB_ICONINFORMATION);
+
+    LocalFree(message);
+  }
+
+  _tcscat(command, TEXT(" \""));
+  _tcsncpy(tmp, _file_name1, MAX_PATH);
+  _tcscat(command, tmp);
+  _tcscat(command, TEXT("\" \""));
+  _tcsncpy(tmp, _file_name2, MAX_PATH);
+  _tcscat(command, tmp);
+  _tcscat(command, TEXT("\" \""));
+  _tcsncpy(tmp, _file_name3, MAX_PATH);
   _tcscat(command, tmp);
   _tcscat(command, TEXT("\""));
 

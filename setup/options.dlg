@@ -6,14 +6,14 @@
  *
  */
 IDD_OPTIONS DIALOGEX
-0, 0, 228, 75
+0, 0, 228, 85
 STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK | WS_CLIPSIBLINGS //| WS_CLIPCHILDREN
 FONT 8, "Ms Shell Dlg"
 EXSTYLE WS_EX_CONTROLPARENT
 BEGIN
     GROUPBOX      "Diff command", 			
                   ID_GROUP, 
-                  7, 7, 214, 46,
+                  7, 7, 214, 54,
 		  WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS
     EDITTEXT      
                   ID_DIFF_COMMAND, 
@@ -23,15 +23,18 @@ BEGIN
     PUSHBUTTON    "Browse...",
                   ID_BROWSE, 
                   163, 18, 50, 14
-    AUTOCHECKBOX  "Can compare folders",
+    AUTOCHECKBOX  "Compare folders",
                   ID_DIFF_DIRS, 
                   14, 36, 90, 10
+    AUTOCHECKBOX  "3 way compare",
+                  ID_DIFF3, 
+                  14, 46, 90, 10
     LTEXT         "Language",
                   104, 
-                  7, 60, 35, 8
+                  7, 70, 35, 8
     COMBOBOX      
                   ID_LANGUAGE, 
-                  46, 59, 100, 130, 
+                  46, 69, 100, 130, 
                   CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 

@@ -39,17 +39,23 @@ apply(PAGE* page) {
   LRESULT language;
   LRESULT idx;
   LRESULT compare_folders;
+  LRESULT three_way_compare_supported;
+  DWORD three_way_compare_supported_value = 0;
   
   GetDlgItemText(page->page, ID_DIFF_COMMAND, command, MAX_PATH);
   idx = SendDlgItemMessage(page->page, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
   language = SendDlgItemMessage(page->page, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
+  compare_folders = SendDlgItemMessage(page->page, ID_DIFF_DIRS, BM_GETCHECK, 0, 0);  
+  three_way_compare_supported = SendDlgItemMessage(page->page, ID_DIFF3, BM_GETCHECK, 0, 0);  
+  if(three_way_compare_supported == BST_CHECKED) {
+    three_way_compare_supported_value = 1;
+  }
 
   RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_SET_VALUE, &key);
   RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, _tcslen(command)*sizeof(TCHAR));
   RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
+  RegSetValueEx(key, TEXT("3way_compare_supported"), 0, REG_DWORD, (const BYTE*)&three_way_compare_supported_value, sizeof(three_way_compare_supported_value));
   RegCloseKey(key);
-  
-  compare_folders = SendDlgItemMessage(page->page, ID_DIFF_DIRS, BM_GETCHECK, 0, 0);
   
   if(compare_folders == BST_CHECKED) {
     LRESULT  result = NOERROR;
@@ -120,7 +126,8 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   HKEY key;
   TCHAR command[MAX_PATH] = TEXT("");
   TCHAR home[MAX_PATH] = TEXT(".");
-  DWORD language = 1033;
+  DWORD language;
+  DWORD three_way_compare_supported;
   HANDLE file;
   WIN32_FIND_DATA file_info;
   TCHAR prefix[] = TEXT("diff_ext_setup");
@@ -141,7 +148,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
 #endif
     CoTaskMemFree((void*)tmp_guid);
     
-    if (RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT("Folder\\shellex\\ContextMenuHandlers\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    if(RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT("Folder\\shellex\\ContextMenuHandlers\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
       DWORD hlen = MAX_PATH;
     
       RegQueryValueEx(key, TEXT(""), 0, NULL, (BYTE*)clsid, &hlen);
@@ -153,7 +160,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
       RegCloseKey(key);
     }
     
-    if (RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT("Directory\\shellex\\ContextMenuHandlers\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    if(RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT("Directory\\shellex\\ContextMenuHandlers\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
       DWORD hlen = MAX_PATH;
     
       RegQueryValueEx(key, TEXT(""), 0, NULL, (BYTE*)clsid, &hlen);
@@ -174,6 +181,9 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     hlen = sizeof(DWORD);
     if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)(&language), &hlen) != ERROR_SUCCESS) {
       language = 1033;
+    }
+    if(RegQueryValueEx(key, TEXT("3way_compare_supported"), 0, NULL, (BYTE*)(&three_way_compare_supported), &hlen) != ERROR_SUCCESS) {
+      three_way_compare_supported = 0;
     }
 
     hlen = MAX_PATH;
@@ -230,6 +240,9 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     FindClose(file);
   }
   
+  if(three_way_compare_supported != 0) {
+    SendDlgItemMessage(dialog, ID_DIFF3, BM_SETCHECK, BST_CHECKED, 0);
+  }
   SetDlgItemText(dialog, ID_DIFF_COMMAND, command);
   SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, MAX_PATH, 0);
 }

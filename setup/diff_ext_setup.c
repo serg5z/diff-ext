@@ -60,10 +60,10 @@ subclass_button() {
 Wait for wide startup module from MinGW
 */
 int APIENTRY
-WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show) {
+WinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used3) {
 #else  
 int APIENTRY
-_tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show) {
+_tWinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used3) {
 #endif  
   HRESULT exit = ID_APPLY;
   HKEY key;
@@ -74,7 +74,7 @@ _tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show)
   HRSRC resource_handle;
   DLGTEMPLATE* dialog;
   
-  subclass_button();
+/*  subclass_button();*/
 
   while(exit == ID_APPLY) {
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
@@ -112,7 +112,7 @@ _tWinMain(HINSTANCE instance, HINSTANCE previous, LPTSTR command_line, int show)
 }
 
 static void
-init(HWND dialog, WPARAM not_used, LPARAM l_param) {
+init(HWND dialog, WPARAM not_used1, LPARAM not_used2) {
   HWND tab = GetDlgItem(dialog, ID_TAB);
   RECT rect;
   TCITEM item1;
@@ -131,7 +131,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     
     if(EnableThemeDialogTexture != 0) {
       unsigned int i;
-      const int ETDT_DISABLE = 1;
+/*      const int ETDT_DISABLE = 1; */
       const int ETDT_ENABLE = 2;
       const int ETDT_USETABTEXTURE = 4;
       const int ETDT_ENABLETAB = ETDT_ENABLE | ETDT_USETABTEXTURE;

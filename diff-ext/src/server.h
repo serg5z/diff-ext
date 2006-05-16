@@ -42,6 +42,8 @@ class SERVER {
     
     DLIST<STRING>* recent_files();
     
+    bool tree_way_compare_supported();
+    
     void save_history() const;
     
     unsigned int history_size() const {

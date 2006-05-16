@@ -10,14 +10,11 @@
 
 #include "diff_ext.rh"
 
-#define xstr(x) str(x)
-#define str(x) #x
-
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 VS_VERSION_INFO VERSIONINFO
-  FILEVERSION 1,5,0,131
-  PRODUCTVERSION 1,4,0,131
+  FILEVERSION 1,6,0,142
+  PRODUCTVERSION 1,6,0,142
   FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
   FILEFLAGS VS_FF_DEBUG
@@ -35,14 +32,14 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "Comments", ""
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diff shell extension"
-            VALUE "FileVersion", "Release 1.5"
+            VALUE "FileVersion", "Release 1.6"
             VALUE "InternalName", "diff shell extension"
             VALUE "LegalCopyright", "Copyright © 2003-2005 Sergey Zorin"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "diff_ext.dll"
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "Release 1.5"
+            VALUE "ProductVersion", "Release 1.6"
         }
     }
     BLOCK "VarFileInfo"
@@ -53,10 +50,11 @@ VS_VERSION_INFO VERSIONINFO
 
 STRINGTABLE
 {
-  DIFF_STR "diff"
-  DIFF_WITH_STR "diff with"
-  DIFF_WITH_FILE_STR "diff with '%1'"
-  DIFF_LATER_STR "diff later"
+  DIFF_STR "compare"
+  DIFF3_STR "3 way compare"
+  DIFF_WITH_STR "compare with"
+  DIFF_WITH_FILE_STR "compare with '%1'"
+  DIFF_LATER_STR "compare later"
   
   DIFF_HINT "Compare selected files"
   DIFF_WITH_HINT "Compare '%1' with '%2'"

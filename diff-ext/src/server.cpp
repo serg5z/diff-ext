@@ -163,7 +163,7 @@ SERVER::release() {
 DLIST<STRING>*
 SERVER::recent_files() {
   HKEY key;
-  DWORD history_size = 8;
+  DWORD history_size = 32;
   DWORD len;
   
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
@@ -222,6 +222,25 @@ SERVER::recent_files() {
   _recent_files = new_history;
   
   return _recent_files;
+}
+
+bool 
+SERVER::tree_way_compare_supported() {
+  bool result = false; 
+  HKEY key;
+    
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    DWORD three_way_compare_supported;
+    DWORD hlen = sizeof(three_way_compare_supported);
+    
+    if(RegQueryValueEx(key, TEXT("3way_compare_supported"), 0, NULL, (BYTE*)(&three_way_compare_supported), &hlen) != ERROR_SUCCESS) {
+      three_way_compare_supported = 0;
+    }
+    
+    result = (three_way_compare_supported != 0);
+  }
+
+  return result;
 }
 
 void

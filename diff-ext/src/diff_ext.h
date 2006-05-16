@@ -37,6 +37,7 @@ class DIFF_EXT : public IContextMenu, IShellExtInit {
 
   private:
     void diff();
+    void diff3();
     void diff_with(unsigned int num);
     void diff_later();
     STRING cut_to_length(STRING, int length = 64);
@@ -46,6 +47,7 @@ class DIFF_EXT : public IContextMenu, IShellExtInit {
     UINT _n_files;
     STRING _file_name1;
     STRING _file_name2;
+    STRING _file_name3;
     DLIST<STRING>* _recent_files;
     HINSTANCE _resource;
     DWORD _language;

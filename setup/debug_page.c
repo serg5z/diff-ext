@@ -100,7 +100,7 @@ disable_logging(HWND dialog) {
 }
 
 static void
-init(HWND dialog, WPARAM not_used, LPARAM l_param) {
+init(HWND dialog, WPARAM not_used1, LPARAM not_used2) {
   HWND log_level_button = GetDlgItem(dialog, ID_LOG_LEVEL_BUTTON);
   HKEY key;
   TCHAR log_path[MAX_PATH] = TEXT("");

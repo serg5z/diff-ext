@@ -3,13 +3,13 @@ Compression=lzma/normal
 SolidCompression=yes
 AppName=diff_ext
 AppId=A0482097-C69D-4DEC-8AB6-D3A259ACC151
-AppVerName=diff_ext 1.5
+AppVerName=diff_ext 1.6
 AppPublisher=Z
 DefaultDirName={pf}\Z\diff_ext
 DefaultGroupName=Z\diff_ext
 DisableProgramGroupPage=false
 OutputDir=.
-OutputBaseFilename=diff_ext-1.5
+OutputBaseFilename=diff_ext-1.6
 
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
 ; MinVersion=4,3.51
@@ -44,6 +44,7 @@ Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: home; Val
 Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1033; Flags: uninsdeletekey; Languages: en
 Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1049; Flags: uninsdeletekey; Languages: ru
 Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: log; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: 3way_compare_supported; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: log_level; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKLM; Subkey: Software\Z\diff-ext\history; Flags: uninsdeletekeyifempty uninsdeletevalue
 Root: HKLM; Subkey: Software\Z; Flags: uninsdeletekeyifempty uninsdeletevalue
