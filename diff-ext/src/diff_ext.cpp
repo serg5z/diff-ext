@@ -23,7 +23,7 @@ const UINT IDM_DIFF_WITH=11;
 const UINT IDM_DIFF_LATER=12;
 const UINT IDM_DIFF_WITH_BASE=20;
 
-DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(TEXT("")), _file_name2(TEXT("")), _file_name3(TEXT("")), _language(1033), _ref_count(0L), _selection(0) {
+DIFF_EXT::DIFF_EXT() : _n_files(0), _language(1033), _ref_count(0L), _selection(0) {
 //  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
   
   _recent_files = SERVER::instance()->recent_files();
@@ -160,40 +160,6 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
     TCHAR tmp[MAX_PATH];
     
     initialize_language();
-    
-    if(_n_files == 1) {
-//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-      DragQueryFile(drop, 0, tmp, MAX_PATH);
-
-      _file_name1 = STRING(tmp);
-
-      ret = S_OK;
-    } else if(_n_files == 2) {
-//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-      DragQueryFile(drop, 0, tmp, MAX_PATH);
-
-      _file_name1 = STRING(tmp);
-
-      DragQueryFile(drop, 1, tmp, MAX_PATH);
-
-      _file_name2 = STRING(tmp);
-
-      ret = S_OK;
-    } else if((_n_files == 3) && SERVER::instance()->tree_way_compare_supported()) {
-      DragQueryFile(drop, 0, tmp, MAX_PATH);
-
-      _file_name1 = STRING(tmp);
-
-      DragQueryFile(drop, 1, tmp, MAX_PATH);
-
-      _file_name2 = STRING(tmp);
-
-      DragQueryFile(drop, 2, tmp, MAX_PATH);
-
-      _file_name3 = STRING(tmp);
-
-      ret = S_OK;
-    }
     
     if(_selection != 0) {
       delete[] _selection;
@@ -363,7 +329,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 	}
       }
       
-      STRING str(resource_string); //= "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
+      STRING str(resource_string); //= "Diff " + cut_to_length(_selection[0], 20)+" and "+cut_to_length(_selection[1], 20);
       LPTSTR c_str = str;
 
       id = first_cmd + IDM_DIFF;
@@ -374,6 +340,28 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       item_info.fState = MFS_ENABLED;
       item_info.wID = id++;
       item_info.dwTypeData = c_str;
+      InsertMenuItem(menu, position, TRUE, &item_info);
+      position++;
+
+      resource_string_length = LoadString(_resource, DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+      
+      if(resource_string_length == 0) {
+	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	
+	if(resource_string_length == 0) {
+	  lstrcpy(resource_string, TEXT("diff later"));
+	  MessageBox(0, TEXT("Can not load 'DIFF_LATER_STR' string resource"), TEXT("ERROR"), MB_OK);
+	}
+      }
+      
+      id = first_cmd + IDM_DIFF_LATER;
+      ZeroMemory(&item_info, sizeof(item_info));
+      item_info.cbSize = sizeof(MENUITEMINFO);
+      item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
+      item_info.fType = MFT_STRING;
+      item_info.fState = MFS_ENABLED;
+      item_info.wID = id++;
+      item_info.dwTypeData = resource_string;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
     } else {
@@ -391,7 +379,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
           }
         }
         
-        STRING str(resource_string); //= "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
+        STRING str(resource_string); //= "Diff " + cut_to_length(_selection[0], 20)+" and "+cut_to_length(_selection[1], 20);
         LPTSTR c_str = str;
 
         id = first_cmd + IDM_DIFF3;
@@ -508,7 +496,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
         DLIST<STRING>::ITERATOR i = _recent_files->head();
-	LPTSTR file_name1 = _file_name1;
+	LPTSTR file_name1 = _selection[0];
 	LPTSTR file_name2 = (*i)->data();
 	LPTSTR message;
         void* args[] = {(void*)file_name1, (void*)file_name2};
@@ -544,7 +532,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	}
       }
       
-      LPTSTR file_name1 = _file_name1;
+      LPTSTR file_name1 = _selection[0];
       LPTSTR message;
       void* args[] = {(void*)file_name1};
 
@@ -565,7 +553,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	  }
 	}
 	unsigned int num = idCmd-IDM_DIFF_WITH_BASE;
-	LPTSTR file_name1 = _file_name1;
+	LPTSTR file_name1 = _selection[0];
 	
 	DLIST<STRING>::ITERATOR i = _recent_files->head();
 	for(unsigned int j = 0; j < num; j++)
@@ -624,10 +612,10 @@ DIFF_EXT::diff() {
   }
 
   _tcscat(command, TEXT(" \""));
-  _tcsncpy(tmp, _file_name1, MAX_PATH);
+  _tcsncpy(tmp, _selection[0], MAX_PATH);
   _tcscat(command, tmp);
   _tcscat(command, TEXT("\" \""));
-  _tcsncpy(tmp, _file_name2, MAX_PATH);
+  _tcsncpy(tmp, _selection[1], MAX_PATH);
   _tcscat(command, tmp);
   _tcscat(command, TEXT("\""));
 
@@ -716,13 +704,13 @@ DIFF_EXT::diff3() {
   }
 
   _tcscat(command, TEXT(" \""));
-  _tcsncpy(tmp, _file_name1, MAX_PATH);
+  _tcsncpy(tmp, _selection[0], MAX_PATH);
   _tcscat(command, tmp);
   _tcscat(command, TEXT("\" \""));
-  _tcsncpy(tmp, _file_name2, MAX_PATH);
+  _tcsncpy(tmp, _selection[1], MAX_PATH);
   _tcscat(command, tmp);
   _tcscat(command, TEXT("\" \""));
-  _tcsncpy(tmp, _file_name3, MAX_PATH);
+  _tcsncpy(tmp, _selection[2], MAX_PATH);
   _tcscat(command, tmp);
   _tcscat(command, TEXT("\""));
 
@@ -779,14 +767,14 @@ DIFF_EXT::diff3() {
 void
 DIFF_EXT::diff_with(unsigned int num) {
 //  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-  //~ STRING str = "diff "+_file_name1+" and "+_recent_files->at(num);
+  //~ STRING str = "diff "+_selection[0]+" and "+_recent_files->at(num);
   //~ MessageBox(_hwnd, str, "command", MB_OK);
   DLIST<STRING>::ITERATOR i = _recent_files->head();
   for(unsigned int j = 0; j < num; j++) {
     i++;
   }
 
-  _file_name2 = (*i)->data();
+  _selection[1] = (*i)->data();
 
   diff();
 }
@@ -822,7 +810,7 @@ DIFF_EXT::diff_later() {
       _recent_files->prepend(node);
     }
   }
-  //~ fprintf(f, "added file %s; new size: %d\n", _file_name1, _recent_files->size());
+  //~ fprintf(f, "added file %s; new size: %d\n", _selection[0], _recent_files->size());
 
   //~ fclose(f);
 }

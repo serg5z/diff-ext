@@ -13,8 +13,8 @@
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 VS_VERSION_INFO VERSIONINFO
-  FILEVERSION 1,6,0,160
-  PRODUCTVERSION 1,6,0,160
+  FILEVERSION 1,6,0,162
+  PRODUCTVERSION 1,6,0,162
   FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
   FILEFLAGS VS_FF_DEBUG
@@ -52,12 +52,12 @@ STRINGTABLE
 {
   DIFF_STR "compare"
   DIFF3_STR "3 way compare"
-  DIFF_WITH_STR "compare with"
-  DIFF_WITH_FILE_STR "compare with '%1'"
+  DIFF_WITH_STR "compare to"
+  DIFF_WITH_FILE_STR "compare to '%1'"
   DIFF_LATER_STR "compare later"
   
   DIFF_HINT "Compare selected files"
-  DIFF_WITH_HINT "Compare '%1' with '%2'"
+  DIFF_WITH_HINT "Compare '%1' to '%2'"
   DIFF_LATER_HINT "Save '%1' for later comparison"
   
   CREATE_PROCESS_STR "Could not start diff command. Please run diff_ext setup program and verify your configuration."
