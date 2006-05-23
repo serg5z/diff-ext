@@ -23,7 +23,7 @@ const UINT IDM_DIFF_WITH=11;
 const UINT IDM_DIFF_LATER=12;
 const UINT IDM_DIFF_WITH_BASE=20;
 
-DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(TEXT("")), _file_name2(TEXT("")), _file_name3(TEXT("")), _language(1033), _ref_count(0L) {
+DIFF_EXT::DIFF_EXT() : _n_files(0), _file_name1(TEXT("")), _file_name2(TEXT("")), _file_name3(TEXT("")), _language(1033), _ref_count(0L), _selection(0) {
 //  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
   
   _recent_files = SERVER::instance()->recent_files();
@@ -150,7 +150,7 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
   FORMATETC format = {CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
   STGMEDIUM medium;
   medium.tymed = TYMED_HGLOBAL;
-  HRESULT ret = E_INVALIDARG;
+  HRESULT ret = S_OK/*E_INVALIDARG*/;
 
   if(data->GetData(&format, &medium) == S_OK) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__);
@@ -193,6 +193,16 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
       _file_name3 = STRING(tmp);
 
       ret = S_OK;
+    }
+    
+    if(_selection != 0) {
+      delete[] _selection;
+    }
+    
+    _selection = new STRING[_n_files];
+    for(int i = 0; i < _n_files; i++) {
+      DragQueryFile(drop, i, tmp, MAX_PATH);
+      _selection[i] = STRING(tmp);
     }
   }
 
@@ -366,36 +376,57 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       item_info.dwTypeData = c_str;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
-    } else if((_n_files == 3) && SERVER::instance()->tree_way_compare_supported()) {
+    } else {
+      if((_n_files == 3) && SERVER::instance()->tree_way_compare_supported()) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
       
-      resource_string_length = LoadString(_resource, DIFF3_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+        resource_string_length = LoadString(_resource, DIFF3_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+        
+        if(resource_string_length == 0) {
+          resource_string_length = LoadString(SERVER::instance()->handle(), DIFF3_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+          
+          if(resource_string_length == 0) {
+            lstrcpy(resource_string, TEXT("3 way compare"));
+            MessageBox(0, TEXT("Can not load 'DIFF3_STR' string resource"), TEXT("ERROR"), MB_OK);
+          }
+        }
+        
+        STRING str(resource_string); //= "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
+        LPTSTR c_str = str;
+
+        id = first_cmd + IDM_DIFF3;
+        ZeroMemory(&item_info, sizeof(item_info));
+        item_info.cbSize = sizeof(MENUITEMINFO);
+        item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
+        item_info.fType = MFT_STRING;
+        item_info.fState = MFS_ENABLED;
+        item_info.wID = id++;
+        item_info.dwTypeData = c_str;
+        InsertMenuItem(menu, position, TRUE, &item_info);
+        position++;
+      }
+      
+      resource_string_length = LoadString(_resource, DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
       
       if(resource_string_length == 0) {
-	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF3_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
 	
 	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("3 way compare"));
-	  MessageBox(0, TEXT("Can not load 'DIFF3_STR' string resource"), TEXT("ERROR"), MB_OK);
+	  lstrcpy(resource_string, TEXT("diff later"));
+	  MessageBox(0, TEXT("Can not load 'DIFF_LATER_STR' string resource"), TEXT("ERROR"), MB_OK);
 	}
       }
       
-      STRING str(resource_string); //= "Diff " + cut_to_length(_file_name1, 20)+" and "+cut_to_length(_file_name2, 20);
-      LPTSTR c_str = str;
-
-      id = first_cmd + IDM_DIFF3;
+      id = first_cmd + IDM_DIFF_LATER;
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
       item_info.fType = MFT_STRING;
       item_info.fState = MFS_ENABLED;
       item_info.wID = id++;
-      item_info.dwTypeData = c_str;
+      item_info.dwTypeData = resource_string;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
-    } else {
-//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-      assert(false);
     }
 
     ZeroMemory(&item_info, sizeof(item_info));
@@ -765,28 +796,31 @@ DIFF_EXT::diff_later() {
 //  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
   //~ FILE* f = fopen("d:/DIFF_EXT.log", "a");
   //~ MessageBox(_hwnd, "diff later", "command", MB_OK);
-  bool found = false;
-  DLIST<STRING>::ITERATOR i = _recent_files->head();
-  DLIST<STRING>::NODE* node = 0;
-  
-  while(!i.done() && !found) {
-    if((*i)->data() == _file_name1) {
-      found = true;
-      node = *i;
-      _recent_files->unlink(i);
-    } else {
-      i++;
+//  unsigned int start = max(min(SERVER::instance()->history_size(), _n_files)-1, 0);
+  for(int i = _n_files-1; i >= 0; i--) {
+    bool found = false;
+    DLIST<STRING>::ITERATOR it = _recent_files->head();
+    DLIST<STRING>::NODE* node = 0;
+    
+    while(!it.done() && !found) {
+      if((*it)->data() == _selection[i]/*_file_name1*/) {
+        found = true;
+        node = *it;
+        _recent_files->unlink(it);
+      } else {
+        it++;
+      }
     }
-  }
 
-  if(!found) {
-    if(_recent_files->count() == SERVER::instance()->history_size()) {
-      DLIST<STRING>::ITERATOR t = _recent_files->tail();
-      _recent_files->remove(t);
+    if(!found) {
+      if(_recent_files->count() == SERVER::instance()->history_size()) {
+        DLIST<STRING>::ITERATOR t = _recent_files->tail();
+        _recent_files->remove(t);
+      }
+      _recent_files->prepend(_selection[i]);
+    } else {
+      _recent_files->prepend(node);
     }
-    _recent_files->prepend(_file_name1);
-  } else {
-    _recent_files->prepend(node);
   }
   //~ fprintf(f, "added file %s; new size: %d\n", _file_name1, _recent_files->size());
 

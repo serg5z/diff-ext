@@ -48,6 +48,7 @@ class DIFF_EXT : public IContextMenu, IShellExtInit {
     STRING _file_name1;
     STRING _file_name2;
     STRING _file_name3;
+    STRING* _selection;    
     DLIST<STRING>* _recent_files;
     HINSTANCE _resource;
     DWORD _language;
