@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003-2005, Sergey Zorin. All rights reserved.
+ * Copyright (c) 2003-2006, Sergey Zorin. All rights reserved.
  *
  * This software is distributable under the BSD license. See the terms
  * of the BSD license in the LICENSE file provided with this software.
@@ -19,9 +19,11 @@
 
 const UINT IDM_DIFF=10;
 const UINT IDM_DIFF3=13;
+const UINT IDM_DIFF3_WITH=14;
 const UINT IDM_DIFF_WITH=11;
 const UINT IDM_DIFF_LATER=12;
-const UINT IDM_DIFF_WITH_BASE=20;
+const UINT IDM_DIFF_WITH_BASE=100;
+const UINT IDM_DIFF3_WITH_BASE=200;
 
 DIFF_EXT::DIFF_EXT() : _n_files(0), _language(1033), _ref_count(0L), _selection(0) {
 //  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
@@ -175,6 +177,35 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
   return ret;
 }
 
+HMENU
+DIFF_EXT::create_file_list(UINT base, UINT id) {
+  HMENU result = CreateMenu();
+
+  DLIST<STRING>::ITERATOR i = _recent_files->head();
+
+  int n = 0;
+  MENUITEMINFO item_info;
+  while(!i.done()) {
+//	TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+    STRING str;
+    
+    str = cut_to_length((*i)->data());
+    
+    LPTSTR c_str = str;
+
+    ZeroMemory(&item_info, sizeof(item_info));
+    item_info.cbSize = sizeof(MENUITEMINFO);
+    item_info.fMask = MIIM_ID | MIIM_STRING;
+    item_info.wID =id++;
+    item_info.dwTypeData = c_str;
+    InsertMenuItem(result, base++, TRUE, &item_info);
+
+    i++;
+  }
+  
+  return result;
+}
+
 STDMETHODIMP
 DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*last_cmd not used*/, UINT flags) {
 //  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
@@ -193,7 +224,6 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
     item_info.fMask = MIIM_TYPE;
     item_info.fType = MFT_SEPARATOR;
     item_info.dwTypeData = 0;
-    item_info.wID = id++;
     InsertMenuItem(menu, position, TRUE, &item_info);
     position++;
 
@@ -216,7 +246,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
           resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_FILE_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
           
           if(resource_string_length == 0) {
-            lstrcpy(resource_string, TEXT("diff with '%1'"));
+            lstrcpy(resource_string, TEXT("compare to '%1'"));
             MessageBox(0, TEXT("Can not load 'DIFF_WITH_FILE_STR' string resource"), TEXT("ERROR"), MB_OK);
           }
         }
@@ -230,7 +260,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
           resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
           
           if(resource_string_length == 0) {
-            lstrcpy(resource_string, TEXT("diff with"));
+            lstrcpy(resource_string, TEXT("compare to"));
             MessageBox(0, TEXT("Can not load 'DIFF_WITH_STR' string resource"), TEXT("ERROR"), MB_OK);
           }
         }
@@ -238,13 +268,12 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
         c_str = resource_string;
       }
 
-      id = first_cmd + IDM_DIFF_WITH;
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
       item_info.fType = MFT_STRING;
       item_info.fState = state;
-      item_info.wID = id;
+      item_info.wID = first_cmd + IDM_DIFF_WITH;
       item_info.dwTypeData = c_str; //+filename
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
@@ -255,18 +284,17 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
 	
 	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("diff later"));
+	  lstrcpy(resource_string, TEXT("compare later"));
 	  MessageBox(0, TEXT("Can not load 'DIFF_LATER_STR' string resource"), TEXT("ERROR"), MB_OK);
 	}
       }
       
-      id = first_cmd + IDM_DIFF_LATER;
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
       item_info.fType = MFT_STRING;
       item_info.fState = MFS_ENABLED;
-      item_info.wID = id;
+      item_info.wID = first_cmd + IDM_DIFF_LATER;
       item_info.dwTypeData = resource_string;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
@@ -301,7 +329,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
 	
 	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("diff with"));
+	  lstrcpy(resource_string, TEXT("compare to"));
 	  MessageBox(0, TEXT("Can not load 'DIFF_WITH_STR' string resource"), TEXT("ERROR"), MB_OK);
 	}
       }
@@ -309,7 +337,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID | MIIM_STATE;
-      item_info.wID = id++;
+      item_info.wID = first_cmd + IDM_DIFF_WITH;
       item_info.fState = state;
       item_info.hSubMenu = file_list;
       item_info.dwTypeData = resource_string;
@@ -324,7 +352,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
 	
 	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("diff"));
+	  lstrcpy(resource_string, TEXT("compare"));
 	  MessageBox(0, TEXT("Can not load 'DIFF_STR' string resource"), TEXT("ERROR"), MB_OK);
 	}
       }
@@ -332,13 +360,12 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       STRING str(resource_string); //= "Diff " + cut_to_length(_selection[0], 20)+" and "+cut_to_length(_selection[1], 20);
       LPTSTR c_str = str;
 
-      id = first_cmd + IDM_DIFF;
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
       item_info.fType = MFT_STRING;
       item_info.fState = MFS_ENABLED;
-      item_info.wID = id++;
+      item_info.wID = first_cmd + IDM_DIFF;
       item_info.dwTypeData = c_str;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
@@ -349,18 +376,17 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
 	
 	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("diff later"));
+	  lstrcpy(resource_string, TEXT("compare later"));
 	  MessageBox(0, TEXT("Can not load 'DIFF_LATER_STR' string resource"), TEXT("ERROR"), MB_OK);
 	}
       }
       
-      id = first_cmd + IDM_DIFF_LATER;
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
       item_info.fType = MFT_STRING;
       item_info.fState = MFS_ENABLED;
-      item_info.wID = id++;
+      item_info.wID = first_cmd + IDM_DIFF_LATER;
       item_info.dwTypeData = resource_string;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
@@ -382,13 +408,12 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
         STRING str(resource_string); //= "Diff " + cut_to_length(_selection[0], 20)+" and "+cut_to_length(_selection[1], 20);
         LPTSTR c_str = str;
 
-        id = first_cmd + IDM_DIFF3;
         ZeroMemory(&item_info, sizeof(item_info));
         item_info.cbSize = sizeof(MENUITEMINFO);
         item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
         item_info.fType = MFT_STRING;
         item_info.fState = MFS_ENABLED;
-        item_info.wID = id++;
+        item_info.wID = first_cmd + IDM_DIFF3;
         item_info.dwTypeData = c_str;
         InsertMenuItem(menu, position, TRUE, &item_info);
         position++;
@@ -400,18 +425,17 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
 	
 	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("diff later"));
+	  lstrcpy(resource_string, TEXT("compare later"));
 	  MessageBox(0, TEXT("Can not load 'DIFF_LATER_STR' string resource"), TEXT("ERROR"), MB_OK);
 	}
       }
       
-      id = first_cmd + IDM_DIFF_LATER;
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
       item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
       item_info.fType = MFT_STRING;
       item_info.fState = MFS_ENABLED;
-      item_info.wID = id++;
+      item_info.wID = first_cmd + IDM_DIFF_LATER;
       item_info.dwTypeData = resource_string;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
@@ -422,7 +446,6 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
     item_info.fMask = MIIM_TYPE;
     item_info.fType = MFT_SEPARATOR;
     item_info.dwTypeData = 0;
-    item_info.wID = id++;
     InsertMenuItem(menu, position, TRUE, &item_info);
     position++;
 
@@ -507,7 +530,7 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 	  resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
 	  
 	  if(resource_string_length == 0) {
-	    lstrcpy(resource_string, TEXT("Compare '%1' with '%2'"));
+	    lstrcpy(resource_string, TEXT("Compare '%1' to '%2'"));
 	    MessageBox(0, TEXT("Can not load 'DIFF_WITH_HINT' string resource"), TEXT("ERROR"), MB_OK);
 	  }
 	}
