@@ -128,9 +128,9 @@ SERVER::SERVER()  : _refference_count(0), _recent_files(0), _file_sink(0) {
   }
   
   if(enabled == 1) {
-    _file_sink = new FILE_SINK(log_path, level);
+//    _file_sink = new FILE_SINK(log_path, level);
     
-    LOG::instance()->add_sink(_file_sink);
+//    LOG::instance()->add_sink(_file_sink);
   }
 }
 

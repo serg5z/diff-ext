@@ -17,15 +17,13 @@
 #include "server.h"
 #include "diff_ext.rh"
 
-const UINT IDM_DIFF=10;
-const UINT IDM_DIFF3=13;
-const UINT IDM_DIFF3_WITH=14;
-const UINT IDM_DIFF_WITH=11;
-const UINT IDM_DIFF_LATER=12;
-const UINT IDM_DIFF_WITH_BASE=100;
-const UINT IDM_DIFF3_WITH_BASE=200;
+const UINT IDM_DIFF=1;
+const UINT IDM_DIFF3=2;
+const UINT IDM_DIFF_WITH=3;
+const UINT IDM_DIFF_LATER=4;
+const UINT IDM_DIFF_WITH_BASE=5;
 
-DIFF_EXT::DIFF_EXT() : _n_files(0), _language(1033), _ref_count(0L), _selection(0) {
+DIFF_EXT::DIFF_EXT() : _n_files(0), _language(1033), _selection(0), _ref_count(0L) {
 //  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
   
   _recent_files = SERVER::instance()->recent_files();
@@ -37,6 +35,7 @@ DIFF_EXT::DIFF_EXT() : _n_files(0), _language(1033), _ref_count(0L), _selection(
 
 DIFF_EXT::~DIFF_EXT() {
 //  TRACE trace(TEXT(__f__), TEXT(__FILE__), __LINE__);
+  delete[] _selection;
   
   if(_resource != SERVER::instance()->handle()) {
     FreeLibrary(_resource);
@@ -163,11 +162,7 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
     
     initialize_language();
     
-    if(_selection != 0) {
-      delete[] _selection;
-    }
-    
-    _selection = new STRING[_n_files];
+    _selection = new STRING[_n_files+1];
     for(int i = 0; i < _n_files; i++) {
       DragQueryFile(drop, i, tmp, MAX_PATH);
       _selection[i] = STRING(tmp);
@@ -177,279 +172,165 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
   return ret;
 }
 
-HMENU
-DIFF_EXT::create_file_list(UINT base, UINT id) {
-  HMENU result = CreateMenu();
-
-  DLIST<STRING>::ITERATOR i = _recent_files->head();
-
-  int n = 0;
-  MENUITEMINFO item_info;
-  while(!i.done()) {
-//	TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-    STRING str;
-    
-    str = cut_to_length((*i)->data());
-    
-    LPTSTR c_str = str;
-
-    ZeroMemory(&item_info, sizeof(item_info));
-    item_info.cbSize = sizeof(MENUITEMINFO);
-    item_info.fMask = MIIM_ID | MIIM_STRING;
-    item_info.wID =id++;
-    item_info.dwTypeData = c_str;
-    InsertMenuItem(result, base++, TRUE, &item_info);
-
-    i++;
-  }
+void
+DIFF_EXT::load_resource_string(UINT string_id, TCHAR* string, int length, TCHAR* default_value) {
+  int resource_string_length;
   
-  return result;
+  resource_string_length = LoadString(_resource, string_id, string, length);
+  
+  if(resource_string_length == 0) {
+    resource_string_length = LoadString(SERVER::instance()->handle(), string_id, string, length);
+    
+    if(resource_string_length == 0) {
+      lstrcpy(string, default_value);
+      MessageBox(0, TEXT("Can not load string resource"), TEXT("ERROR"), MB_OK);
+    }
+  }
+}
+
+void
+insert_menu(HMENU menu, UINT position, UINT id, UINT state, TCHAR* string) {
+  MENUITEMINFO item_info;
+  
+  ZeroMemory(&item_info, sizeof(item_info));
+  item_info.cbSize = sizeof(MENUITEMINFO);
+  item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
+  item_info.fType = MFT_STRING;
+  item_info.fState = state;
+  item_info.wID = id;
+  item_info.dwTypeData = string;
+  InsertMenuItem(menu, position, TRUE, &item_info);
 }
 
 STDMETHODIMP
 DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*last_cmd not used*/, UINT flags) {
-//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-  
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);  
   TCHAR resource_string[256];
-  int resource_string_length;
   HRESULT ret = MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, 0);
 
   if(!(flags & CMF_DEFAULTONLY)) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-    MENUITEMINFO item_info;
     UINT id = first_cmd;
+    LPTSTR c_str;
+    UINT state = _recent_files->count() > 0 ? MFS_ENABLED : MFS_DISABLED;
+    
+    if(_n_files > 0) {
+      MENUITEMINFO item_info;
 
-    ZeroMemory(&item_info, sizeof(item_info));
-    item_info.cbSize = sizeof(MENUITEMINFO);
-    item_info.fMask = MIIM_TYPE;
-    item_info.fType = MFT_SEPARATOR;
-    item_info.dwTypeData = 0;
-    InsertMenuItem(menu, position, TRUE, &item_info);
-    position++;
-
-    if(_n_files == 1) {
-//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+      ZeroMemory(&item_info, sizeof(item_info));
+      item_info.cbSize = sizeof(MENUITEMINFO);
+      item_info.fMask = MIIM_TYPE;
+      item_info.fType = MFT_SEPARATOR;
+      item_info.dwTypeData = 0;
+      InsertMenuItem(menu, position, TRUE, &item_info);
+      position++;
       
-      LPTSTR c_str;
-      UINT state = MFS_DISABLED;
+      if(_n_files == 1) {
+        if(_recent_files->count() > 0) {
+          DLIST<STRING>::ITERATOR i = _recent_files->head();
+          STRING str  = cut_to_length((*i)->data());
+          void* args[] = {(void*)str};
+          
+          load_resource_string(DIFF_WITH_FILE_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("compare to '%1'"));
+          FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR)&c_str, 0, (char**)args);
+        } else {
+          load_resource_string(DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("compare to"));
+          c_str = resource_string;
+        }
+        
+        id = first_cmd + IDM_DIFF_WITH;
+        insert_menu(menu, position, id, state, c_str);
+        position++;
+      } else if(_n_files == 2) {
+        if(SERVER::instance()->tree_way_compare_supported()) {
+          if(_recent_files->count() > 0) {
+            DLIST<STRING>::ITERATOR i = _recent_files->head();
+            STRING str1  = cut_to_length((*i)->data());
+            void* args[] = {(void*)str1};
+            
+            load_resource_string(DIFF3_WITH_FILE_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare '%1'"));
+            FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR)&c_str, 0, (char**)args);
+          } else {
+            load_resource_string(DIFF3_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare to"));
+            c_str = resource_string;
+          }
+          
+          id = first_cmd + IDM_DIFF_WITH;
+          insert_menu(menu, position, id, state, c_str);
+          position++;
+        }
+        
+        load_resource_string(DIFF_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("compare"));
+        
+        id = first_cmd + IDM_DIFF;
+        insert_menu(menu, position, id, MFS_ENABLED, resource_string);
+        position++;
+      } else if(_n_files == 3) {
+        if(SERVER::instance()->tree_way_compare_supported()) {
+          load_resource_string(DIFF3_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare"));
+          
+          id = first_cmd + IDM_DIFF3;
+          insert_menu(menu, position, id, MFS_ENABLED, resource_string);
+          position++;
+        }
+      }
 
-      //TODO: Use FormatMessage here
-      if(_recent_files->count() > 0) {
-//	TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-	DLIST<STRING>::ITERATOR i = _recent_files->head();
-        STRING str  = cut_to_length((*i)->data());
-        void* args[] = {(void*)str};
-        
-        resource_string_length = LoadString(_resource, DIFF_WITH_FILE_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-        
-        if(resource_string_length == 0) {
-          resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_FILE_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-          
-          if(resource_string_length == 0) {
-            lstrcpy(resource_string, TEXT("compare to '%1'"));
-            MessageBox(0, TEXT("Can not load 'DIFF_WITH_FILE_STR' string resource"), TEXT("ERROR"), MB_OK);
-          }
-        }
-        
-        state = MFS_ENABLED;
-        FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR)&c_str, 0, (char**)args);
-      } else {
-        resource_string_length = LoadString(_resource, DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-        
-        if(resource_string_length == 0) {
-          resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-          
-          if(resource_string_length == 0) {
-            lstrcpy(resource_string, TEXT("compare to"));
-            MessageBox(0, TEXT("Can not load 'DIFF_WITH_STR' string resource"), TEXT("ERROR"), MB_OK);
-          }
-        }
-        
+      load_resource_string(DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("compare later"));
+      
+      id = first_cmd + IDM_DIFF_LATER;
+      insert_menu(menu, position, id, MFS_ENABLED, resource_string);
+      position++;
+      
+      c_str = 0;
+      if(_n_files == 1) {
+        load_resource_string(DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("compare to '%1'"));
         c_str = resource_string;
-      }
-
-      ZeroMemory(&item_info, sizeof(item_info));
-      item_info.cbSize = sizeof(MENUITEMINFO);
-      item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
-      item_info.fType = MFT_STRING;
-      item_info.fState = state;
-      item_info.wID = first_cmd + IDM_DIFF_WITH;
-      item_info.dwTypeData = c_str; //+filename
-      InsertMenuItem(menu, position, TRUE, &item_info);
-      position++;
-
-      resource_string_length = LoadString(_resource, DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-      
-      if(resource_string_length == 0) {
-	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-	
-	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("compare later"));
-	  MessageBox(0, TEXT("Can not load 'DIFF_LATER_STR' string resource"), TEXT("ERROR"), MB_OK);
-	}
+      } else if(_n_files == 2) {
+        if(SERVER::instance()->tree_way_compare_supported()) {
+          load_resource_string(DIFF3_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare to"));
+          c_str = resource_string;
+        }
       }
       
-      ZeroMemory(&item_info, sizeof(item_info));
-      item_info.cbSize = sizeof(MENUITEMINFO);
-      item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
-      item_info.fType = MFT_STRING;
-      item_info.fState = MFS_ENABLED;
-      item_info.wID = first_cmd + IDM_DIFF_LATER;
-      item_info.dwTypeData = resource_string;
-      InsertMenuItem(menu, position, TRUE, &item_info);
-      position++;
+      if(c_str != 0) {
+        HMENU file_list = CreateMenu();
+        DLIST<STRING>::ITERATOR i = _recent_files->head();
 
-      HMENU file_list = CreateMenu();
-
-      DLIST<STRING>::ITERATOR i = _recent_files->head();
-
-      id = first_cmd+IDM_DIFF_WITH_BASE;
-      int n = 0;
-      while(!i.done()) {
-//	TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-	STRING str;
-        
-        str = cut_to_length((*i)->data());
-        c_str = str;
-
-        ZeroMemory(&item_info, sizeof(item_info));
-        item_info.cbSize = sizeof(MENUITEMINFO);
-        item_info.fMask = MIIM_ID | MIIM_STRING;
-        item_info.wID =id++;
-        item_info.dwTypeData = c_str;
-        InsertMenuItem(file_list, IDM_DIFF_WITH_BASE+n, TRUE, &item_info);
-
-        i++;
-        n++;
-      }
-      
-      resource_string_length = LoadString(_resource, DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-      
-      if(resource_string_length == 0) {
-	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-	
-	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("compare to"));
-	  MessageBox(0, TEXT("Can not load 'DIFF_WITH_STR' string resource"), TEXT("ERROR"), MB_OK);
-	}
-      }
-      
-      ZeroMemory(&item_info, sizeof(item_info));
-      item_info.cbSize = sizeof(MENUITEMINFO);
-      item_info.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID | MIIM_STATE;
-      item_info.wID = first_cmd + IDM_DIFF_WITH;
-      item_info.fState = state;
-      item_info.hSubMenu = file_list;
-      item_info.dwTypeData = resource_string;
-      InsertMenuItem(menu, position, TRUE, &item_info);
-      position++;
-    } else if(_n_files == 2) {
-//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-      
-      resource_string_length = LoadString(_resource, DIFF_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-      
-      if(resource_string_length == 0) {
-	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-	
-	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("compare"));
-	  MessageBox(0, TEXT("Can not load 'DIFF_STR' string resource"), TEXT("ERROR"), MB_OK);
-	}
-      }
-      
-      STRING str(resource_string); //= "Diff " + cut_to_length(_selection[0], 20)+" and "+cut_to_length(_selection[1], 20);
-      LPTSTR c_str = str;
-
-      ZeroMemory(&item_info, sizeof(item_info));
-      item_info.cbSize = sizeof(MENUITEMINFO);
-      item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
-      item_info.fType = MFT_STRING;
-      item_info.fState = MFS_ENABLED;
-      item_info.wID = first_cmd + IDM_DIFF;
-      item_info.dwTypeData = c_str;
-      InsertMenuItem(menu, position, TRUE, &item_info);
-      position++;
-
-      resource_string_length = LoadString(_resource, DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-      
-      if(resource_string_length == 0) {
-	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-	
-	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("compare later"));
-	  MessageBox(0, TEXT("Can not load 'DIFF_LATER_STR' string resource"), TEXT("ERROR"), MB_OK);
-	}
-      }
-      
-      ZeroMemory(&item_info, sizeof(item_info));
-      item_info.cbSize = sizeof(MENUITEMINFO);
-      item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
-      item_info.fType = MFT_STRING;
-      item_info.fState = MFS_ENABLED;
-      item_info.wID = first_cmd + IDM_DIFF_LATER;
-      item_info.dwTypeData = resource_string;
-      InsertMenuItem(menu, position, TRUE, &item_info);
-      position++;
-    } else {
-      if((_n_files == 3) && SERVER::instance()->tree_way_compare_supported()) {
-//      TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-      
-        resource_string_length = LoadString(_resource, DIFF3_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-        
-        if(resource_string_length == 0) {
-          resource_string_length = LoadString(SERVER::instance()->handle(), DIFF3_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+        id = first_cmd+IDM_DIFF_WITH_BASE;
+        int n = 0;
+        while(!i.done()) {
+          STRING str;
           
-          if(resource_string_length == 0) {
-            lstrcpy(resource_string, TEXT("3 way compare"));
-            MessageBox(0, TEXT("Can not load 'DIFF3_STR' string resource"), TEXT("ERROR"), MB_OK);
-          }
+          str = cut_to_length((*i)->data());
+          c_str = str;
+
+          insert_menu(file_list, position, id, MFS_ENABLED, c_str);
+          id++;
+          i++;
+          n++;
         }
         
-        STRING str(resource_string); //= "Diff " + cut_to_length(_selection[0], 20)+" and "+cut_to_length(_selection[1], 20);
-        LPTSTR c_str = str;
-
         ZeroMemory(&item_info, sizeof(item_info));
         item_info.cbSize = sizeof(MENUITEMINFO);
-        item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
-        item_info.fType = MFT_STRING;
-        item_info.fState = MFS_ENABLED;
-        item_info.wID = first_cmd + IDM_DIFF3;
-        item_info.dwTypeData = c_str;
+        item_info.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID | MIIM_STATE;
+        item_info.wID = first_cmd + IDM_DIFF_WITH;
+        item_info.fState = state;
+        item_info.hSubMenu = file_list;
+        item_info.dwTypeData = resource_string;
         InsertMenuItem(menu, position, TRUE, &item_info);
         position++;
       }
       
-      resource_string_length = LoadString(_resource, DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-      
-      if(resource_string_length == 0) {
-	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_LATER_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-	
-	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("compare later"));
-	  MessageBox(0, TEXT("Can not load 'DIFF_LATER_STR' string resource"), TEXT("ERROR"), MB_OK);
-	}
-      }
-      
       ZeroMemory(&item_info, sizeof(item_info));
       item_info.cbSize = sizeof(MENUITEMINFO);
-      item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
-      item_info.fType = MFT_STRING;
-      item_info.fState = MFS_ENABLED;
-      item_info.wID = first_cmd + IDM_DIFF_LATER;
-      item_info.dwTypeData = resource_string;
+      item_info.fMask = MIIM_TYPE;
+      item_info.fType = MFT_SEPARATOR;
+      item_info.dwTypeData = 0;
       InsertMenuItem(menu, position, TRUE, &item_info);
       position++;
-    }
-
-    ZeroMemory(&item_info, sizeof(item_info));
-    item_info.cbSize = sizeof(MENUITEMINFO);
-    item_info.fMask = MIIM_TYPE;
-    item_info.fType = MFT_SEPARATOR;
-    item_info.dwTypeData = 0;
-    InsertMenuItem(menu, position, TRUE, &item_info);
-    position++;
-
-    ret = MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, id-first_cmd);
+    }    
+    
+    ret = MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, id-first_cmd+1);
   }
 
   return ret;
@@ -472,13 +353,21 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
       diff3();
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_WITH) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-      diff_with(0);
+      if(_n_files == 1) {
+        diff_with(0);
+      } else if((_n_files == 2) && (SERVER::instance()->tree_way_compare_supported())) {
+        diff3_with(0);
+      }        
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_LATER) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       diff_later();
     } else if((LOWORD(ici->lpVerb) >= IDM_DIFF_WITH_BASE) && (LOWORD(ici->lpVerb) < IDM_DIFF_WITH_BASE+_recent_files->count())) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-      diff_with(LOWORD(ici->lpVerb)-IDM_DIFF_WITH_BASE);
+      if(_n_files == 1) {
+        diff_with(LOWORD(ici->lpVerb)-IDM_DIFF_WITH_BASE);
+      } else if((_n_files == 2) && (SERVER::instance()->tree_way_compare_supported())) {
+        diff3_with(LOWORD(ici->lpVerb)-IDM_DIFF_WITH_BASE);
+      }
     } else {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       ret = E_INVALIDARG;
@@ -498,99 +387,93 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 //  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
   HRESULT ret = NOERROR;
   TCHAR resource_string[256];
-  int resource_string_length;
   
   if(uFlags == GCS_HELPTEXT) {
     if(idCmd == IDM_DIFF) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-      resource_string_length = LoadString(_resource, DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+      load_resource_string(DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare selected files"));
       
-      if(resource_string_length == 0) {
-	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-	
-	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("Compare selected files"));
-	  MessageBox(0, TEXT("Can not load 'DIFF_HINT' string resource"), TEXT("ERROR"), MB_OK);
-	}
-      }
+      lstrcpyn((LPTSTR)pszName, resource_string, cchMax);
+    } else if(idCmd == IDM_DIFF3) {
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+      load_resource_string(DIFF3_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare selected files"));
       
       lstrcpyn((LPTSTR)pszName, resource_string, cchMax);
     } else if(idCmd == IDM_DIFF_WITH) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
         DLIST<STRING>::ITERATOR i = _recent_files->head();
-	LPTSTR file_name1 = _selection[0];
-	LPTSTR file_name2 = (*i)->data();
-	LPTSTR message;
-        void* args[] = {(void*)file_name1, (void*)file_name2};
+        void** args;
+        LPTSTR message;
+        
+        if(_n_files == 1) {
+          LPTSTR file_name1 = (*i)->data();
+          LPTSTR file_name2 = _selection[0];
+          
+          args = new void*[2];
+          args[0] = file_name1;
+          args[1] = file_name2;
+  	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare '%1' to '%2'"));	
+        } else if(_n_files == 2) {
+          LPTSTR file_name1 = (*i)->data();
+          LPTSTR file_name2 = _selection[0];
+          LPTSTR file_name3 = _selection[1];
+          
+          args = new void*[3];
+          args[0] = file_name3;
+          args[1] = file_name2;
+          args[2] = file_name1;
+  	  load_resource_string(DIFF3_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare '%1' and '%2' to '%3'"));	
+        } else {
+          MessageBox(0, TEXT("This is bad"), TEXT(""), MB_OK);
+        }
 
-	resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-	
-	if(resource_string_length == 0) {
-	  resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-	  
-	  if(resource_string_length == 0) {
-	    lstrcpy(resource_string, TEXT("Compare '%1' to '%2'"));
-	    MessageBox(0, TEXT("Can not load 'DIFF_WITH_HINT' string resource"), TEXT("ERROR"), MB_OK);
-	  }
-	}
-	
 	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, (char**)args);
 	lstrcpyn((LPTSTR)pszName, message, cchMax);
 	LocalFree(message);
+        delete[] args;
       }
       else {
 	lstrcpyn((LPTSTR)pszName, TEXT(""), cchMax);
       }
     } else if(idCmd == IDM_DIFF_LATER) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-      resource_string_length = LoadString(_resource, DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
+      load_resource_string(DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Save selected file(s) for later comparison"));
       
-      if(resource_string_length == 0) {
-	resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-	
-	if(resource_string_length == 0) {
-	  lstrcpy(resource_string, TEXT("Save '%1' for later comparison"));
-	  MessageBox(0, TEXT("Can not load 'DIFF_LATER_HINT' string resource"), TEXT("ERROR"), MB_OK);
-	}
-      }
-      
-      LPTSTR file_name1 = _selection[0];
-      LPTSTR message;
-      void* args[] = {(void*)file_name1};
-
-      FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, (char**)args);
-      lstrcpyn((LPTSTR)pszName, message, cchMax);
-      LocalFree(message);
+      lstrcpyn((LPTSTR)pszName, resource_string, cchMax);
     } else if((idCmd >= IDM_DIFF_WITH_BASE) && (idCmd < IDM_DIFF_WITH_BASE+_recent_files->count())) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
-	resource_string_length = LoadString(_resource, DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-      
-	if(resource_string_length == 0) {
-	  resource_string_length = LoadString(SERVER::instance()->handle(), DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]));
-	  
-	  if(resource_string_length == 0) {
-	    lstrcpy(resource_string, TEXT("Compare '%1' with '%2'"));
-	    MessageBox(0, TEXT("Can not load 'DIFF_WITH_HINT' string resource"), TEXT("ERROR"), MB_OK);
-	  }
-	}
 	unsigned int num = idCmd-IDM_DIFF_WITH_BASE;
-	LPTSTR file_name1 = _selection[0];
+	LPTSTR file_name2 = _selection[0];
+	LPTSTR file_name3 = _selection[1];
 	
 	DLIST<STRING>::ITERATOR i = _recent_files->head();
-	for(unsigned int j = 0; j < num; j++)
+	for(unsigned int j = 0; j < num; j++) {
 	  i++;
+        }
       
-	LPTSTR file_name2 = (*i)->data();
+	LPTSTR file_name1 = (*i)->data();
 	LPTSTR message;
-        void* args[] = {file_name1, file_name2};
+        void** args;
+        if(_n_files == 1) {
+	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare '%1' with '%2'"));
+          args = new void*[2];
+          args[0] = file_name1;
+          args[1] = file_name2;
+        } else if(_n_files == 2) {
+	  load_resource_string(DIFF3_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare '%1' and '%2' to '%3'"));
+          args = new void*[3];
+          args[0] = file_name3;
+          args[1] = file_name2;
+          args[2] = file_name1;
+        }
 
 	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, (char**)args);
 	lstrcpyn((LPTSTR)pszName, message, cchMax);
 	LocalFree(message);
-      }
-      else {
+        delete[] args;
+      } else {
 //        TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
 	lstrcpyn((LPTSTR)pszName, TEXT(""), cchMax);
       }
@@ -800,6 +683,23 @@ DIFF_EXT::diff_with(unsigned int num) {
   _selection[1] = (*i)->data();
 
   diff();
+}
+
+void
+DIFF_EXT::diff3_with(unsigned int num) {
+//  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
+  //~ STRING str = "diff "+_selection[0]+" and "+_recent_files->at(num);
+  //~ MessageBox(_hwnd, str, "command", MB_OK);
+  DLIST<STRING>::ITERATOR i = _recent_files->head();
+  for(unsigned int j = 0; j < num; j++) {
+    i++;
+  }
+
+  _selection[2] = _selection[1];
+  _selection[1] = _selection[0];
+  _selection[0] = (*i)->data();
+
+  diff3();
 }
 
 void

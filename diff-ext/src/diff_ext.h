@@ -39,10 +39,11 @@ class DIFF_EXT : public IContextMenu, IShellExtInit {
     void diff();
     void diff3();
     void diff_with(unsigned int num);
+    void diff3_with(unsigned int num);
     void diff_later();
     STRING cut_to_length(STRING, int length = 64);
     void initialize_language();
-    HMENU create_file_list(UINT base, UINT id);
+    void load_resource_string(UINT string_id, TCHAR* string, int length, TCHAR* default_value);
 
   private:
     UINT _n_files;

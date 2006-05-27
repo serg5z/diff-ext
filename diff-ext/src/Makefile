@@ -20,8 +20,10 @@ endif
 LDFLAGS ?= -L$(LIB)
 LIB ?= ../../lib
 
-CXXFLAGS += -I../../util/include -D_UNICODE -DUNICODE 
-CFLAGS += -D_UNICODE -DUNICODE 
+#CXXFLAGS += -I../../util/include -D_UNICODE -DUNICODE 
+#CFLAGS += -D_UNICODE -DUNICODE 
+CXXFLAGS += -I../../util/include 
+CFLAGS += 
 LIBS :=  -lutil -luuid -luuid -lole32
 DEFFILE = diff_ext.def
 STATICLIB = diff_ext.a
