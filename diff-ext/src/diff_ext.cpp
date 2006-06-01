@@ -165,7 +165,7 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
     _selection = new STRING[_n_files+1];
     for(int i = 0; i < _n_files; i++) {
       DragQueryFile(drop, i, tmp, MAX_PATH);
-      _selection[i] = STRING(tmp);
+      _selection[i+1] = STRING(tmp);
     }
   }
 
@@ -680,7 +680,7 @@ DIFF_EXT::diff_with(unsigned int num) {
     i++;
   }
 
-  _selection[1] = (*i)->data();
+  _selection[0] = (*i)->data();
 
   diff();
 }
@@ -695,8 +695,6 @@ DIFF_EXT::diff3_with(unsigned int num) {
     i++;
   }
 
-  _selection[2] = _selection[1];
-  _selection[1] = _selection[0];
   _selection[0] = (*i)->data();
 
   diff3();
@@ -708,7 +706,7 @@ DIFF_EXT::diff_later() {
   //~ FILE* f = fopen("d:/DIFF_EXT.log", "a");
   //~ MessageBox(_hwnd, "diff later", "command", MB_OK);
 //  unsigned int start = max(min(SERVER::instance()->history_size(), _n_files)-1, 0);
-  for(int i = _n_files-1; i >= 0; i--) {
+  for(int i = _n_files; i > 0; i--) {
     bool found = false;
     DLIST<STRING>::ITERATOR it = _recent_files->head();
     DLIST<STRING>::NODE* node = 0;
