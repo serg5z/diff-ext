@@ -23,7 +23,7 @@ const UINT IDM_DIFF_WITH=3;
 const UINT IDM_DIFF_LATER=4;
 const UINT IDM_DIFF_WITH_BASE=5;
 
-DIFF_EXT::DIFF_EXT() : _n_files(0), _language(1033), _selection(0), _ref_count(0L) {
+DIFF_EXT::DIFF_EXT() : _n_files(0), _selection(0), _language(1033), _ref_count(0L) {
 //  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
   
   _recent_files = SERVER::instance()->recent_files();
@@ -403,35 +403,23 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
         DLIST<STRING>::ITERATOR i = _recent_files->head();
-        void** args;
         LPTSTR message;
+        LPTSTR file_name = (*i)->data();
+        void** args = new void*[1];
+        
+        args[0] = file_name;
         
         if(_n_files == 1) {
-          LPTSTR file_name1 = (*i)->data();
-          LPTSTR file_name2 = _selection[0];
-          
-          args = new void*[2];
-          args[0] = file_name1;
-          args[1] = file_name2;
-  	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare '%1' to '%2'"));	
+  	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare '%1'"));	
         } else if(_n_files == 2) {
-          LPTSTR file_name1 = (*i)->data();
-          LPTSTR file_name2 = _selection[0];
-          LPTSTR file_name3 = _selection[1];
-          
-          args = new void*[3];
-          args[0] = file_name3;
-          args[1] = file_name2;
-          args[2] = file_name1;
-  	  load_resource_string(DIFF3_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare '%1' and '%2' to '%3'"));	
+  	  load_resource_string(DIFF3_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare to '%1'"));	
         } else {
           MessageBox(0, TEXT("This is bad"), TEXT(""), MB_OK);
         }
 
-	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, (char**)args);
+	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR)&message, 0, (char**)args);
 	lstrcpyn((LPTSTR)pszName, message, cchMax);
 	LocalFree(message);
-        delete[] args;
       }
       else {
 	lstrcpyn((LPTSTR)pszName, TEXT(""), cchMax);
@@ -445,34 +433,26 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
 	unsigned int num = idCmd-IDM_DIFF_WITH_BASE;
-	LPTSTR file_name2 = _selection[0];
-	LPTSTR file_name3 = _selection[1];
-	
 	DLIST<STRING>::ITERATOR i = _recent_files->head();
 	for(unsigned int j = 0; j < num; j++) {
 	  i++;
         }
       
-	LPTSTR file_name1 = (*i)->data();
 	LPTSTR message;
-        void** args;
+	LPTSTR file_name = (*i)->data();
+        void** args = new void*[1];
+        
+        args[0] = file_name;
+
         if(_n_files == 1) {
 	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare '%1' with '%2'"));
-          args = new void*[2];
-          args[0] = file_name1;
-          args[1] = file_name2;
         } else if(_n_files == 2) {
 	  load_resource_string(DIFF3_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare '%1' and '%2' to '%3'"));
-          args = new void*[3];
-          args[0] = file_name3;
-          args[1] = file_name2;
-          args[2] = file_name1;
         }
 
-	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR) &message, 0, (char**)args);
+	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR)&message, 0, (char**)args);
 	lstrcpyn((LPTSTR)pszName, message, cchMax);
 	LocalFree(message);
-        delete[] args;
       } else {
 //        TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
 	lstrcpyn((LPTSTR)pszName, TEXT(""), cchMax);
@@ -492,7 +472,7 @@ DIFF_EXT::diff() {
   PROCESS_INFORMATION pi;
   HKEY key;
   DWORD length = MAX_PATH;
-  TCHAR command[MAX_PATH*3 + 6];
+  TCHAR command[MAX_PATH*3 + 7];
   TCHAR tmp[MAX_PATH];
 
   ZeroMemory(command, sizeof(command));
@@ -584,7 +564,7 @@ DIFF_EXT::diff3() {
   PROCESS_INFORMATION pi;
   HKEY key;
   DWORD length = MAX_PATH;
-  TCHAR command[MAX_PATH*3 + 6];
+  TCHAR command[MAX_PATH*4 + 10];
   TCHAR tmp[MAX_PATH];
 
   ZeroMemory(command, sizeof(command));
