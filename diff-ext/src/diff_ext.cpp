@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2003-2006, Sergey Zorin. All rights reserved.
+ * Copyright (c) 2003-2006, Sergey Zorin. All rights reserved.
  *
  * This software is distributable under the BSD license. See the terms
  * of the BSD license in the LICENSE file provided with this software.
@@ -472,7 +473,7 @@ DIFF_EXT::diff() {
   PROCESS_INFORMATION pi;
   HKEY key;
   DWORD length = MAX_PATH;
-  TCHAR command[MAX_PATH*3 + 7];
+  TCHAR command[MAX_PATH*4 + 8]; // path_to_diff+options(MAX_PATH)+2*path_to_files+qoutes&spaces
   TCHAR tmp[MAX_PATH];
 
   ZeroMemory(command, sizeof(command));
@@ -564,7 +565,7 @@ DIFF_EXT::diff3() {
   PROCESS_INFORMATION pi;
   HKEY key;
   DWORD length = MAX_PATH;
-  TCHAR command[MAX_PATH*4 + 10];
+  TCHAR command[MAX_PATH*5 + 11]; // path_to_diff+options(MAX_PATH)+3*path_to_files+qoutes&spaces
   TCHAR tmp[MAX_PATH];
 
   ZeroMemory(command, sizeof(command));
