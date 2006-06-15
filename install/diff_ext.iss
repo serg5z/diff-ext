@@ -9,7 +9,7 @@ DefaultDirName={pf}\Z\diff_ext
 DefaultGroupName=Z\diff_ext
 DisableProgramGroupPage=false
 OutputDir=.
-OutputBaseFilename=diff_ext-1.6.1
+OutputBaseFilename=diff_ext
 
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
 ; MinVersion=4,3.51

@@ -7,13 +7,25 @@ AR ?= ar.exe
 WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
 
-#CXXFLAGS += -D_UNICODE -DUNICODE -g -I../../util/include
-#CFLAGS += -D_UNICODE -DUNICODE g -I../../util/include
-CXXFLAGS +=   -g -I../../util/include
-CFLAGS +=   g -I../../util/include
+ifdef DEBUG
+  CXXFLAGS ?= -g -ansi -pedantic -Wall
+  CFLAGS ?= -g -ansi -pedantic -Wall
+else
+  CXXFLAGS ?= -ansi -pedantic -Wall -O2
+  CFLAGS ?= -ansi -pedantic -Wall -O2
+endif
+
+CXXFLAGS += -I../../util/include
+CFLAGS += -I../../util/include
 LDFLAGS += -mwindows
 
 CXXFLAGS += -I../include
+
+ifdef UNICODE
+  CXXFLAGS += -D_UNICODE -DUNICODE 
+  CFLAGS += -D_UNICODE -DUNICODE 
+endif
+
 LIBS :=
 RES  := 
 DEFFILE := 

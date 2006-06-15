@@ -10,20 +10,28 @@ CC   ?= gcc.exe
 AR ?= ar.exe -r
 WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
+LIB ?= ../../lib
+LDFLAGS ?= -L$(LIB)
+
 ifdef DEBUG
   CXXFLAGS ?= -g -ansi -pedantic -Wall
   CFLAGS ?= -g -ansi -pedantic -Wall
 else
   CXXFLAGS ?= -ansi -pedantic -Wall -O2
   CFLAGS ?= -ansi -pedantic -Wall -O2
+  LDFLAGS += -s
 endif
-LDFLAGS ?= -L$(LIB)
-LIB ?= ../../lib
 
-#CXXFLAGS += -I../../util/include -D_UNICODE -DUNICODE 
-#CFLAGS += -D_UNICODE -DUNICODE 
-CXXFLAGS += -I../../util/include 
-CFLAGS += 
+CXXFLAGS += -I../../util/include
+CFLAGS += -I../../util/include
+
+ifdef UNICODE
+  CXXFLAGS += -D_UNICODE -DUNICODE 
+  CFLAGS += -D_UNICODE -DUNICODE 
+endif
+
+#CXXFLAGS += -I../../util/include 
+#CFLAGS += 
 LIBS :=  -lutil -luuid -luuid -lole32
 DEFFILE = diff_ext.def
 STATICLIB = diff_ext.a
@@ -53,6 +61,9 @@ all: .depend all-before $(DLL) $(LANG) all-after
 
 debug:
 	$(MAKE) DEBUG=YES
+
+unicode:
+	$(MAKE) UNICODE=YES
 
 release:
 	$(MAKE) 

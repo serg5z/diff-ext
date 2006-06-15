@@ -19,9 +19,11 @@ all:
 	$(MAKE) -C util
 	$(MAKE) -C diff-ext
 	$(MAKE) -C setup
+	$(MAKE) -C install
 
 clean:
 	$(MAKE) -C tools clean
 	$(MAKE) -C util clean
 	$(MAKE) -C diff-ext clean
 	$(MAKE) -C setup clean
+	$(MAKE) -C install clean

@@ -7,8 +7,23 @@ AR ?= ar.exe -r
 WINDRES ?= windres.exe
 DLLWRAP ?= dllwrap.exe
 
-CXXFLAGS += -g -I../../util/include
-CFLAGS += -D_UNICODE -DUNICODE -Wall -ansi -pedantic -g -I../../util/include
+ifdef DEBUG
+  CXXFLAGS ?= -g -ansi -pedantic -Wall
+  CFLAGS ?= -g -ansi -pedantic -Wall
+else
+  CXXFLAGS ?= -ansi -pedantic -Wall -O2
+  CFLAGS ?= -ansi -pedantic -Wall -O2
+  LDFLAGS += -s
+endif
+
+CXXFLAGS += -I../../util/include
+CFLAGS += -I../../util/include
+
+ifdef UNICODE
+  CXXFLAGS += -D_UNICODE -DUNICODE 
+  CFLAGS += -D_UNICODE -DUNICODE 
+endif
+
 LIBS :=  -lcomdlg32 -lcomctl32 -ladvapi32 -lversion -lole32
 LDFLAGS += -mwindows
 RES  := diff_ext_setup.res
@@ -58,7 +73,6 @@ $(LANG_RU) : lang/$(PROJ)_ru.res
 
 $(EXE): $(OBJ)
 	$(CC) $(OBJ) -o $@ $(LDFLAGS) $(LIBS)
-#	strip $@
 
 .cpp.o:
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
