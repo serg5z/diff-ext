@@ -30,8 +30,6 @@ ifdef UNICODE
   CFLAGS += -D_UNICODE -DUNICODE 
 endif
 
-#CXXFLAGS += -I../../util/include 
-#CFLAGS += 
 LIBS :=  -lutil -luuid -luuid -lole32
 DEFFILE = diff_ext.def
 STATICLIB = diff_ext.a
