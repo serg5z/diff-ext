@@ -24,7 +24,7 @@ ifdef UNICODE
   CFLAGS += -D_UNICODE -DUNICODE 
 endif
 
-LIBS :=  -lcomdlg32 -lcomctl32 -ladvapi32 -lversion -lole32
+LIBS :=  -llayout -lcomdlg32 -lcomctl32 -ladvapi32 -lversion -lole32
 LDFLAGS += -mwindows
 RES  := diff_ext_setup.res
 DEFFILE = diff_ext.def
