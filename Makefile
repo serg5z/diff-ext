@@ -1,9 +1,10 @@
 .EXPORT_ALL_VARIABLES:
 
-BIN = $(shell pwd)/bin
-BUILD = $(shell pwd)/build
-LIB = $(shell pwd)/lib
-INCLUDE = -I$(shell pwd)/include
+ROOT = $(shell pwd)
+BIN = $(ROOT)/bin
+BUILD = $(ROOT)/build
+LIB = $(ROOT)/lib
+INCLUDE = -I$(ROOT)/include
 CXX = g++.exe
 CC = gcc.exe
 AR = ar.exe
