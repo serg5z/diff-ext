@@ -1,16 +1,20 @@
-export BIN := $(shell pwd)/bin
-export BUILD := $(shell pwd)/build
-export LIB := $(shell pwd)/lib
-export INCLUDE := -I$(shell pwd)/dialog-layout/include
-export CXX  := g++.exe
-export CC   := gcc.exe
-export AR := ar.exe -r
-export WINDRES := windres.exe
-export DLLWRAP = dllwrap.exe
-export CXXFLAGS := -ansi -pedantic -Wall -W $(INCLUDE)
-export CFLAGS := -ansi -pedantic -Wall -W $(INCLUDE)
-export LDFLAGS := -L$(LIB) -L$(shell pwd)/dialog-layout/lib
-export UPDATE_VERSION := $(BIN)/update_version.exe
+.EXPORT_ALL_VARIABLES:
+
+BIN = $(shell pwd)/bin
+BUILD = $(shell pwd)/build
+LIB = $(shell pwd)/lib
+INCLUDE = -I$(shell pwd)/include
+CXX = g++.exe
+CC = gcc.exe
+AR = ar.exe
+RC = windres.exe
+DLLWRAP = dllwrap.exe
+CXXFLAGS = -ansi -pedantic -Wall -W $(INCLUDE)
+CFLAGS = -ansi -pedantic -Wall -W $(INCLUDE)
+RCFLAGS = -J rc -O coff -DMING $(INCLUDE)
+LDFLAGS = -L$(LIB)
+ARFLAGS = crv
+UPDATE_VERSION = $(BIN)/update_version.exe
 
 all:
 	mkdir -p $(BIN)
@@ -30,3 +34,9 @@ clean:
 	$(MAKE) -C diff-ext clean
 	$(MAKE) -C setup clean
 	$(MAKE) -C install clean
+        
+debug:
+	$(MAKE) DEBUG=YES UNICODE=YES
+
+unicode:
+	$(MAKE) UNICODE=YES

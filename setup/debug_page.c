@@ -9,7 +9,7 @@
 #include <tchar.h>
 #include <commctrl.h>
 
-#include "layout.h"
+#include <layout.h>
 #include "page.h"
 
 #include "diff_ext_setup.rh"

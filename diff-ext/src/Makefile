@@ -2,101 +2,28 @@
 # Generates diff_ext.dll with gcc.
 # Can be used for Cygwin and MingW (MingW ignores -mno-cygwin)
 #
-BUILD ?= .
-UPDATE_VERSION ?= ../../bin/update_version
+PROJ := diff_ext.dll
+ROOT ?= ../..
 
-CXX  ?= g++.exe
-CC   ?= gcc.exe
-AR ?= ar.exe -r
-WINDRES ?= windres.exe
-DLLWRAP ?= dllwrap.exe
-LIB ?= ../../lib
-LDFLAGS ?= -L$(LIB)
+include $(ROOT)/make/dynamic-library.mk
 
-ifdef DEBUG
-  CXXFLAGS ?= -g -ansi -pedantic -Wall
-  CFLAGS ?= -g -ansi -pedantic -Wall
-else
-  CXXFLAGS ?= -ansi -pedantic -Wall -O2
-  CFLAGS ?= -ansi -pedantic -Wall -O2
-  LDFLAGS += -s
-endif
+LIBS :=  -lutil -luuid -luuid -lole32
 
 CXXFLAGS += -I../../util/include
 CFLAGS += -I../../util/include
 
-ifdef UNICODE
-  CXXFLAGS += -D_UNICODE -DUNICODE 
-  CFLAGS += -D_UNICODE -DUNICODE 
-endif
-
-LIBS :=  -lutil -luuid -luuid -lole32
-DEFFILE = diff_ext.def
-STATICLIB = diff_ext.a
-EXPLIB = diff_ext.exp
-
-SRC-CXX = $(wildcard *.cpp)
-SRC-C = $(wildcard *.c)
-SRC-RC = $(wildcard *.rc)
-
-OBJ  := $(SRC-CXX:.cpp=.o) $(SRC-C:.c=.o)
-RES  := $(SRC-RC:.rc=.res)
-OBJ += $(RES)
-
-INCS :=
-PROJ := diff_ext
-DLL  := $(BUILD)/diff_ext.dll
-
-LANG_RU := $(BUILD)/$(PROJ)1049.dll
+LANG_RU := $(BUILD)/$(PROJ:%.dll=%)1049.dll
 
 LANG := $(LANG_RU)
 
-.PHONY: all all-before all-after clean clean-custom
-
-.SUFFIXES: .rc .res
-
-all: .depend all-before $(DLL) $(LANG) all-after
-
-debug:
-	$(MAKE) DEBUG=YES
-
-unicode:
-	$(MAKE) UNICODE=YES
-
-release:
-	$(MAKE) 
-	strip $(DLL) $(LANG)
-
-.depend: Makefile $(SRC-C) $(SRC-RC) $(SRC-CXX)
-	$(CXX) -M $(CXXFLAGS) $(SRC-C) $(SRC-RC) $(SRC-CXX) > .depend
-	
-include .depend
-
-all-after: $(SRC-RC)
+all-after: $(SRC-RC) $(LANG)
 	$(UPDATE_VERSION)  --input $< --output $<
 
 clean: clean-custom
-	${RM}  $(OBJ) $(DLL) ${EXPLIB} $(STATICLIB) $(LANG) lang/$(PROJ)_ru.res
+	$(RM)  $(OBJ) $(PROJ) $(EXPLIB) $(STATICLIB) $(LANG) lang/$(PROJ:%.dll=%)_ru.res
 
-$(LANG_RU) : lang/$(PROJ)_ru.res
+$(LANG_RU) : lang/$(PROJ:%.dll=%)_ru.res
 	$(DLLWRAP) \
 	--mno-cygwin \
-	--def lang/$(PROJ)_lang.def \
-	--output-exp ${EXPLIB} \
+	--def lang/$(PROJ:%.dll=%)_lang.def \
 	$< -o $@
-
-$(DLL): $(OBJ)
-	$(DLLWRAP) \
-		--mno-cygwin \
-		--def $(DEFFILE) \
-		--output-exp ${EXPLIB} \
-		--driver-name c++ -L/usr/local/lib -L/usr/lib/mingw \
-		--implib $(STATICLIB) \
-		$(OBJ) $(LDFLAGS) $(LIBS) \
-		-o $@
-
-.cpp.o:
-	$(CXX) -c $< -o $@ $(CXXFLAGS)
-
-.rc.res:
-	$(WINDRES)  $< -J rc -o $@ -O coff -DMING

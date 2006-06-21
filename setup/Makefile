@@ -1,84 +1,29 @@
-BUILD ?= .
-UPDATE_VERSION ?= ../bin/update_version
+PROJ := diff_ext_setup.exe
 
-CXX  ?= g++.exe
-CC   ?= gcc.exe
-AR ?= ar.exe -r
-WINDRES ?= windres.exe
-DLLWRAP ?= dllwrap.exe
+ROOT ?= ..
 
-ifdef DEBUG
-  CXXFLAGS ?= -g -ansi -pedantic -Wall
-  CFLAGS ?= -g -ansi -pedantic -Wall
-else
-  CXXFLAGS ?= -ansi -pedantic -Wall -O2
-  CFLAGS ?= -ansi -pedantic -Wall -O2
-  LDFLAGS += -s
-endif
-
-CXXFLAGS += -I../../util/include
-CFLAGS += -I../../util/include
-
-ifdef UNICODE
-  CXXFLAGS += -D_UNICODE -DUNICODE 
-  CFLAGS += -D_UNICODE -DUNICODE 
-endif
+include $(ROOT)/make/executable.mk
 
 LIBS :=  -llayout -lcomdlg32 -lcomctl32 -ladvapi32 -lversion -lole32
+
 LDFLAGS += -mwindows
-RES  := diff_ext_setup.res
-DEFFILE = diff_ext.def
-STATICLIB = diff_ext.a
-EXPLIB = diff_ext.exp
+CXXFLAGS += -I$(ROOT)/dialog-layout/include
+CFLAGS += -I$(ROOT)/dialog-layout/include
+RCFLAGS += -I$(ROOT)/dialog-layout/include
+LDFLAGS += -L$(ROOT)/dialog-layout/lib
 
-SRC-CXX = $(wildcard *.cpp)
-SRC-C$ = $(wildcard *.c)
-SRC-RC = $(wildcard *.rc)
-
-OBJ  := $(SRC-CXX:.cpp=.o) $(SRC-C:.c=.o)
-OBJ += $(RES)
-
-INCS :=
-PROJ := diff_ext_setup
-EXE  := $(BUILD)/$(PROJ).exe
-
-LANG_RU := $(BUILD)/$(PROJ)1049.dll
+LANG_RU := $(BUILD)/$(PROJ:%.exe=%)1049.dll
 
 LANG := $(LANG_RU)
-
-.PHONY: all all-before all-after clean clean-custom
-
-.SUFFIXES: .rc .res
-
-all: .depend all-before $(EXE) $(LANG) all-after
-
-.depend: Makefile $(SRC-C) $(SRC-RC) $(SRC-CXX)
-	$(CXX) -M $(CXXFLAGS) $(SRC-C) $(SRC-RC) $(SRC-CXX) > .depend
-	
-include .depend
-
-all-after: $(SRC-RC)
+        
+all-after: $(SRC-RC) $(LANG)
 	$(UPDATE_VERSION)  --input $< --output $<
 
 clean: clean-custom
-	${RM}  $(OBJ) $(EXE) ${RES} ${EXPLIB} $(STATICLIB) $(LANG) lang/$(PROJ)_ru.res
+	$(RM)  $(OBJ) $(PROJ) $(LANG) lang/$(PROJ:%.exe=%)_ru.res
 
-$(LANG_RU) : lang/$(PROJ)_ru.res
+$(LANG_RU) : lang/$(PROJ:%.exe=%)_ru.res
 	$(DLLWRAP) \
 	--mno-cygwin \
-	--def lang/$(PROJ)_lang.def \
-	--output-exp ${EXPLIB} \
+	--def lang/$(PROJ:%.exe=%)_lang.def \
 	$< -o $@
-	strip $@
-
-$(EXE): $(OBJ)
-	$(CC) $(OBJ) -o $@ $(LDFLAGS) $(LIBS)
-
-.cpp.o:
-	$(CXX) -c $< -o $@ $(CXXFLAGS)
-
-.c.o:
-	$(CC) -c $< -o $@ $(CFLAGS)
-
-.rc.res:
-	$(WINDRES)  $< -J rc -o $@ -O coff -DMING
