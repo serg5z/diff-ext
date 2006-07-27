@@ -182,8 +182,12 @@ DIFF_EXT::load_resource_string(UINT string_id, TCHAR* string, int length, TCHAR*
     resource_string_length = LoadString(SERVER::instance()->handle(), string_id, string, length);
     
     if(resource_string_length == 0) {
+      TCHAR message[256];
+      
+      wsprintf(message, TEXT("Can not load string resource %d"), string_id);
+      
       lstrcpy(string, default_value);
-      MessageBox(0, TEXT("Can not load string resource"), TEXT("ERROR"), MB_OK);
+      MessageBox(0, message, TEXT("ERROR"), MB_OK);
     }
   }
 }
@@ -472,15 +476,17 @@ DIFF_EXT::diff() {
   PROCESS_INFORMATION pi;
   HKEY key;
   DWORD length = MAX_PATH;
-  TCHAR command[MAX_PATH*4 + 8]; // path_to_diff+options(MAX_PATH)+2*path_to_files+qoutes&spaces
+  TCHAR command_template[MAX_PATH*4 + 8]; // path_to_diff+options(MAX_PATH)+2*path_to_files+qoutes&spaces
+  LPTSTR command;
   TCHAR tmp[MAX_PATH];
+  void* args[] = {_selection[0], _selection[1]};
 
   ZeroMemory(command, sizeof(command));
 
   if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-    if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command, &length) != ERROR_SUCCESS) {
-      command[0] = TEXT('\0');
+    if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command_template, &length) != ERROR_SUCCESS) {
+      command_template[0] = TEXT('\0');
     }
 
     RegCloseKey(key);
@@ -496,7 +502,12 @@ DIFF_EXT::diff() {
 
     LocalFree(message);
   }
-
+  
+  FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, 
+    command_template, 0, 0, command, 0, (char**)args);
+  
+  MessageBox(0, command, TEXT("Command diff"), MB_OK);
+/*
   _tcscat(command, TEXT(" \""));
   _tcsncpy(tmp, _selection[0], MAX_PATH);
   _tcscat(command, tmp);
@@ -504,7 +515,7 @@ DIFF_EXT::diff() {
   _tcsncpy(tmp, _selection[1], MAX_PATH);
   _tcscat(command, tmp);
   _tcscat(command, TEXT("\""));
-
+*/
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
 
@@ -551,6 +562,8 @@ DIFF_EXT::diff() {
     CloseHandle( pi.hProcess );
     CloseHandle( pi.hThread );
   }
+  
+  LocalFree(command);
 
   //~ fclose(f);
 }
@@ -564,15 +577,17 @@ DIFF_EXT::diff3() {
   PROCESS_INFORMATION pi;
   HKEY key;
   DWORD length = MAX_PATH;
-  TCHAR command[MAX_PATH*5 + 11]; // path_to_diff+options(MAX_PATH)+3*path_to_files+qoutes&spaces
+  TCHAR command_template[MAX_PATH*5 + 11]; // path_to_diff+options(MAX_PATH)+3*path_to_files+qoutes&spaces
+  LPTSTR command;
   TCHAR tmp[MAX_PATH];
+  void* args[] = {_selection[0], _selection[1], _selection[2]};
 
   ZeroMemory(command, sizeof(command));
 
   if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-    if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command, &length) != ERROR_SUCCESS) {
-      command[0] = TEXT('\0');
+    if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command_template, &length) != ERROR_SUCCESS) {
+      command_template[0] = TEXT('\0');
     }
 
     RegCloseKey(key);
@@ -588,7 +603,11 @@ DIFF_EXT::diff3() {
 
     LocalFree(message);
   }
-
+  FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, 
+    command_template, 0, 0, command, 0, (char**)args);
+  
+  MessageBox(0, command, TEXT("Command diff3"), MB_OK);
+/*
   _tcscat(command, TEXT(" \""));
   _tcsncpy(tmp, _selection[0], MAX_PATH);
   _tcscat(command, tmp);
@@ -599,7 +618,7 @@ DIFF_EXT::diff3() {
   _tcsncpy(tmp, _selection[2], MAX_PATH);
   _tcscat(command, tmp);
   _tcscat(command, TEXT("\""));
-
+*/
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
 
@@ -647,6 +666,7 @@ DIFF_EXT::diff3() {
     CloseHandle( pi.hThread );
   }
 
+  LocalFree(command);
   //~ fclose(f);
 }
 
