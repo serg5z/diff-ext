@@ -481,7 +481,7 @@ DIFF_EXT::diff() {
   TCHAR tmp[MAX_PATH];
   void* args[] = {_selection[0], _selection[1]};
 
-  ZeroMemory(command, sizeof(command));
+  ZeroMemory(command_template, sizeof(command_template));
 
   if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
@@ -504,18 +504,8 @@ DIFF_EXT::diff() {
   }
   
   FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, 
-    command_template, 0, 0, command, 0, (char**)args);
+    command_template, 0, 0, (LPTSTR)&command, 0, (char**)args);
   
-  MessageBox(0, command, TEXT("Command diff"), MB_OK);
-/*
-  _tcscat(command, TEXT(" \""));
-  _tcsncpy(tmp, _selection[0], MAX_PATH);
-  _tcscat(command, tmp);
-  _tcscat(command, TEXT("\" \""));
-  _tcsncpy(tmp, _selection[1], MAX_PATH);
-  _tcscat(command, tmp);
-  _tcscat(command, TEXT("\""));
-*/
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
 
@@ -582,7 +572,7 @@ DIFF_EXT::diff3() {
   TCHAR tmp[MAX_PATH];
   void* args[] = {_selection[0], _selection[1], _selection[2]};
 
-  ZeroMemory(command, sizeof(command));
+  ZeroMemory(command_template, sizeof(command_template));
 
   if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
@@ -604,21 +594,8 @@ DIFF_EXT::diff3() {
     LocalFree(message);
   }
   FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, 
-    command_template, 0, 0, command, 0, (char**)args);
+    command_template, 0, 0, (LPTSTR)&command, 0, (char**)args);
   
-  MessageBox(0, command, TEXT("Command diff3"), MB_OK);
-/*
-  _tcscat(command, TEXT(" \""));
-  _tcsncpy(tmp, _selection[0], MAX_PATH);
-  _tcscat(command, tmp);
-  _tcscat(command, TEXT("\" \""));
-  _tcsncpy(tmp, _selection[1], MAX_PATH);
-  _tcscat(command, tmp);
-  _tcscat(command, TEXT("\" \""));
-  _tcsncpy(tmp, _selection[2], MAX_PATH);
-  _tcscat(command, tmp);
-  _tcscat(command, TEXT("\""));
-*/
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
 

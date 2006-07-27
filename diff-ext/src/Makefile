@@ -16,7 +16,7 @@ LANG_RU := $(BUILD)/$(PROJ:%.dll=%)1049.dll
 
 LANG := $(LANG_RU)
 
-all-after: $(SRC-RC) $(LANG)
+all-after: $(SRC-RC) lang/$(PROJ:%.dll=%)_ru.res
 	$(UPDATE_VERSION)  --input $< --output $<
 
 clean: clean-custom
