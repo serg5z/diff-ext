@@ -351,9 +351,11 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
   if(HIWORD(ici->lpVerb) == 0) {
     if(LOWORD(ici->lpVerb) == IDM_DIFF) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+      _selection[0] = _selection[2];
       diff();
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF3) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+      _selection[0] = _selection[3];
       diff3();
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_WITH) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
@@ -479,7 +481,7 @@ DIFF_EXT::diff() {
   TCHAR command_template[MAX_PATH*4 + 8]; // path_to_diff+options(MAX_PATH)+2*path_to_files+qoutes&spaces
   LPTSTR command;
   TCHAR tmp[MAX_PATH];
-  void* args[] = {_selection[0], _selection[1]};
+  void* args[] = {_selection[1], _selection[0]};
 
   ZeroMemory(command_template, sizeof(command_template));
 
@@ -570,7 +572,7 @@ DIFF_EXT::diff3() {
   TCHAR command_template[MAX_PATH*5 + 11]; // path_to_diff+options(MAX_PATH)+3*path_to_files+qoutes&spaces
   LPTSTR command;
   TCHAR tmp[MAX_PATH];
-  void* args[] = {_selection[0], _selection[1], _selection[2]};
+  void* args[] = {_selection[1], _selection[2], _selection[0]};
 
   ZeroMemory(command_template, sizeof(command_template));
 
