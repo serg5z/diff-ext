@@ -578,7 +578,7 @@ DIFF_EXT::diff3() {
 
   if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-    if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command_template, &length) != ERROR_SUCCESS) {
+    if (RegQueryValueEx(key, TEXT("diff3"), 0, 0, (BYTE*)command_template, &length) != ERROR_SUCCESS) {
       command_template[0] = TEXT('\0');
     }
 

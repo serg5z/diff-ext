@@ -11,6 +11,7 @@ CXXFLAGS += -I$(ROOT)/dialog-layout/include
 CFLAGS += -I$(ROOT)/dialog-layout/include
 RCFLAGS += -I$(ROOT)/dialog-layout/include
 LDFLAGS += -L$(ROOT)/dialog-layout/lib
+DLLWRAP ?= dllwrap.exe
 
 LANG_RU := $(BUILD)/$(PROJ:%.exe=%)1049.dll
 

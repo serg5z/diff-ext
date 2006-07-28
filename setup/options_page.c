@@ -35,14 +35,16 @@ DEFINE_GUID(CLSID_DIFF_EXT, 0xA0482097, 0xC69D, 0x4DEC, 0x8A, 0xB6, 0xD3, 0xA2, 
 static void
 apply(PAGE* page) {
   HKEY key;
-  TCHAR command[MAX_PATH];
+  TCHAR command[4*MAX_PATH];
+  TCHAR command3[6*MAX_PATH];
   LRESULT language;
   LRESULT idx;
   LRESULT compare_folders;
   LRESULT three_way_compare_supported;
   DWORD three_way_compare_supported_value = 0;
   
-  GetDlgItemText(page->page, ID_DIFF_COMMAND, command, MAX_PATH);
+  GetDlgItemText(page->page, ID_DIFF_COMMAND, command, sizeof(command)/sizeof(command[0]));
+  GetDlgItemText(page->page, ID_COMMAND_DIFF3, command3, sizeof(command3)/sizeof(command3[0]));
   idx = SendDlgItemMessage(page->page, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
   language = SendDlgItemMessage(page->page, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
   compare_folders = SendDlgItemMessage(page->page, ID_DIFF_DIRS, BM_GETCHECK, 0, 0);  
@@ -53,6 +55,7 @@ apply(PAGE* page) {
 
   RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_SET_VALUE, &key);
   RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, _tcslen(command)*sizeof(TCHAR));
+  RegSetValueEx(key, TEXT("diff3"), 0, REG_SZ, (const BYTE*)command3, _tcslen(command3)*sizeof(TCHAR));
   RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
   RegSetValueEx(key, TEXT("3way_compare_supported"), 0, REG_DWORD, (const BYTE*)&three_way_compare_supported_value, sizeof(three_way_compare_supported_value));
   RegCloseKey(key);
@@ -124,7 +127,8 @@ create_options_page(HANDLE resource, HWND parent) {
 static void
 init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   HKEY key;
-  TCHAR command[MAX_PATH] = TEXT("");
+  TCHAR command[4*MAX_PATH] = TEXT("");
+  TCHAR command3[6*MAX_PATH] = TEXT("");
   TCHAR home[MAX_PATH] = TEXT(".");
   DWORD language;
   DWORD three_way_compare_supported;
@@ -174,9 +178,11 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   }
   
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
-    DWORD hlen = MAX_PATH;
+    DWORD hlen = 4*MAX_PATH;
   
     RegQueryValueEx(key, TEXT("diff"), 0, NULL, (BYTE*)command, &hlen);
+    hlen = 6*MAX_PATH;
+    RegQueryValueEx(key, TEXT("diff3"), 0, NULL, (BYTE*)command3, &hlen);
 
     hlen = sizeof(DWORD);
     if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)(&language), &hlen) != ERROR_SUCCESS) {
@@ -244,7 +250,9 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     SendDlgItemMessage(dialog, ID_DIFF3, BM_SETCHECK, BST_CHECKED, 0);
   }
   SetDlgItemText(dialog, ID_DIFF_COMMAND, command);
-  SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, MAX_PATH, 0);
+  SetDlgItemText(dialog, ID_COMMAND_DIFF3, command3);
+  SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, 4*MAX_PATH, 0);
+  SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETLIMITTEXT, 6*MAX_PATH, 0);
 }
 
 static BOOL CALLBACK
@@ -263,9 +271,11 @@ options_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             static int first = 1;
             if((first != 0) && (HIWORD(w_param) == EN_SETFOCUS)) {
               SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETSEL, 0, 0);
-/*	      
-              SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETMARGINS, EC_RIGHTMARGIN, MAKELPARAM(0, 30));
-*/	      
+              SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETSEL, 0, 0);
+	      
+              SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETMARGINS, EC_RIGHTMARGIN, MAKELPARAM(0, 3));
+              SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETMARGINS, EC_RIGHTMARGIN, MAKELPARAM(0, 3));
+	      
               first = 0;
             }
           }
@@ -290,6 +300,31 @@ options_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
 
             if(GetOpenFileName(&ofn) == TRUE) {
               SetDlgItemText(dialog, ID_DIFF_COMMAND, ofn.lpstrFile);
+	    }
+
+            ret = TRUE;
+          }
+          break;
+          
+        case ID_BROWSE1: {
+            OPENFILENAME ofn;
+            TCHAR szFile[MAX_PATH] = TEXT("");
+
+            ZeroMemory(&ofn, sizeof(OPENFILENAME));
+            ofn.lStructSize = sizeof(OPENFILENAME);
+            ofn.hwndOwner = dialog;
+            ofn.lpstrFile = szFile;
+            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
+            ofn.lpstrFilter = TEXT("Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0");
+            ofn.nFilterIndex = 1;
+            ofn.lpstrFileTitle = NULL;
+            ofn.nMaxFileTitle = 0;
+            ofn.lpstrInitialDir = NULL;
+	    ofn.lpstrTitle = TEXT("Select file compare utility");
+            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
+
+            if(GetOpenFileName(&ofn) == TRUE) {
+              SetDlgItemText(dialog, ID_COMMAND_DIFF3, ofn.lpstrFile);
 	    }
 
             ret = TRUE;

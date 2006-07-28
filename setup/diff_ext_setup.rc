@@ -21,8 +21,8 @@
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,6,1,280
- PRODUCTVERSION 1,6,1,280
+ FILEVERSION 1,6,1,296
+ PRODUCTVERSION 1,6,1,296
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -63,7 +63,7 @@ MAIN_ICON ICON "de.ico"
 #include "about.dlg"
 
 IDD_MAINDIALOG DIALOGEX
-70, 60, 242, 139
+70, 60, 404, 157
 STYLE DS_CENTER | DS_3DLOOK | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_CLIPCHILDREN
 CAPTION "diff_ext setup"
 FONT 8, "Helv"
@@ -72,20 +72,20 @@ BEGIN
 		  ID_TAB, 
 		  "SysTabControl32", 
 		  WS_TABSTOP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-		  6, 6, 228, 108
+		  6, 6, 387, 126
     DEFPUSHBUTTON "OK", 
                   IDOK, 
-                  21, 118, 50, 14, 
+                  183, 136, 50, 14, 
                   WS_GROUP
     PUSHBUTTON    "Cancel",
                   IDCANCEL, 
-                  75, 118, 50, 14
+                  237, 136, 50, 14
     PUSHBUTTON    "Apply",
                   ID_APPLY, 
-                  129, 118, 50, 14
+                  291, 136, 50, 14
     PUSHBUTTON    "About",
                   ID_ABOUT, 
-                  186, 118, 50, 14
+                  348, 136, 50, 14
 END
 
 ID_MAINDIALOG_LAYOUT RCDATA {
