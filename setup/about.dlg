@@ -5,6 +5,7 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
+#include "diff_ext_setup.h"
 
 IDD_ABOUT DIALOG
 10, 10, 214, 73

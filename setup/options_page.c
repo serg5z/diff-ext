@@ -20,7 +20,7 @@
 #include "layout.h"
 #include "page.h"
 
-#include "diff_ext_setup.rh"
+#include "diff_ext_setup.h"
 
 typedef struct {
   PAGE super;

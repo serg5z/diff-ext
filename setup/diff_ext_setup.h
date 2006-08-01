@@ -6,6 +6,9 @@
  *
  */
 
+#ifndef __diff_ext_setup_h__
+#define __diff_ext_setup_h__
+
 #define IDD_MAINDIALOG	        100L
 #define IDD_ABOUT	        200L
 #define IDD_OPTIONS             300L
@@ -38,3 +41,5 @@
 #define ID_MAINDIALOG_LAYOUT	1000L
 #define ID_OPTIONS_LAYOUT	2000L
 #define ID_LOGGING_LAYOUT	3000L
+
+#endif /* __diff_ext_setup_h__ */

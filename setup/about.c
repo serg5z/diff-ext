@@ -7,7 +7,7 @@
  */
 #include <windows.h>
 
-#include "diff_ext_setup.rh"
+#include "diff_ext_setup.h"
 
 static BOOL CALLBACK about_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param);
 

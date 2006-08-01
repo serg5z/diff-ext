@@ -5,6 +5,8 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
+ #include "diff_ext_setup.h"
+ 
 IDD_OPTIONS DIALOGEX
 0, 0, 387, 103
 STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK | WS_CLIPSIBLINGS //| WS_CLIPCHILDREN
