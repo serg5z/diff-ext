@@ -14,6 +14,8 @@
 #include <olectl.h>
 #include <objidl.h>
 
+#include <shlwapi.h>
+
 #include <objbase.h>
 #include <initguid.h>
 
@@ -31,6 +33,50 @@ typedef struct {
 static BOOL CALLBACK options_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param);
 
 DEFINE_GUID(CLSID_DIFF_EXT, 0xA0482097, 0xC69D, 0x4DEC, 0x8A, 0xB6, 0xD3, 0xA2, 0x59, 0xAC, 0xC1, 0x51);
+
+/* Move to utils */
+#define PACKVERSION(major,minor) MAKELONG(minor,major)
+DWORD GetDllVersion(LPCTSTR lpszDllName)
+{
+    HINSTANCE hinstDll;
+    DWORD dwVersion = 0;
+
+    /* For security purposes, LoadLibrary should be provided with a 
+       fully-qualified path to the DLL. The lpszDllName variable should be
+       tested to ensure that it is a fully qualified path before it is used. */
+    hinstDll = LoadLibrary(lpszDllName);
+	
+    if(hinstDll)
+    {
+        DLLGETVERSIONPROC pDllGetVersion;
+        pDllGetVersion = (DLLGETVERSIONPROC)GetProcAddress(hinstDll, "DllGetVersion");
+
+        /* Because some DLLs might not implement this function, you
+        must test for it explicitly. Depending on the particular 
+        DLL, the lack of a DllGetVersion function can be a useful
+        indicator of the version. */
+
+        if(pDllGetVersion)
+        {
+            DLLVERSIONINFO dvi;
+            HRESULT hr;
+
+            ZeroMemory(&dvi, sizeof(dvi));
+            dvi.cbSize = sizeof(dvi);
+
+            hr = (*pDllGetVersion)(&dvi);
+
+            if(SUCCEEDED(hr))
+            {
+               dwVersion = PACKVERSION(dvi.dwMajorVersion, dvi.dwMinorVersion);
+            }
+        }
+
+        FreeLibrary(hinstDll);
+    }
+    
+    return dwVersion;
+}
 
 static void
 apply(PAGE* page) {
@@ -253,6 +299,11 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   SetDlgItemText(dialog, ID_COMMAND_DIFF3, command3);
   SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, 4*MAX_PATH, 0);
   SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETLIMITTEXT, 6*MAX_PATH, 0);
+  
+  if(GetDllVersion("shlwapi.dll") >= PACKVERSION(5,0)) {
+    SHAutoComplete(GetDlgItem(dialog, ID_DIFF_COMMAND), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
+    SHAutoComplete(GetDlgItem(dialog, ID_COMMAND_DIFF3), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
+  }
 }
 
 static BOOL CALLBACK
