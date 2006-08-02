@@ -35,7 +35,7 @@ Name: {group}\setup; Filename: {app}\diff_ext_setup.exe; WorkingDir: {app}
 Name: {group}\Uninstall diff-ext; Filename: {uninstallexe}
 
 [Run]
-Filename: {app}\diff_ext_setup.exe
+Filename: {app}\diff_ext_setup.exe; Flags: postinstall
 
 [Registry]
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: log_file; ValueData: <path to log>; Flags: uninsdeletekey createvalueifdoesntexist

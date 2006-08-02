@@ -298,8 +298,10 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, 4*MAX_PATH, 0);
   SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETLIMITTEXT, 6*MAX_PATH, 0);
   
-  if(GetDllVersion("shlwapi.dll") >= PACKVERSION(5,0)) {
-    SHAutoComplete(GetDlgItem(dialog, ID_DIFF_COMMAND), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
+  if(GetDllVersion(TEXT("shlwapi.dll")) >= PACKVERSION(5,0)) {
+    HRESULT result;
+    
+    result = SHAutoComplete(GetDlgItem(dialog, ID_DIFF_COMMAND), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
     SHAutoComplete(GetDlgItem(dialog, ID_COMMAND_DIFF3), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
   }
 /******************************************************************************/  
