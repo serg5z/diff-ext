@@ -13,41 +13,62 @@ STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK | WS_CLIPSIBLINGS //| WS_CLIPCHILDREN
 FONT 8, "Ms Shell Dlg"
 EXSTYLE WS_EX_CONTROLPARENT
 BEGIN
-    GROUPBOX      "Программа сравнения", 			
+    GROUPBOX      "Общие", 			
                   ID_GROUP, 
-                  7, 7, 214, 54,
+                  7, 7, 200, 72,
 		  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
+                  
+    LTEXT         "Комада сравнения",
+                  104, 
+                  14, 21, 82, 8
     EDITTEXT      
                   ID_DIFF_COMMAND, 
-                  14, 18, 145, 14, 
+                  100, 18, 218, 14,
                   ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
-                  
     PUSHBUTTON    "Обзор...",
                   ID_BROWSE, 
-                  163, 18, 50, 14
+                  322, 18, 50, 14
+                  
+    LTEXT         "Комада сравнения 3-х файлов",
+                  104, 
+                  14, 39, 103, 8
+    EDITTEXT      
+                  ID_COMMAND_DIFF3, 
+                  121, 36, 50, 14,
+                  ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+    PUSHBUTTON    "Обзор...",
+                  ID_BROWSE1, 
+                  175, 36, 50, 14
+                  
     AUTOCHECKBOX  "Сравнивать директории",
                   ID_DIFF_DIRS, 
-                  14, 36, 120, 10
+                  14, 54, 90, 10
     AUTOCHECKBOX  "3-х стороннее сравнение",
                   ID_DIFF3, 
-                  14, 46, 120, 10
+                  14, 64, 90, 10
     LTEXT         "Язык",
                   104, 
-                  7, 70, 35, 8
+                  7, 88, 35, 8
     COMBOBOX      
                   ID_LANGUAGE, 
-                  46, 69, 100, 130, 
+                  46, 87, 100, 130, 
                   CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
 ID_OPTIONS_LAYOUT RCDATA {
-  ID_GROUP, /*ID_GROUP*/ 
+  ID_GROUP, 
     3L, /* ANCOR_LEFT | ANCOR_TOP */
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  ID_DIFF_COMMAND, /*ID_DIFF_COMMAND*/ 
+  ID_DIFF_COMMAND, 
     3L, /* ANCOR_LEFT | ANCOR_TOP */
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  ID_BROWSE, /*ID_BROWSE*/ 
+  ID_BROWSE, 
+    6L, /* ANCOR_RIGHT | ANCOR_TOP */
+    6L, /* ANCOR_RIGHT | ANCOR_TOP */
+  ID_COMMAND_DIFF3, 
+    3L, /* ANCOR_LEFT | ANCOR_TOP */
+    6L, /* ANCOR_RIGHT | ANCOR_TOP */
+  ID_BROWSE1, 
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
     6L /* ANCOR_RIGHT | ANCOR_TOP */
 }

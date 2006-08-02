@@ -108,30 +108,6 @@ DllUnregisterServer() {
 }
 
 SERVER::SERVER()  : _refference_count(0), _recent_files(0), _file_sink(0) {
-  HKEY key;
-  TCHAR log_path[MAX_PATH] = TEXT("");
-  LRESULT enabled = 0;
-  LRESULT level = 0;
-    
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
-    DWORD hlen = MAX_PATH;
-  
-    RegQueryValueEx(key, TEXT("log_file"), 0, NULL, (BYTE*)log_path, &hlen);
-    RegQueryValueEx(key, TEXT("log_level"), 0, NULL, (BYTE*)(&level), &hlen);
-
-    hlen = sizeof(DWORD);
-    if(RegQueryValueEx(key, TEXT("log"), 0, NULL, (BYTE*)(&enabled), &hlen) != ERROR_SUCCESS) {
-      enabled = 0;
-    }
-
-    RegCloseKey(key);
-  }
-  
-  if(enabled == 1) {
-//    _file_sink = new FILE_SINK(log_path, level);
-    
-//    LOG::instance()->add_sink(_file_sink);
-  }
 }
 
 SERVER::~SERVER() {

@@ -410,10 +410,9 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
       if(!_recent_files->empty()) {
         DLIST<STRING>::ITERATOR i = _recent_files->head();
         LPTSTR message;
-        LPTSTR file_name = (*i)->data();
-        void** args = new void*[1];
-        
-        args[0] = file_name;
+        STRING fn = (*i)->data();
+        LPTSTR file_name = fn;
+        void* args[] = {(void*)file_name};
         
         if(_n_files == 1) {
   	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare '%1'"));	
@@ -445,15 +444,14 @@ DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT c
         }
       
 	LPTSTR message;
-	LPTSTR file_name = (*i)->data();
-        void** args = new void*[1];
+        STRING fn = (*i)->data();
+        LPTSTR file_name = fn;
+        void* args[] = {(void*)file_name};
         
-        args[0] = file_name;
-
         if(_n_files == 1) {
-	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare '%1' with '%2'"));
+	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare to '%1'"));
         } else if(_n_files == 2) {
-	  load_resource_string(DIFF3_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare '%1' and '%2' to '%3'"));
+	  load_resource_string(DIFF3_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare to '%1'"));
         }
 
 	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR)&message, 0, (char**)args);

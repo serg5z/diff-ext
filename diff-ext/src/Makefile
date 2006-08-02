@@ -7,6 +7,7 @@ ROOT ?= ../..
 
 include $(ROOT)/make/dynamic-library.mk
 
+
 LIBS :=  -lutil -luuid -luuid -lole32
 
 CXXFLAGS += -I../../util/include
@@ -17,7 +18,9 @@ LANG_RU := $(BUILD)/$(PROJ:%.dll=%)1049.dll
 LANG := $(LANG_RU)
 
 all-after: $(SRC-RC) lang/$(PROJ:%.dll=%)_ru.res
-	$(UPDATE_VERSION)  --input $< --output $<
+	echo $(OBJ)
+	echo $(RES)
+#	$(UPDATE_VERSION)  --input $< --output $<
 
 clean: clean-custom
 	$(RM)  $(OBJ) $(PROJ) $(EXPLIB) $(STATICLIB) $(LANG) lang/$(PROJ:%.dll=%)_ru.res

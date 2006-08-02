@@ -38,16 +38,15 @@ Name: {group}\Uninstall diff-ext; Filename: {uninstallexe}
 Filename: {app}\diff_ext_setup.exe
 
 [Registry]
-Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: log_file; ValueData: <path to log>; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: diff; ValueData: <path to diff>; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: home; ValueData: {app}; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1033; Flags: uninsdeletekey; Languages: en
-Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1049; Flags: uninsdeletekey; Languages: ru
-Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: log; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: 3way_compare_supported; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: log_level; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKLM; Subkey: Software\Z\diff-ext\history; Flags: uninsdeletekeyifempty uninsdeletevalue
-Root: HKLM; Subkey: Software\Z; Flags: uninsdeletekeyifempty uninsdeletevalue
+Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: log_file; ValueData: <path to log>; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: diff; ValueData: <path to diff>; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: diff3; ValueData: <path to diff3>; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: home; ValueData: {app}; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1033; Flags: uninsdeletekey; Languages: en
+Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1049; Flags: uninsdeletekey; Languages: ru
+Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: 3way_compare_supported; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKCU; Subkey: Software\Z\diff-ext\history; Flags: uninsdeletekeyifempty uninsdeletevalue
+Root: HKCU; Subkey: Software\Z; Flags: uninsdeletekeyifempty uninsdeletevalue
 
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl; LicenseFile: ..\LICENSE.rtf
