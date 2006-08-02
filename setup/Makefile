@@ -4,11 +4,11 @@ ROOT ?= ..
 
 include $(ROOT)/make/executable.mk
 
-LIBS :=  -llayout -lcomdlg32 -lcomctl32 -ladvapi32 -lversion -lole32
+LIBS :=  -llayout -lcomdlg32 -lcomctl32 -ladvapi32 -lversion -lole32 -lshlwapi
 
 LDFLAGS += -mwindows
 CXXFLAGS += -I$(ROOT)/dialog-layout/include
-CFLAGS += -I$(ROOT)/dialog-layout/include
+CFLAGS += -I$(ROOT)/dialog-layout/include -D_WIN32_WINNT=0x0501 -g
 RCFLAGS += -I$(ROOT)/dialog-layout/include
 LDFLAGS += -L$(ROOT)/dialog-layout/lib
 DLLWRAP ?= dllwrap.exe

@@ -5,12 +5,19 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
+ #define INITGUID
 #include <windows.h>
 #include <windowsx.h>
 #include <commctrl.h>
 #include <string.h>
 #include <stdio.h>
 #include <tchar.h>
+#include <shlguid.h>
+#include <olectl.h>
+#include <objidl.h>
+#include <shlwapi.h>
+#include <objbase.h>
+#include <initguid.h>
 
 #include <layout.h>
 #include "page.h"
@@ -24,16 +31,17 @@ typedef struct {
   int height;
 } WINDOW_PLACEMENT;
 
-static BOOL CALLBACK main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam);
+static BOOL CALLBACK main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param);
 extern PAGE* create_options_page(HANDLE resource, HWND parent);
 extern PAGE* create_debug_page(HANDLE resource, HWND parent);
 extern void about(HANDLE resource, HWND parent);
 
 static HANDLE resource;
 static WINDOW_PLACEMENT* window_placement = 0;
-static PAGE* pages[2];
+static PAGE* pages[1];
 
 static WNDPROC old_button_procedure;
+
 static LRESULT
 new_button_procedure(HWND button, UINT message, WPARAM w_param, LPARAM l_param) {
   LRESULT result= CallWindowProc(old_button_procedure, button, message, w_param, l_param);
@@ -53,6 +61,52 @@ subclass_button() {
   old_button_procedure = (WNDPROC)SetClassLong(tmp, GCL_WNDPROC, (DWORD)new_button_procedure);
   
   DestroyWindow(tmp);
+}
+
+DEFINE_GUID(CLSID_DIFF_EXT, 0xA0482097, 0xC69D, 0x4DEC, 0x8A, 0xB6, 0xD3, 0xA2, 0x59, 0xAC, 0xC1, 0x51);
+
+/* Move to utils */
+#define PACKVERSION(major,minor) MAKELONG(minor,major)
+DWORD GetDllVersion(LPCTSTR lpszDllName)
+{
+    HINSTANCE hinstDll;
+    DWORD dwVersion = 0;
+
+    /* For security purposes, LoadLibrary should be provided with a 
+       fully-qualified path to the DLL. The lpszDllName variable should be
+       tested to ensure that it is a fully qualified path before it is used. */
+    hinstDll = LoadLibrary(lpszDllName);
+	
+    if(hinstDll)
+    {
+        DLLGETVERSIONPROC pDllGetVersion;
+        pDllGetVersion = (DLLGETVERSIONPROC)GetProcAddress(hinstDll, "DllGetVersion");
+
+        /* Because some DLLs might not implement this function, you
+        must test for it explicitly. Depending on the particular 
+        DLL, the lack of a DllGetVersion function can be a useful
+        indicator of the version. */
+
+        if(pDllGetVersion)
+        {
+            DLLVERSIONINFO dvi;
+            HRESULT hr;
+
+            ZeroMemory(&dvi, sizeof(dvi));
+            dvi.cbSize = sizeof(dvi);
+
+            hr = (*pDllGetVersion)(&dvi);
+
+            if(SUCCEEDED(hr))
+            {
+               dwVersion = PACKVERSION(dvi.dwMajorVersion, dvi.dwMinorVersion);
+            }
+        }
+
+        FreeLibrary(hinstDll);
+    }
+    
+    return dwVersion;
 }
 
 #ifdef __MINGW32__
@@ -76,6 +130,10 @@ _tWinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used
   
 /*  subclass_button();*/
 
+  CoInitialize(0);
+  SetThreadLocale(LOCALE_USER_DEFAULT);
+  InitCommonControls();
+  
   while(exit == ID_APPLY) {
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
       hlen = sizeof(DWORD);
@@ -92,9 +150,6 @@ _tWinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used
       resource = instance;
     }
   
-    SetThreadLocale(LOCALE_USER_DEFAULT);
-    InitCommonControls();
-  
     resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), RT_DIALOG);
     dialog_handle = LoadResource(resource, resource_handle);
     dialog = (DLGTEMPLATE*)LockResource(dialog_handle);
@@ -108,76 +163,147 @@ _tWinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used
     FreeLibrary(resource);
   }
   
+  CoUninitialize();
+  
   return exit;
 }
 
 static void
-init(HWND dialog, WPARAM not_used1, LPARAM not_used2) {
-  HWND tab = GetDlgItem(dialog, ID_TAB);
-  RECT rect;
-  TCITEM item1;
-  TCITEM item2;
-  HMODULE uxtheme_library = LoadLibrary(TEXT("uxtheme.dll"));
-  TCHAR page_1_label[32];
-  TCHAR page_2_label[32];
-  int resource_string_length;
-
-  SetClassLong(dialog, GCL_HICON, (long)LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON)));
-  pages[0] = create_options_page(resource, dialog);
-  pages[1] = create_debug_page(resource, dialog);
-
-  if(uxtheme_library != 0) {
-    FARPROC EnableThemeDialogTexture = GetProcAddress(uxtheme_library, "EnableThemeDialogTexture");
+init(HWND dialog, WPARAM not_used, LPARAM l_param) {
+  HKEY key;
+  TCHAR command[4*MAX_PATH] = TEXT("");
+  TCHAR command3[6*MAX_PATH] = TEXT("");
+  TCHAR home[MAX_PATH] = TEXT(".");
+  DWORD language;
+  DWORD three_way_compare_supported;
+  HANDLE file;
+  WIN32_FIND_DATA file_info;
+  TCHAR prefix[] = TEXT("diff_ext_setup");
+  TCHAR root[] = TEXT("????");
+  TCHAR suffix[] = TEXT(".dll");
+  TCHAR* locale_info;
+  int locale_info_size;
+  int curr = 0;  
+  LPWSTR  tmp_guid;
+  TCHAR class_id[MAX_PATH];
+  
+  if(StringFromIID(&CLSID_DIFF_EXT, &tmp_guid) == S_OK) {
+    TCHAR clsid[MAX_PATH] = TEXT("");
+#ifdef UNICODE    
+    _tcsncpy(class_id, tmp_guid, MAX_PATH);
+#else
+    wcstombs(class_id, tmp_guid, MAX_PATH);
+#endif
+    CoTaskMemFree((void*)tmp_guid);
     
-    if(EnableThemeDialogTexture != 0) {
-      unsigned int i;
-/*      const int ETDT_DISABLE = 1; */
-      const int ETDT_ENABLE = 2;
-      const int ETDT_USETABTEXTURE = 4;
-      const int ETDT_ENABLETAB = ETDT_ENABLE | ETDT_USETABTEXTURE;
-      for(i = 0; i < sizeof(pages)/sizeof(pages[0]); i++) {
-	(EnableThemeDialogTexture)(pages[i]->page, ETDT_ENABLETAB);
+    if(RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT("Folder\\shellex\\ContextMenuHandlers\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+      DWORD hlen = MAX_PATH;
+    
+      RegQueryValueEx(key, TEXT(""), 0, NULL, (BYTE*)clsid, &hlen);
+      
+      if(_tcsncmp(clsid, class_id, MAX_PATH) == 0) {
+        SendDlgItemMessage(dialog, ID_DIFF_DIRS, BM_SETCHECK, BST_CHECKED, 0);
       }
+      
+      RegCloseKey(key);
     }
-  }
-
-  ZeroMemory(&item1, sizeof(TCITEM));
-  ZeroMemory(&item2, sizeof(TCITEM));
-
-  resource_string_length = LoadString(resource, OPTIONS_STR, page_1_label, sizeof(page_1_label)/sizeof(page_1_label[0]));
-  
-  if(resource_string_length == 0) {
-    HMODULE instance = GetModuleHandle(0);
-    resource_string_length = LoadString(instance, OPTIONS_STR, page_1_label, sizeof(page_1_label)/sizeof(page_1_label[0]));
     
-    if(resource_string_length == 0) {
-      lstrcpy(page_1_label, TEXT("Options"));
-      MessageBox(0, TEXT("Can not load 'OPTIONS_STR' string resource"), TEXT("ERROR"), MB_OK);
-    }
-  }
-  
-  item1.mask = TCIF_TEXT | TCIF_PARAM;
-  item1.pszText = page_1_label;
-  item1.lParam = (LPARAM)0;
-
-  resource_string_length = LoadString(resource, LOGGING_STR, page_2_label, sizeof(page_2_label)/sizeof(page_2_label[0]));
-  
-  if(resource_string_length == 0) {
-    HMODULE instance = GetModuleHandle(0);
-    resource_string_length = LoadString(instance, LOGGING_STR, page_2_label, sizeof(page_2_label)/sizeof(page_2_label[0]));
+    if(RegOpenKeyEx(HKEY_CLASSES_ROOT, TEXT("Directory\\shellex\\ContextMenuHandlers\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+      DWORD hlen = MAX_PATH;
     
-    if(resource_string_length == 0) {
-      lstrcpy(page_2_label, TEXT("Logging"));
-      MessageBox(0, TEXT("Can not load 'LOGGING_STR' string resource"), TEXT("ERROR"), MB_OK);
+      RegQueryValueEx(key, TEXT(""), 0, NULL, (BYTE*)clsid, &hlen);
+      
+      if(_tcsncmp(clsid, class_id, MAX_PATH) == 0) {
+        SendDlgItemMessage(dialog, ID_DIFF_DIRS, BM_SETCHECK, BST_CHECKED, 0);
+      }
+      
+      RegCloseKey(key);
     }
   }
   
-  item2.mask = TCIF_TEXT | TCIF_PARAM;
-  item2.pszText = page_2_label;
-  item2.lParam = (LPARAM)0;
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    DWORD hlen = 4*MAX_PATH;
+  
+    RegQueryValueEx(key, TEXT("diff"), 0, NULL, (BYTE*)command, &hlen);
+    hlen = 6*MAX_PATH;
+    RegQueryValueEx(key, TEXT("diff3"), 0, NULL, (BYTE*)command3, &hlen);
 
-  TabCtrl_InsertItem(tab, 1, &item1);
-  TabCtrl_InsertItem(tab, 2, &item2);  
+    hlen = sizeof(DWORD);
+    if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)(&language), &hlen) != ERROR_SUCCESS) {
+      language = 1033;
+    }
+    if(RegQueryValueEx(key, TEXT("3way_compare_supported"), 0, NULL, (BYTE*)(&three_way_compare_supported), &hlen) != ERROR_SUCCESS) {
+      three_way_compare_supported = 0;
+    }
+
+    hlen = MAX_PATH;
+    if(RegQueryValueEx(key, TEXT("home"), 0, NULL, (BYTE*)home, &hlen) != ERROR_SUCCESS) {
+      lstrcpy(home, TEXT("."));
+    }
+
+    RegCloseKey(key);
+  }
+  
+  locale_info_size = GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, 0, 0);
+  locale_info = (TCHAR*)malloc(locale_info_size*sizeof(TCHAR));
+  GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
+
+  curr = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
+  SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETITEMDATA, curr, 1033);
+
+  if(language == 1033) {
+    SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
+  }
+
+  free(locale_info); 
+
+  lstrcat(home, TEXT("\\"));
+  lstrcat(home, prefix);
+  lstrcat(home, root);
+  lstrcat(home, suffix);
+
+  file = FindFirstFile(home, &file_info);
+  if(file != INVALID_HANDLE_VALUE) {
+    BOOL stop = FALSE;
+
+    while(stop == FALSE) {
+      DWORD lang_id = 0;
+      
+      _stscanf(file_info.cFileName, TEXT("diff_ext_setup%4u.dll"), &lang_id);
+
+      locale_info_size = GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, 0, 0);
+      locale_info = (TCHAR*)malloc(locale_info_size*sizeof(TCHAR));
+      GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
+
+      curr = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
+      SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETITEMDATA, curr, lang_id);
+
+      if(lang_id == language) {
+	SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
+      }
+
+      free(locale_info);
+
+      stop = !FindNextFile(file, &file_info);
+    }
+
+    FindClose(file);
+  }
+  
+  if(three_way_compare_supported != 0) {
+    SendDlgItemMessage(dialog, ID_DIFF3, BM_SETCHECK, BST_CHECKED, 0);
+  }
+  SetDlgItemText(dialog, ID_DIFF_COMMAND, command);
+  SetDlgItemText(dialog, ID_COMMAND_DIFF3, command3);
+  SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, 4*MAX_PATH, 0);
+  SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETLIMITTEXT, 6*MAX_PATH, 0);
+  
+  if(GetDllVersion("shlwapi.dll") >= PACKVERSION(5,0)) {
+    SHAutoComplete(GetDlgItem(dialog, ID_DIFF_COMMAND), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
+    SHAutoComplete(GetDlgItem(dialog, ID_COMMAND_DIFF3), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
+  }
+/******************************************************************************/  
+  SetClassLong(dialog, GCL_HICON, (long)LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON)));
   
   attach_layout(resource, dialog, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
   
@@ -193,38 +319,170 @@ init(HWND dialog, WPARAM not_used1, LPARAM not_used2) {
   } else {
     MoveWindow(dialog, window_placement->x, window_placement->y, window_placement->width, window_placement->height, TRUE);
   }
+}
+
+static void
+apply(HWND dialog) {
+  HKEY key;
+  TCHAR command[4*MAX_PATH];
+  TCHAR command3[6*MAX_PATH];
+  LRESULT language;
+  LRESULT idx;
+  LRESULT compare_folders;
+  LRESULT three_way_compare_supported;
+  DWORD three_way_compare_supported_value = 0;
   
-  GetClientRect(tab, &rect);
-  TabCtrl_AdjustRect(tab, FALSE, &rect);
-  MapWindowPoints(tab, dialog, (LPPOINT)&rect, 2);  
-  SetWindowPos(pages[0]->page, HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
-  layout(pages[0]->page);
+  GetDlgItemText(dialog, ID_DIFF_COMMAND, command, sizeof(command)/sizeof(command[0]));
+  GetDlgItemText(dialog, ID_COMMAND_DIFF3, command3, sizeof(command3)/sizeof(command3[0]));
+  idx = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
+  language = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
+  compare_folders = SendDlgItemMessage(dialog, ID_DIFF_DIRS, BM_GETCHECK, 0, 0);  
+  three_way_compare_supported = SendDlgItemMessage(dialog, ID_DIFF3, BM_GETCHECK, 0, 0);  
+  if(three_way_compare_supported == BST_CHECKED) {
+    three_way_compare_supported_value = 1;
+  }
+
+  RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_SET_VALUE, &key);
+  RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, _tcslen(command)*sizeof(TCHAR));
+  RegSetValueEx(key, TEXT("diff3"), 0, REG_SZ, (const BYTE*)command3, _tcslen(command3)*sizeof(TCHAR));
+  RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
+  RegSetValueEx(key, TEXT("3way_compare_supported"), 0, REG_DWORD, (const BYTE*)&three_way_compare_supported_value, sizeof(three_way_compare_supported_value));
+  RegCloseKey(key);
+  
+  if(compare_folders == BST_CHECKED) {
+    LRESULT  result = NOERROR;
+    DWORD disp;
+    LPWSTR  tmp_guid;
+    TCHAR class_id[MAX_PATH];
+    
+    if(StringFromIID(&CLSID_DIFF_EXT, &tmp_guid) == S_OK) {
+      TCHAR value[MAX_PATH];
+#ifdef UNICODE    
+      _tcsncpy(class_id, tmp_guid, MAX_PATH);
+#else
+      wcstombs(class_id, tmp_guid, MAX_PATH);
+#endif
+      CoTaskMemFree((void*)tmp_guid);
+    
+      _stprintf(value, TEXT("%s"), class_id);
+      
+      result = RegCreateKeyEx(HKEY_CLASSES_ROOT, TEXT("Folder\\shellex\\ContextMenuHandlers\\diff-ext"), 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &disp);
+    
+      if(result == NOERROR) {
+        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)value, _tcslen(value)*sizeof(TCHAR));
+        
+        RegCloseKey(key);
+      }
+      
+      result = RegCreateKeyEx(HKEY_CLASSES_ROOT, TEXT("Directory\\shellex\\ContextMenuHandlers\\diff-ext"), 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &disp);
+    
+      if(result == NOERROR) {
+        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)value, _tcslen(value)*sizeof(TCHAR));
+        
+        RegCloseKey(key);
+      }
+    }
+  } else {
+    RegDeleteKey(HKEY_CLASSES_ROOT, TEXT("Folder\\shellex\\ContextMenuHandlers\\diff-ext"));
+    RegDeleteKey(HKEY_CLASSES_ROOT, TEXT("Directory\\shellex\\ContextMenuHandlers\\diff-ext"));
+  }
 }
 
 static BOOL CALLBACK
-main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
+main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
   BOOL ret = FALSE;
 
   switch(msg) {
     case WM_INITDIALOG:
-      init(dialog,wParam,lParam);
+      init(dialog, w_param, l_param);
       ret = TRUE;
       break;
 
     case WM_COMMAND:
-      switch(LOWORD(wParam)) {
+      switch(LOWORD(w_param)) {
+        case ID_COMMAND_DIFF3:
+        case ID_DIFF_COMMAND: {
+            static int first = 1;
+            if((first != 0) && (HIWORD(w_param) == EN_SETFOCUS)) {
+              SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETSEL, 0, 0);
+              SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETSEL, 0, 0);
+	      
+              SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETMARGINS, EC_RIGHTMARGIN, MAKELPARAM(0, 3));
+              SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETMARGINS, EC_RIGHTMARGIN, MAKELPARAM(0, 3));
+	      
+              first = 0;
+            }
+          }
+          break;
+          
 	case ID_ABOUT:
 	  about(resource, dialog);
 	  break;
 	
+        case ID_BROWSE: {
+            OPENFILENAME ofn;
+            TCHAR szFile[MAX_PATH] = TEXT("");
+
+            ZeroMemory(&ofn, sizeof(OPENFILENAME));
+            ofn.lStructSize = sizeof(OPENFILENAME);
+            ofn.hwndOwner = dialog;
+            ofn.lpstrFile = szFile;
+            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
+            ofn.lpstrFilter = TEXT("Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0");
+            ofn.nFilterIndex = 1;
+            ofn.lpstrFileTitle = NULL;
+            ofn.nMaxFileTitle = 0;
+            ofn.lpstrInitialDir = NULL;
+	    ofn.lpstrTitle = TEXT("Select file compare utility");
+            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
+
+            if(GetOpenFileName(&ofn) == TRUE) {
+              SetDlgItemText(dialog, ID_DIFF_COMMAND, ofn.lpstrFile);
+	    }
+
+            ret = TRUE;
+          }
+          break;
+          
+        case ID_BROWSE1: {
+            OPENFILENAME ofn;
+            TCHAR szFile[MAX_PATH] = TEXT("");
+
+            ZeroMemory(&ofn, sizeof(OPENFILENAME));
+            ofn.lStructSize = sizeof(OPENFILENAME);
+            ofn.hwndOwner = dialog;
+            ofn.lpstrFile = szFile;
+            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
+            ofn.lpstrFilter = TEXT("Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0");
+            ofn.nFilterIndex = 1;
+            ofn.lpstrFileTitle = NULL;
+            ofn.nMaxFileTitle = 0;
+            ofn.lpstrInitialDir = NULL;
+	    ofn.lpstrTitle = TEXT("Select file compare utility");
+            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
+
+            if(GetOpenFileName(&ofn) == TRUE) {
+              SetDlgItemText(dialog, ID_COMMAND_DIFF3, ofn.lpstrFile);
+	    }
+
+            ret = TRUE;
+          }
+          break;
+          
         case ID_APPLY:
         case IDOK: {
             HKEY key;
 	    LRESULT language = 1033;
 	    LRESULT old_language = 1033;
 	    DWORD hlen;
-	    unsigned int i;
-
+            RECT rect;
+            
+            GetWindowRect(dialog, &rect);
+            window_placement->x = rect.left;
+            window_placement->y = rect.top;
+            window_placement->width = rect.right-rect.left;
+            window_placement->height = rect.bottom-rect.top;
+          
 	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 	      hlen = sizeof(DWORD);
 	      if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&old_language, &hlen) != ERROR_SUCCESS) {
@@ -234,9 +492,7 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	      RegCloseKey(key);
 	    }
 	    
-	    for(i = 0; i < sizeof(pages)/sizeof(pages[0]); i++) {
-	      pages[i]->apply(pages[i]);
-	    }
+	    apply(dialog);
 	    
 	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 	      hlen = sizeof(DWORD);
@@ -247,8 +503,8 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
 	      RegCloseKey(key);
 	    }
 	    
-	    if((LOWORD(wParam) == IDOK) || (language != old_language)) {
-	      EndDialog(dialog, LOWORD(wParam));
+	    if((LOWORD(w_param) == IDOK) || (language != old_language)) {
+	      EndDialog(dialog, LOWORD(w_param));
 	    }
 	    
             ret = TRUE;
@@ -273,60 +529,7 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       break;
       
-    case WM_SIZE: {
-        RECT rect;
-        RECT tab_rect;
-        HWND tab = GetDlgItem(dialog, ID_TAB);
-        int page = TabCtrl_GetCurSel(tab);
-      
-	GetClientRect(tab, &tab_rect);
-
-	TabCtrl_AdjustRect(tab, FALSE, &tab_rect);
-
-	MapWindowPoints(tab, dialog, (LPPOINT)&tab_rect, 2);
-      
-        MoveWindow(pages[page]->page, tab_rect.left, tab_rect.top, tab_rect.right-tab_rect.left, tab_rect.bottom-tab_rect.top, TRUE);
-        layout(pages[page]->page);
-      
-        GetWindowRect(dialog, &rect);
-        window_placement->x = rect.left;
-        window_placement->y = rect.top;
-        window_placement->width = rect.right-rect.left;
-        window_placement->height = rect.bottom-rect.top;
-
-        ret = TRUE;
-      }
-      break;
-      
-    case WM_NOTIFY: {
-	LPNMHDR data = (LPNMHDR)lParam;
-
-	if(data->code == TCN_SELCHANGE) {
-	  if(data->idFrom == ID_TAB) {
-	    int page = TabCtrl_GetCurSel(data->hwndFrom);
-	    unsigned int i;
-	    RECT rect;
-
-	    GetClientRect(data->hwndFrom, &rect);
-	    TabCtrl_AdjustRect(data->hwndFrom, FALSE, &rect);
-	    MapWindowPoints(data->hwndFrom, dialog, (LPPOINT)&rect, 2);
-	    
-	    for(i = 0; i < sizeof(pages)/sizeof(pages[0]); i++) {
-	      if(i == page) {
-		SetWindowPos(pages[i]->page, HWND_TOP, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, SWP_SHOWWINDOW);
-		layout(pages[i]->page);
-	      } else {
-	        ShowWindow(pages[i]->page, FALSE);
-	      }
-	    }
-	  }
-	}
-        
-        ret = TRUE;
-      }
-      break;
-
-    case WM_CLOSE:
+      case WM_CLOSE:
       EndDialog(dialog,0);
       ret = TRUE;
       break;
