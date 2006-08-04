@@ -135,7 +135,7 @@ _tWinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used
   InitCommonControls();
   
   while(exit == ID_APPLY) {
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
       hlen = sizeof(DWORD);
       RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &hlen);
   
@@ -178,14 +178,12 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   DWORD three_way_compare_supported;
   HANDLE file;
   WIN32_FIND_DATA file_info;
-  TCHAR prefix[] = TEXT("diff_ext_setup");
-  TCHAR root[] = TEXT("????");
-  TCHAR suffix[] = TEXT(".dll");
   TCHAR* locale_info;
   int locale_info_size;
   int curr = 0;  
   LPWSTR  tmp_guid;
   TCHAR class_id[MAX_PATH];
+  TCHAR* c;
   
   if(StringFromIID(&CLSID_DIFF_EXT, &tmp_guid) == S_OK) {
     TCHAR clsid[MAX_PATH] = TEXT("");
@@ -221,7 +219,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     }
   }
   
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     DWORD hlen = 4*MAX_PATH;
   
     RegQueryValueEx(key, TEXT("diff"), 0, NULL, (BYTE*)command, &hlen);
@@ -243,8 +241,10 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   locale_info = (TCHAR*)malloc(locale_info_size*sizeof(TCHAR));
   GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
 
+/*  
   curr = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
   SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETITEMDATA, curr, 1033);
+*/  
 
   if(language == 1033) {
     SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
@@ -252,11 +252,22 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
 
   free(locale_info); 
 
+  GetModuleFileName(GetModuleHandle(0), home, sizeof(home)/sizeof(home[0]));
+  c = home+lstrlen(home)-1;
+  
+  while(((*c) != TEXT('\\')) && (c > home)) {
+    c--;
+  }
+  
+  if(c == home) {
+    lstrcat(home, TEXT('.'));
+  } else {
+    *c = TEXT('\0');
+  }
+  
   lstrcat(home, TEXT("\\"));
-  lstrcat(home, prefix);
-  lstrcat(home, root);
-  lstrcat(home, suffix);
-
+  lstrcat(home, TEXT("diff_ext????.dll"));
+  
   file = FindFirstFile(home, &file_info);
   if(file != INVALID_HANDLE_VALUE) {
     BOOL stop = FALSE;
@@ -264,7 +275,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     while(stop == FALSE) {
       DWORD lang_id = 0;
       
-      _stscanf(file_info.cFileName, TEXT("diff_ext_setup%4u.dll"), &lang_id);
+      _stscanf(file_info.cFileName, TEXT("diff_ext%4u.dll"), &lang_id);
 
       locale_info_size = GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, 0, 0);
       locale_info = (TCHAR*)malloc(locale_info_size*sizeof(TCHAR));
@@ -339,7 +350,7 @@ apply(HWND dialog) {
     three_way_compare_supported_value = 1;
   }
 
-  RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_SET_VALUE, &key);
+  RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_SET_VALUE, &key);
   RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, _tcslen(command)*sizeof(TCHAR));
   RegSetValueEx(key, TEXT("diff3"), 0, REG_SZ, (const BYTE*)command3, _tcslen(command3)*sizeof(TCHAR));
   RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
@@ -480,7 +491,7 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             window_placement->width = rect.right-rect.left;
             window_placement->height = rect.bottom-rect.top;
           
-	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+	    if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 	      hlen = sizeof(DWORD);
 	      if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&old_language, &hlen) != ERROR_SUCCESS) {
 		old_language = 1033;
@@ -491,7 +502,7 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
 	    
 	    apply(dialog);
 	    
-	    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+	    if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 	      hlen = sizeof(DWORD);
 	      if(RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &hlen) != ERROR_SUCCESS) {
 		language = 1033;

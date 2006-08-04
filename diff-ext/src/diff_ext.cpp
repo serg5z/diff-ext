@@ -96,7 +96,7 @@ DIFF_EXT::initialize_language() {
   DWORD language = 0;
   DWORD len;
 
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
     len = sizeof(DWORD);
     RegQueryValueEx(key, TEXT("language"), 0, NULL, (BYTE*)&language, &len);
@@ -483,7 +483,7 @@ DIFF_EXT::diff() {
 
   ZeroMemory(command_template, sizeof(command_template));
 
-  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if(RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
     if (RegQueryValueEx(key, TEXT("diff"), 0, 0, (BYTE*)command_template, &length) != ERROR_SUCCESS) {
       command_template[0] = TEXT('\0');
@@ -574,7 +574,7 @@ DIFF_EXT::diff3() {
 
   ZeroMemory(command_template, sizeof(command_template));
 
-  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if(RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
     if (RegQueryValueEx(key, TEXT("diff3"), 0, 0, (BYTE*)command_template, &length) != ERROR_SUCCESS) {
       command_template[0] = TEXT('\0');

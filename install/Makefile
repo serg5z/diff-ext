@@ -1,4 +1,4 @@
-VERSION := 1.7
+VERSION := 1.7.1
 
 ISCC := /c/Program\ Files/Inno\ Setup\ 5/ISCC
 

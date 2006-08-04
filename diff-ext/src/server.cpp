@@ -142,7 +142,7 @@ SERVER::recent_files() {
   DWORD history_size = 32;
   DWORD len;
   
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     len = sizeof(DWORD);
     RegQueryValueEx(key, TEXT("history_size"), 0, NULL, (BYTE*)&history_size, &len);
     
@@ -173,7 +173,7 @@ SERVER::recent_files() {
     
     delete _recent_files;
   } else { // read history from the registry
-    if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\history\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    if(RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext\\history"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
       TCHAR file[MAX_PATH];
       bool stop = false;
       
@@ -205,7 +205,7 @@ SERVER::tree_way_compare_supported() {
   bool result = false; 
   HKEY key;
     
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+  if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
     DWORD three_way_compare_supported;
     DWORD hlen = sizeof(three_way_compare_supported);
     
@@ -225,7 +225,7 @@ SERVER::save_history() const {
   DWORD len;
 
   if(_recent_files != 0) {
-    if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Z\\diff-ext\\history\\"), 0, KEY_SET_VALUE, &key) == ERROR_SUCCESS) {
+    if(RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext\\history"), 0, KEY_SET_VALUE, &key) == ERROR_SUCCESS) {
       len = MAX_PATH;
       int n = 0;
       
@@ -330,9 +330,7 @@ SERVER::do_register() {
       
         // NT needs to have shell extensions "approved".
         if (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-          lstrcpy(subkey, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved"));
-      
-          result = RegCreateKeyEx(HKEY_LOCAL_MACHINE, subkey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &dwDisp);
+          result = RegCreateKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved"), 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &dwDisp);
       
           if(result == NOERROR) {
             TCHAR szData[MAX_PATH];
