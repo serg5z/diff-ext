@@ -236,11 +236,6 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
       three_way_compare_supported = 0;
     }
 
-    hlen = MAX_PATH;
-    if(RegQueryValueEx(key, TEXT("home"), 0, NULL, (BYTE*)home, &hlen) != ERROR_SUCCESS) {
-      lstrcpy(home, TEXT("."));
-    }
-
     RegCloseKey(key);
   }
   
