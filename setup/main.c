@@ -275,7 +275,9 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     while(stop == FALSE) {
       DWORD lang_id = 0;
       
-      _stscanf(file_info.cFileName, TEXT("diff_ext%4u.dll"), &lang_id);
+      if(_stscanf(file_info.cFileName, TEXT("diff_ext%4u.dll"), &lang_id) == 0) {
+        lang_id = 1033; /* English */
+      }
 
       locale_info_size = GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, 0, 0);
       locale_info = (TCHAR*)malloc(locale_info_size*sizeof(TCHAR));
