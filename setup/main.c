@@ -260,7 +260,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   }
   
   if(c == home) {
-    lstrcat(home, TEXT('.'));
+    lstrcat(home, TEXT("."));
   } else {
     *c = TEXT('\0');
   }
@@ -431,13 +431,14 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
 	
         case ID_BROWSE: {
             OPENFILENAME ofn;
-            TCHAR szFile[MAX_PATH] = TEXT("");
+            TCHAR quoted_file_name[MAX_PATH+2] = TEXT("\"");
+            LPTSTR file_name = quoted_file_name+1;
 
             ZeroMemory(&ofn, sizeof(OPENFILENAME));
             ofn.lStructSize = sizeof(OPENFILENAME);
             ofn.hwndOwner = dialog;
-            ofn.lpstrFile = szFile;
-            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
+            ofn.lpstrFile = file_name;
+            ofn.nMaxFile = MAX_PATH;
             ofn.lpstrFilter = TEXT("Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0");
             ofn.nFilterIndex = 1;
             ofn.lpstrFileTitle = NULL;
@@ -447,7 +448,11 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
 
             if(GetOpenFileName(&ofn) == TRUE) {
-              SetDlgItemText(dialog, ID_DIFF_COMMAND, ofn.lpstrFile);
+              int len = lstrlen(file_name);
+              
+              file_name[len] = '\"';
+              file_name[len+1] = '\0';
+              SetDlgItemText(dialog, ID_DIFF_COMMAND, quoted_file_name);
 	    }
 
             ret = TRUE;
@@ -456,13 +461,14 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
           
         case ID_BROWSE1: {
             OPENFILENAME ofn;
-            TCHAR szFile[MAX_PATH] = TEXT("");
+            TCHAR quoted_file_name[MAX_PATH+2] = TEXT("\"");
+            LPTSTR file_name = quoted_file_name+1;
 
             ZeroMemory(&ofn, sizeof(OPENFILENAME));
             ofn.lStructSize = sizeof(OPENFILENAME);
             ofn.hwndOwner = dialog;
-            ofn.lpstrFile = szFile;
-            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
+            ofn.lpstrFile = file_name;
+            ofn.nMaxFile = MAX_PATH;
             ofn.lpstrFilter = TEXT("Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0");
             ofn.nFilterIndex = 1;
             ofn.lpstrFileTitle = NULL;
@@ -472,6 +478,10 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
 
             if(GetOpenFileName(&ofn) == TRUE) {
+              int len = lstrlen(file_name);
+              
+              file_name[len] = '\"';
+              file_name[len+1] = '\0';
               SetDlgItemText(dialog, ID_COMMAND_DIFF3, ofn.lpstrFile);
 	    }
 

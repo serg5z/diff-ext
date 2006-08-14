@@ -43,7 +43,6 @@ Root: HKCU; Subkey: Software\Z\diff-ext; Flags: uninsdeletekey
 Root: HKCU; Subkey: Software\Z\diff-ext\history; Flags: uninsdeletekey
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: diff; ValueData: <path to diff>; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: diff3; ValueData: <path to diff3>; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: home; ValueData: {app}; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1033; Flags: uninsdeletekey; Languages: en
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1049; Flags: uninsdeletekey; Languages: ru
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: 3way_compare_supported; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
@@ -51,3 +50,43 @@ Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: 3way_compa
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl; LicenseFile: ..\LICENSE.rtf
 Name: ru; MessagesFile: russian.isl; LicenseFile: ..\LICENSE_RU.rtf
+
+[Code]
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  dword_data: Cardinal;
+  string_data: String;
+  history: TArrayOfString;
+  i: Integer;
+begin
+  if CurStep = ssPostInstall then begin
+    if RegKeyExists(HKLM, 'Software\Z\diff-ext') then begin
+      if RegQueryDWordValue(HKLM, 'Software\Z\diff-ext', 'language', dword_data) then begin
+        RegWriteDWordValue(HKCU, 'Software\Z\diff-ext', 'language', dword_data);
+      end;
+
+      if RegQueryDWordValue(HKLM, 'Software\Z\diff-ext', '3way_compare_supported', dword_data) then begin
+        RegWriteDWordValue(HKCU, 'Software\Z\diff-ext', '3way_compare_supported', dword_data);
+      end;
+      
+      if RegQueryStringValue(HKLM, 'Software\Z\diff-ext', 'diff', string_data) then begin
+        RegWriteStringValue(HKCU, 'Software\Z\diff-ext', 'diff', string_data);
+      end;
+
+      if RegQueryStringValue(HKLM, 'Software\Z\diff-ext', 'diff3', string_data) then begin
+        RegWriteStringValue(HKCU, 'Software\Z\diff-ext', 'diff3', string_data);
+      end;
+      
+      if RegGetValueNames(HKLM, 'Software\Z\diff-ext\history', history) then begin
+        for i := 0 to GetArrayLength(history)-1 do begin
+          RegQueryStringValue(HKLM, 'Software\Z\diff-ext\history', history[i], string_data);
+          RegWriteStringValue(HKCU, 'Software\Z\diff-ext\history', history[i], string_data);
+        end;
+      end;
+      
+      RegDeleteKeyIncludingSubkeys(HKLM, 'Software\Z\diff-ext');
+      RegDeleteKeyIfEmpty(HKLM, 'Software\Z');
+    end;
+  end;
+end;
+
