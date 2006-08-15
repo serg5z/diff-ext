@@ -178,12 +178,14 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   DWORD three_way_compare_supported;
   HANDLE file;
   WIN32_FIND_DATA file_info;
+  TCHAR prefix[] = TEXT("diff_ext_setup");
+  TCHAR root[] = TEXT("????");
+  TCHAR suffix[] = TEXT(".dll");
   TCHAR* locale_info;
   int locale_info_size;
   int curr = 0;  
   LPWSTR  tmp_guid;
   TCHAR class_id[MAX_PATH];
-  TCHAR* c;
   
   if(StringFromIID(&CLSID_DIFF_EXT, &tmp_guid) == S_OK) {
     TCHAR clsid[MAX_PATH] = TEXT("");
@@ -234,6 +236,11 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
       three_way_compare_supported = 0;
     }
 
+    hlen = MAX_PATH;
+    if(RegQueryValueEx(key, TEXT("home"), 0, NULL, (BYTE*)home, &hlen) != ERROR_SUCCESS) {
+      lstrcpy(home, TEXT("."));
+    }
+
     RegCloseKey(key);
   }
   
@@ -241,10 +248,8 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   locale_info = (TCHAR*)malloc(locale_info_size*sizeof(TCHAR));
   GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, locale_info, locale_info_size);
 
-/*  
   curr = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_ADDSTRING, 0, (LPARAM)locale_info);
   SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETITEMDATA, curr, 1033);
-*/  
 
   if(language == 1033) {
     SendDlgItemMessage(dialog, ID_LANGUAGE, CB_SETCURSEL, curr, 0);
@@ -252,22 +257,11 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
 
   free(locale_info); 
 
-  GetModuleFileName(GetModuleHandle(0), home, sizeof(home)/sizeof(home[0]));
-  c = home+lstrlen(home)-1;
-  
-  while(((*c) != TEXT('\\')) && (c > home)) {
-    c--;
-  }
-  
-  if(c == home) {
-    lstrcat(home, TEXT("."));
-  } else {
-    *c = TEXT('\0');
-  }
-  
   lstrcat(home, TEXT("\\"));
-  lstrcat(home, TEXT("diff_ext????.dll"));
-  
+  lstrcat(home, prefix);
+  lstrcat(home, root);
+  lstrcat(home, suffix);
+
   file = FindFirstFile(home, &file_info);
   if(file != INVALID_HANDLE_VALUE) {
     BOOL stop = FALSE;
@@ -275,9 +269,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     while(stop == FALSE) {
       DWORD lang_id = 0;
       
-      if(_stscanf(file_info.cFileName, TEXT("diff_ext%4u.dll"), &lang_id) == 0) {
-        lang_id = 1033; /* English */
-      }
+      _stscanf(file_info.cFileName, TEXT("diff_ext_setup%4u.dll"), &lang_id);
 
       locale_info_size = GetLocaleInfo(lang_id, LOCALE_SNATIVELANGNAME, 0, 0);
       locale_info = (TCHAR*)malloc(locale_info_size*sizeof(TCHAR));
@@ -306,11 +298,19 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, 4*MAX_PATH, 0);
   SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETLIMITTEXT, 6*MAX_PATH, 0);
   
-  if(GetDllVersion(TEXT("shlwapi.dll")) >= PACKVERSION(5,0)) {
-    HRESULT result;
+  if(GetDllVersion("shlwapi.dll") >= PACKVERSION(5,0)) {
+    HMODULE libshlwapi = LoadLibrary("shlwapi.dll");
     
-    result = SHAutoComplete(GetDlgItem(dialog, ID_DIFF_COMMAND), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
-    SHAutoComplete(GetDlgItem(dialog, ID_COMMAND_DIFF3), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
+    if(libshlwapi != 0) {
+      HRESULT (WINAPI* SHAutoComplete_fn)(HWND, DWORD) = 0;
+      
+      SHAutoComplete_fn = (HRESULT (WINAPI*)(HWND, DWORD))GetProcAddress(libshlwapi, "SHAutoComplete");
+      
+      if(SHAutoComplete_fn != 0) {
+        SHAutoComplete_fn(GetDlgItem(dialog, ID_DIFF_COMMAND), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
+        SHAutoComplete_fn(GetDlgItem(dialog, ID_COMMAND_DIFF3), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
+      }
+    }
   }
 /******************************************************************************/  
   SetClassLong(dialog, GCL_HICON, (long)LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON)));
@@ -431,14 +431,13 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
 	
         case ID_BROWSE: {
             OPENFILENAME ofn;
-            TCHAR quoted_file_name[MAX_PATH+2] = TEXT("\"");
-            LPTSTR file_name = quoted_file_name+1;
+            TCHAR szFile[MAX_PATH] = TEXT("");
 
             ZeroMemory(&ofn, sizeof(OPENFILENAME));
             ofn.lStructSize = sizeof(OPENFILENAME);
             ofn.hwndOwner = dialog;
-            ofn.lpstrFile = file_name;
-            ofn.nMaxFile = MAX_PATH;
+            ofn.lpstrFile = szFile;
+            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
             ofn.lpstrFilter = TEXT("Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0");
             ofn.nFilterIndex = 1;
             ofn.lpstrFileTitle = NULL;
@@ -448,11 +447,7 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
 
             if(GetOpenFileName(&ofn) == TRUE) {
-              int len = lstrlen(file_name);
-              
-              file_name[len] = '\"';
-              file_name[len+1] = '\0';
-              SetDlgItemText(dialog, ID_DIFF_COMMAND, quoted_file_name);
+              SetDlgItemText(dialog, ID_DIFF_COMMAND, ofn.lpstrFile);
 	    }
 
             ret = TRUE;
@@ -461,14 +456,13 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
           
         case ID_BROWSE1: {
             OPENFILENAME ofn;
-            TCHAR quoted_file_name[MAX_PATH+2] = TEXT("\"");
-            LPTSTR file_name = quoted_file_name+1;
+            TCHAR szFile[MAX_PATH] = TEXT("");
 
             ZeroMemory(&ofn, sizeof(OPENFILENAME));
             ofn.lStructSize = sizeof(OPENFILENAME);
             ofn.hwndOwner = dialog;
-            ofn.lpstrFile = file_name;
-            ofn.nMaxFile = MAX_PATH;
+            ofn.lpstrFile = szFile;
+            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
             ofn.lpstrFilter = TEXT("Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0");
             ofn.nFilterIndex = 1;
             ofn.lpstrFileTitle = NULL;
@@ -478,10 +472,6 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
 
             if(GetOpenFileName(&ofn) == TRUE) {
-              int len = lstrlen(file_name);
-              
-              file_name[len] = '\"';
-              file_name[len+1] = '\0';
               SetDlgItemText(dialog, ID_COMMAND_DIFF3, ofn.lpstrFile);
 	    }
 
