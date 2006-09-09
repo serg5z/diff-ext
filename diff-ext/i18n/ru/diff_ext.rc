@@ -9,7 +9,7 @@
 
 #include <windows.h>
 
-#include "../diff_ext.rh"
+#include "resource.h"
 
 #define xstr(x) str(x)
 #define str(x) #x
@@ -17,8 +17,8 @@
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 VS_VERSION_INFO VERSIONINFO
-  FILEVERSION 1,7,1,112
-  PRODUCTVERSION 1,7,1,112
+  FILEVERSION 1,7,2,112
+  PRODUCTVERSION 1,7,2,112
   FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
   FILEFLAGS VS_FF_DEBUG
@@ -36,14 +36,14 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "Comments", ""
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diff shell extension"
-            VALUE "FileVersion", "Выпуск 1.7.1"
+            VALUE "FileVersion", "Выпуск 1.7.2"
             VALUE "InternalName", "diff shell extension"
             VALUE "LegalCopyright", "Copyright © 2003-2005 Сергей Зорин"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "diff_ext1049.dll"
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "Выпуск 1.7.1"
+            VALUE "ProductVersion", "Выпуск 1.7.2"
         }
     }
     BLOCK "VarFileInfo"
@@ -58,6 +58,8 @@ STRINGTABLE
   DIFF3_STR "3-х стороннее сравнение"
   DIFF_WITH_STR "сравнить с"
   DIFF_WITH_FILE_STR "сравнить с ''%1''"
+  DIFF3_WITH_STR "3-х стороннее сравнение с"
+  DIFF3_WITH_FILE_STR "3-х стороннее сравнение с"
   DIFF_LATER_STR "сравнить позже"
   
   DIFF_HINT "Сравнить выбранные файлы"

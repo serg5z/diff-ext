@@ -15,7 +15,7 @@
 
 #include "diff_ext.h"
 #include "server.h"
-#include "diff_ext.rh"
+#include "resource.h"
 
 const UINT IDM_DIFF=1;
 const UINT IDM_DIFF3=2;

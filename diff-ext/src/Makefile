@@ -7,27 +7,16 @@ ROOT ?= ../..
 
 include $(ROOT)/make/dynamic-library.mk
 
-LDFLAGS += --gc-sections --stats -static 
+LIBS :=  -lutil -luuid -luuid -lole32
 
-LIBS :=  ..\\..\\lib\\libutil.a uuid.lib ole32.lib advapi32.lib shell32.lib user32.lib bufferoverflowu.lib
+RCFLAGS += -I../include --language=409
+CXXFLAGS += -I$(ROOT)/util/include -I../include
+CFLAGS += -I$(ROOT)/util/include -I../include
 
-CXXFLAGS += -I../../util/include
-CFLAGS += -I../../util/include
-
-LANG_RU := $(BUILD)/$(PROJ:%.dll=%)1049.dll
-
-LANG := $(LANG_RU)
-
-all-after: $(SRC-RC) lang/$(PROJ:%.dll=%)_ru.res
+all-after: $(SRC-RC)
 	echo $(OBJ)
 	echo $(RES)
 #	$(UPDATE_VERSION)  --input $< --output $<
 
 clean: clean-custom
-	$(RM)  $(OBJ) $(PROJ) $(EXPLIB) $(STATICLIB) $(LANG) lang/$(PROJ:%.dll=%)_ru.res
-
-$(LANG_RU) : lang/$(PROJ:%.dll=%)_ru.res
-	$(DLLWRAP) \
-	--mno-cygwin \
-	--def lang/$(PROJ:%.dll=%)_lang.def \
-	$< -o $@
+	$(RM)  $(OBJ) $(PROJ) $(EXPLIB) $(STATICLIB)

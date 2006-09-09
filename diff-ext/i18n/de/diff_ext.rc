@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2003-2006, Sergey Zorin. All rights reserved.
+ *
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
+ *
+ */
+#pragma code_page(1252)
+
+#include <windows.h>
+
+#include "resource.h"
+
+#define xstr(x) str(x)
+#define str(x) #x
+
+LANGUAGE LANG_GERMAN, SUBLANG_DEFAULT
+
+VS_VERSION_INFO VERSIONINFO
+  FILEVERSION 1,7,2,112
+  PRODUCTVERSION 1,7,2,112
+  FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+  FILEFLAGS VS_FF_DEBUG
+#else
+  FILEFLAGS 0L
+#endif
+  FILEOS VOS_NT_WINDOWS32
+  FILETYPE VFT_DLL
+  FILESUBTYPE VFT_UNKNOWN
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "040704b0"
+        {
+            VALUE "Comments", ""
+            VALUE "CompanyName", ""
+            VALUE "FileDescription", "diff shell extension"
+            VALUE "FileVersion", "Version 1.7.2"
+            VALUE "InternalName", "diff shell extension"
+            VALUE "LegalCopyright", "Copyright © 2003-2005 Sergey Zorin"
+            VALUE "LegalTrademarks", ""
+            VALUE "OriginalFilename", "diff_ext1031.dll"
+            VALUE "PrivateBuild", ""
+            VALUE "ProductName", "Diff Context Menu Extension"
+            VALUE "ProductVersion", "Version 1.7.2"
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x407, 1200
+    }
+}
+
+STRINGTABLE
+{
+  DIFF_STR "Vergleichen"
+  DIFF3_STR "3-fach-Vergleich"
+  DIFF_WITH_STR "Vergleichen mit"
+  DIFF_WITH_FILE_STR "Vergleichen mit ''%1''"
+  DIFF3_WITH_STR "3-fach-Vergleich mit"
+  DIFF3_WITH_FILE_STR "3-fach-Vergleich mit ''%1''"
+  DIFF_LATER_STR "Später vergleichen"
+  
+  DIFF_HINT "Vergleiche ausgewählte Dateien"
+  DIFF_WITH_HINT "Vergleichen mit ''%1''"
+  DIFF3_HINT "3-fach-Vergleich der ausgewählten Dateien"
+  DIFF3_WITH_HINT "3-fach-Vergleich mit ''%1''"
+  DIFF_LATER_HINT "Speichere ausgewählte Datei(en) für späteren Vergleich"
+
+  CREATE_PROCESS_STR "Konnte Vergleichsprogramm nicht starten. Bitte führen Sie das diff_ext-Setup-Programm aus und überprüfen Sie Ihre Konfiguration."
+  
+  ERROR_STR "Fehler"
+}
