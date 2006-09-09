@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2003-2006, Sergey Zorin. All rights reserved.
+ *
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
+ *
+ */
+#include "diff_ext_setup.h"
+
+IDD_LOGGING DIALOGEX
+0, 0, 228, 75
+STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+FONT 8, "Helv"
+EXSTYLE WS_EX_CONTROLPARENT
+BEGIN
+    AUTOCHECKBOX  "Enable logging",
+                  ID_ENABLE_LOGGING, 
+                  7, 7, 90, 10,
+		  WS_TABSTOP
+    EDITTEXT      
+                  ID_LOG_PATH, 
+                  7, 22, 159, 14, 
+                  ES_AUTOHSCROLL | WS_VISIBLE | WS_BORDER | WS_DISABLED
+                  
+    PUSHBUTTON    "Browse...",
+                  ID_BROWSE, 
+                  170, 22, 50, 14,
+		  WS_DISABLED
+                  
+    LTEXT  "Log level",
+                  ID_LOG_LEVEL_LABEL, 
+                  7, 45, 35, 8,
+		  WS_DISABLED
+                  
+    EDITTEXT  
+                  ID_LOG_LEVEL, 
+                  45, 43, 30, 12,
+                  ES_AUTOHSCROLL | ES_NUMBER | ES_RIGHT | WS_GROUP | WS_TABSTOP | WS_DISABLED
+                  
+    CONTROL "",
+                  ID_LOG_LEVEL_BUTTON, 
+                  UPDOWN_CLASS, 
+                  0xb6, 
+                  89, 43, 15, 12,
+		  WS_DISABLED
+		  
+END
+
+ID_LOGGING_LAYOUT RCDATA {
+  ID_BROWSE, /*ID_BROWSE*/ 
+    6L, /* ANCOR_RIGHT | ANCOR_TOP */
+    6L, /* ANCOR_RIGHT | ANCOR_TOP */
+  ID_LOG_PATH, /*ID_LOG_PATH*/ 
+    3L, /* ANCOR_LEFT | ANCOR_TOP */
+    6L /* ANCOR_RIGHT | ANCOR_TOP */
+}

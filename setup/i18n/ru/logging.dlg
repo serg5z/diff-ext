@@ -1,0 +1,55 @@
+/*
+ * Copyright (c) 2003-2006, Sergey Zorin. All rights reserved.
+ *
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
+ *
+ */
+#pragma code_page(1251)
+
+IDD_LOGGING DIALOGEX
+0, 0, 228, 75
+STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK //| WS_CLIPCHILDREN
+FONT 8, "Ms Shell Dlg"
+EXSTYLE WS_EX_CONTROLPARENT
+BEGIN
+    AUTOCHECKBOX  "Вести журнал",
+      ID_ENABLE_LOGGING, 
+      7, 7, 90, 10,
+      WS_TABSTOP
+    EDITTEXT      
+      ID_LOG_PATH, 
+      7, 22, 159, 14, 
+      ES_AUTOHSCROLL | WS_VISIBLE | WS_BORDER | WS_DISABLED
+      
+    PUSHBUTTON    "Обзор...",
+      ID_BROWSE, 
+      170, 22, 50, 14,
+      WS_DISABLED
+      
+    LTEXT  "Уровень журналирования",
+      ID_LOG_LEVEL_LABEL, 
+      7, 45, 95, 8,
+      WS_DISABLED
+      
+    EDITTEXT  
+      ID_LOG_LEVEL, 
+      105, 43, 30, 12,
+      ES_AUTOHSCROLL | ES_NUMBER | ES_RIGHT | WS_GROUP | WS_TABSTOP | WS_DISABLED
+      
+    CONTROL "", 
+      ID_LOG_LEVEL_BUTTON, 
+      "msctls_updown32", 
+      0xb6, 
+      149, 43, 15, 12,
+      WS_DISABLED
+END
+
+ID_LOGGING_LAYOUT RCDATA {
+  ID_BROWSE, /*ID_BROWSE*/ 
+    6L, /* ANCOR_RIGHT | ANCOR_TOP */
+    6L, /* ANCOR_RIGHT | ANCOR_TOP */
+  ID_LOG_PATH, /*ID_LOG_PATH*/ 
+    3L, /* ANCOR_LEFT | ANCOR_TOP */
+    6L /* ANCOR_RIGHT | ANCOR_TOP */
+}
