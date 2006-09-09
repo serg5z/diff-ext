@@ -1,4 +1,4 @@
-VERSION := 1.7.1
+VERSION := 1.7.2
 
 ISCC := /c/Program\ Files/Inno\ Setup\ 5/ISCC
 
@@ -13,6 +13,6 @@ all: $(INSTALLER)
 clean:
 	
         
-$(INSTALLER) : diff_ext.iss
+$(INSTALLER) : diff_ext.iss $(wildcard $(BUILD)/*)
 	$(ISCC) $<
 	mv diff_ext.exe $@
