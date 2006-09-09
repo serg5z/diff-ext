@@ -217,7 +217,7 @@ class DLIST {
     }
     
     void append(typename DLIST<T>::ITERATOR pos, typename DLIST<T>::NODE* node) {
-      assert(node != 0);
+//      assert(node != 0);
       node->unlink();
       node->append(*pos);
       
@@ -225,7 +225,7 @@ class DLIST {
     }
     
     void prepend(typename DLIST<T>::ITERATOR pos, typename DLIST<T>::NODE* node) {
-      assert(node != 0);
+//      assert(node != 0);
       node->unlink();
       node->prepend(*pos);
       

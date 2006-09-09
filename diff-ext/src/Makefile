@@ -7,8 +7,9 @@ ROOT ?= ../..
 
 include $(ROOT)/make/dynamic-library.mk
 
+LDFLAGS += --gc-sections --stats -static 
 
-LIBS :=  -lutil -luuid -luuid -lole32
+LIBS :=  ..\\..\\lib\\libutil.a uuid.lib ole32.lib advapi32.lib shell32.lib user32.lib bufferoverflowu.lib
 
 CXXFLAGS += -I../../util/include
 CFLAGS += -I../../util/include

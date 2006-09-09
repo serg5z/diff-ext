@@ -58,7 +58,7 @@ subclass_button() {
   
   tmp = CreateWindow(TEXT("BUTTON"), TEXT("tmp"), WS_POPUP, 0, 0, 50, 50, 0, NULL, GetModuleHandle(0), NULL);
   
-  old_button_procedure = (WNDPROC)SetClassLong(tmp, GCL_WNDPROC, (DWORD)new_button_procedure);
+  old_button_procedure = (WNDPROC)SetClassLongPtr(tmp, GCLP_WNDPROC, (LONG_PTR)new_button_procedure);
   
   DestroyWindow(tmp);
 }
@@ -321,7 +321,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     }
   }
 /******************************************************************************/  
-  SetClassLong(dialog, GCL_HICON, (long)LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON)));
+  SetClassLongPtr(dialog, GCLP_HICON, (LONG_PTR)LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON)));
   
   attach_layout(resource, dialog, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
   

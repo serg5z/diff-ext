@@ -4,7 +4,7 @@ ROOT ?= ..
 
 include $(ROOT)/make/executable.mk
 
-LIBS :=  -llayout -lcomdlg32 -lcomctl32 -ladvapi32 -lversion -lole32 -lshlwapi
+LIBS :=  ..\\lib\\liblayout.a comdlg32.lib comctl32.lib advapi32.lib version.lib ole32.lib shlwapi.lib shell32.lib user32.lib bufferoverflowu.lib
 
 LDFLAGS += -mwindows
 CXXFLAGS += -I$(ROOT)/dialog-layout/include

@@ -389,7 +389,7 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
 }
 
 STDMETHODIMP
-DIFF_EXT::GetCommandString(UINT idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT cchMax) {
+DIFF_EXT::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT cchMax) {
 //  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
   HRESULT ret = NOERROR;
   TCHAR resource_string[256];

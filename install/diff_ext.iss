@@ -29,8 +29,8 @@ Name: "i18n_ru"; Description: "Русский перевод"; Types: full custom; Languages: 
 [Files]
 Source: ..\build\diff_ext.dll; DestDir: {app}; Flags: regserver restartreplace uninsrestartdelete
 Source: ..\build\diff_ext_setup.exe; DestDir: {app}; Flags: 
-Source: ..\build\diff_ext1049.dll; DestDir: {app}; Flags: 
-Source: ..\build\diff_ext_setup1049.dll; DestDir: {app}; Flags: 
+;Source: ..\build\diff_ext1049.dll; DestDir: {app}; Flags:
+;Source: ..\build\diff_ext_setup1049.dll; DestDir: {app}; Flags:
 ;restartreplace uninsrestartdelete ignoreversion
 ;regserver restartreplace uninsrestartdelete uninsremovereadonly
 Source: ..\LICENSE; DestDir: {app}; Flags: uninsremovereadonly; Attribs: readonly
