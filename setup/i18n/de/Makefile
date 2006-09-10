@@ -1,7 +1,7 @@
 PROJ := diff_ext_setup1031.dll
 ROOT ?= ../../..
 
-include $(ROOT)/make/dynamic-library.mk
+include $(ROOT)/make/resource-library.mk
 
 RCFLAGS += -I../../include --language=407
 

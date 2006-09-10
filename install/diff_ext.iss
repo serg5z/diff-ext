@@ -3,7 +3,7 @@ Compression=lzma/normal
 SolidCompression=yes
 AppName=diff_ext
 AppId=A0482097-C69D-4DEC-8AB6-D3A259ACC151
-AppVerName=diff_ext 1.7.2
+AppVerName=diff_ext 1.7.3
 AppPublisher=Z
 DefaultDirName={pf}\Z\diff_ext
 DefaultGroupName=Z\diff_ext
@@ -55,6 +55,7 @@ Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: 3way_compa
 Name: "en"; MessagesFile: "compiler:Default.isl"; LicenseFile: "..\LICENSE.rtf"
 Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"; LicenseFile: "..\LICENSE_RU.rtf"
 Name: "de"; MessagesFile: "compiler:Languages\German.isl"; LicenseFile: "..\LICENSE.rtf"
+Name: "ja"; MessagesFile: "japanese.isl"; LicenseFile: "..\LICENSE.rtf"
 
 [Code]
 procedure CurStepChanged(CurStep: TSetupStep);

@@ -1,4 +1,4 @@
-VERSION := 1.7.2
+VERSION := 1.7.3
 
 ISCC := /c/Program\ Files/Inno\ Setup\ 5/ISCC
 
@@ -11,7 +11,7 @@ endif
 all: $(INSTALLER)
 
 clean:
-	
+	$(RM) $(INSTALLER)
         
 $(INSTALLER) : diff_ext.iss $(wildcard $(BUILD)/*)
 	$(ISCC) $<
