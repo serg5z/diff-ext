@@ -1,4 +1,4 @@
-LIBRARY      diff_ext_setup1041
-DESCRIPTION  'diff_ext_setup ja language resource'
+LIBRARY      diff_ext1041
+DESCRIPTION  'diff_ext ja language resource'
 
 EXPORTS

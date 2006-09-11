@@ -1,4 +1,4 @@
-LIBRARY      diff_ext_setup1031
-DESCRIPTION  'diff_ext_sdetup de language resource'
+LIBRARY      diff_ext1031
+DESCRIPTION  'diff_ext de language resource'
 
 EXPORTS

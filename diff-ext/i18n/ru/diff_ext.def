@@ -1,4 +1,4 @@
-LIBRARY      diff_ext_setup1049
-DESCRIPTION  'diff_ext_sdetup ru language resource'
+LIBRARY      diff_ext1049
+DESCRIPTION  'diff_ext ru language resource'
 
 EXPORTS
