@@ -18,19 +18,27 @@ ShowUndisplayableLanguages=yes
 PrivilegesRequired=none
 ShowLanguageDialog=yes
 
-;LicenseFile=..\LICENSE.rtf
+[Components]
+Name: "main"; Description: "diff-ext"; Types: full compact custom; Flags: fixed
+Name: "i18n_ru"; Description: "Russian translation"; Types: full custom; Languages: en
+Name: "i18n_ru"; Description: "Русский перевод"; Types: full custom; Languages: ru
+Name: "i18n_de"; Description: "German translation"; Types: full custom; Languages: en
+Name: "i18n_de"; Description: "Немецкий перевод"; Types: full custom; Languages: ru
+Name: "i18n_ja"; Description: "Japanese translation"; Types: full custom; Languages: en
+Name: "i18n_ja"; Description: "Японский перевод"; Types: full custom; Languages: ru
 
 [Files]
 Source: ..\build\diff_ext.dll; DestDir: {app}; Flags: regserver restartreplace uninsrestartdelete
 Source: ..\build\diff_ext_setup.exe; DestDir: {app}; Flags: 
-Source: ..\build\diff_ext1049.dll; DestDir: {app}; Flags:
-Source: ..\build\diff_ext1031.dll; DestDir: {app}; Flags:
-Source: ..\build\diff_ext_setup1049.dll; DestDir: {app}; Flags:
-Source: ..\build\diff_ext_setup1031.dll; DestDir: {app}; Flags:
+Source: ..\build\diff_ext1049.dll; DestDir: {app}; Flags: ;Components: i18n_ru
+Source: ..\build\diff_ext1031.dll; DestDir: {app}; Flags: ;Components: i18n_de
+Source: ..\build\diff_ext1041.dll; DestDir: {app}; Flags: ;Components: i18n_ja
+Source: ..\build\diff_ext_setup1049.dll; DestDir: {app}; Flags: ;Components: i18n_ru
+Source: ..\build\diff_ext_setup1031.dll; DestDir: {app}; Flags: ;Components: i18n_de
+Source: ..\build\diff_ext_setup1041.dll; DestDir: {app}; Flags: ;Components: i18n_ja
 ;restartreplace uninsrestartdelete ignoreversion
 ;regserver restartreplace uninsrestartdelete uninsremovereadonly
 Source: ..\LICENSE; DestDir: {app}; Flags: uninsremovereadonly; Attribs: readonly
-
 Source: ..\LICENSE_RU; DestDir: {app}; Attribs: readonly; Flags: uninsremovereadonly; Languages: ru
 
 [Icons]
@@ -49,6 +57,7 @@ Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: diff3; Va
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1033; Flags: uninsdeletekey; Languages: en
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1049; Flags: uninsdeletekey; Languages: ru
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1031; Flags: uninsdeletekey; Languages: de
+Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1041; Flags: uninsdeletekey; Languages: ja
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: 3way_compare_supported; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
 
 [Languages]
@@ -92,6 +101,18 @@ begin
       
       RegDeleteKeyIncludingSubkeys(HKLM, 'Software\Z\diff-ext');
       RegDeleteKeyIfEmpty(HKLM, 'Software\Z');
+    end;
+  end;
+end;
+
+procedure CurUninstallStepChanged(CurStep: TUninstallStep);
+begin
+  if CurStep = usPostUninstall then begin
+    if RegKeyExists(HKCR, '\Directory\shellex\ContextMenuHandlers\diff-ext') then begin
+      RegDeleteKeyIncludingSubkeys(HKCR, '\Directory\shellex\ContextMenuHandlers\diff-ext');
+    end;
+    if RegKeyExists(HKCR, '\Folder\shellex\ContextMenuHandlers\diff-ext') then begin
+      RegDeleteKeyIncludingSubkeys(HKCR, '\Folder\shellex\ContextMenuHandlers\diff-ext');
     end;
   end;
 end;

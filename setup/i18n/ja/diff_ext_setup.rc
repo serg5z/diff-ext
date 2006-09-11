@@ -5,26 +5,24 @@
  * of the BSD license in the LICENSE file provided with this software.
  *
  */
-#pragma code_page(1252)
+#pragma code_page(932)
 
 #ifndef __BORLANDC__
 #include <windows.h>
+#include <commctrl.h>
 #endif
 #include "resource.h"
 
-//LANGUAGE LANG_GERMAN, SUBLANG_DEFAULT
-
 #ifndef __LCC__
-  #ifdef __MINGW32__
   #define MANIFEST 24
-  #endif
 
-1 MANIFEST "../../common/diff_ext_setup.manifest"
+1 MANIFEST "../common/diff_ext_setup.manifest"
 #endif
 
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,7,3,169
- PRODUCTVERSION 1,7,3,169
+ FILEVERSION 1,7,3,378
+ PRODUCTVERSION 1,7,3,378
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -32,29 +30,29 @@ VS_VERSION_INFO VERSIONINFO
  FILEFLAGS 0L
 #endif
  FILEOS VOS_NT_WINDOWS32
- FILETYPE VFT_DLL
+ FILETYPE VFT_APP
  FILESUBTYPE VFT_UNKNOWN
 {
     BLOCK "StringFileInfo"
     {
-        BLOCK "040704e4"
+        BLOCK "040904b0"
         {
-            VALUE "Comments", "Translated by Mathias Weinert"
+            VALUE "Comments", "Translated by HAYASHI Kentaro"
             VALUE "CompanyName", ""
-            VALUE "FileDescription", "diff shell extension setup"
-            VALUE "FileVersion", "Version 1.7.3"
-            VALUE "InternalName", "diff shell extension setup"
-            VALUE "LegalCopyright", "Copyright ｩ 2003-2006 Sergey Zorin"
+            VALUE "FileDescription", "diffシェル拡張設定"
+            VALUE "FileVersion", "Release 1.7.3"
+            VALUE "InternalName", "diffシェル拡張設定"
+            VALUE "LegalCopyright", "Copyright (C) 2003-2006 Sergey Zorin"
             VALUE "LegalTrademarks", ""
-            VALUE "OriginalFilename", "diff_ext_setup1031.dll"
+            VALUE "OriginalFilename", "diff_ext_setup1041.exe"
             VALUE "PrivateBuild", ""
-            VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "Version 1.7.3"
+            VALUE "ProductName", "Diff コンテキストメニュー拡張"
+            VALUE "ProductVersion", "Release 1.7.3"
         }
     }
     BLOCK "VarFileInfo"
     {
-        VALUE "Translation", 0x407, 1252
+        VALUE "Translation", 0x411, 932
     }
 }
 
@@ -62,27 +60,26 @@ MAIN_ICON ICON "../common/de.ico"
 
 #include "about.dlg"
 
-IDD_MAINDIALOG DIALOGEX 
-70, 60, 261, 162
-STYLE DS_CENTER | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
-CAPTION "Diff-ext Setup"
-FONT 8, "Ms Shell Dlg"
+IDD_MAINDIALOG DIALOGEX DISCARDABLE 70, 60, 261, 162
+STYLE WS_POPUP|DS_3DLOOK|DS_CENTER|WS_THICKFRAME|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_VISIBLE
+CAPTION "Diff-ext 設定"
+FONT 8, "Ms Shell Dlg", 0, 0, 1
 BEGIN
   CONTROL "", ID_GROUP, "Button", BS_GROUPBOX, 7, 7, 247, 106
   CONTROL "", ID_DIFF_COMMAND, "Edit", ES_AUTOHSCROLL|WS_BORDER|WS_TABSTOP, 16, 29, 177, 14
-  CONTROL "Suchen...", ID_BROWSE, "Button", WS_TABSTOP, 197, 29, 50, 14
-  CONTROL "Kommando f�r 3-fach-Vergleich:", 4002, "Static", WS_GROUP, 16, 47, 150, 8
+  CONTROL "開く...", ID_BROWSE, "Button", WS_TABSTOP, 197, 29, 50, 14
+  CONTROL "3比較コマンド:", 4002, "Static", WS_GROUP, 16, 47, 150, 8
   CONTROL "", ID_COMMAND_DIFF3, "Edit", ES_AUTOHSCROLL|WS_BORDER|WS_TABSTOP, 16, 58, 177, 14
-  CONTROL "Suchen...", ID_BROWSE1, "Button", WS_TABSTOP, 197, 58, 50, 14
-  CONTROL "Ordner vergleichen", ID_DIFF_DIRS, "Button", BS_AUTOCHECKBOX|WS_TABSTOP, 16, 79, 95, 10
-  CONTROL "3-fach-Vergleich", ID_DIFF3, "Button", BS_AUTOCHECKBOX|WS_TABSTOP, 16, 96, 98, 10
-  CONTROL "Sprache", 4003, "Static", WS_GROUP, 7, 122, 37, 8
+  CONTROL "開く...", ID_BROWSE1, "Button", WS_TABSTOP, 197, 58, 50, 14
+  CONTROL "フォルダを比較", ID_DIFF_DIRS, "Button", BS_AUTOCHECKBOX|WS_TABSTOP, 16, 79, 64, 10
+  CONTROL "3比較", ID_DIFF3, "Button", BS_AUTOCHECKBOX|WS_TABSTOP, 16, 96, 61, 10
+  CONTROL "言語", 4003, "Static", WS_GROUP, 7, 122, 37, 8
   CONTROL "", ID_LANGUAGE, "ComboBox", WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP, 45, 120, 100, 100
-  CONTROL "Kommando f�r Vergleich:", 104, "Static", WS_GROUP, 16, 18, 150, 8
-  CONTROL "OK", MAIN_ICON, "Button", BS_DEFPUSHBUTTON|WS_GROUP|WS_TABSTOP, 34, 141, 50, 14
-  CONTROL "Abbrechen", IDCANCEL, "Button", WS_TABSTOP, 88, 141, 50, 14
-  CONTROL "Anwenden", ID_APPLY, "Button", WS_TABSTOP, 142, 141, 50, 14
-  CONTROL "ﾜber", ID_ABOUT, "Button", WS_TABSTOP, 199, 141, 55, 14
+  CONTROL "比較コマンド:", 104, "Static", WS_GROUP, 16, 18, 150, 8
+  CONTROL "OK", MAIN_ICON, "Button", BS_DEFPUSHBUTTON|WS_GROUP|WS_TABSTOP, 39, 141, 50, 14
+  CONTROL "キャンセル", IDCANCEL, "Button", WS_TABSTOP, 93, 141, 50, 14
+  CONTROL "適用", ID_APPLY, "Button", WS_TABSTOP, 147, 141, 50, 14
+  CONTROL "詳細", ID_ABOUT, "Button", WS_TABSTOP, 204, 141, 50, 14
   CONTROL "", 4001, "ScrollBar", 0x04000014, 250, 151, 11, 11
 END
 
@@ -121,6 +118,6 @@ ID_MAINDIALOG_LAYOUT RCDATA {
 
 STRINGTABLE
 {
-  OPTIONS_STR "Optionen"
-  LOGGING_STR "Logging"
+  OPTIONS_STR "オプション"
+  LOGGING_STR "ログ"
 }
