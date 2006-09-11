@@ -20,11 +20,11 @@ ShowLanguageDialog=yes
 
 [Components]
 Name: "main"; Description: "diff-ext"; Types: full compact custom; Flags: fixed
-Name: "i18n_ru"; Description: "Russian translation"; Types: full custom; Languages: en
+Name: "i18n_ru"; Description: "Russian translation"; Types: full custom; Languages: en de ja
 Name: "i18n_ru"; Description: "Русский перевод"; Types: full custom; Languages: ru
-Name: "i18n_de"; Description: "German translation"; Types: full custom; Languages: en
+Name: "i18n_de"; Description: "German translation"; Types: full custom; Languages: en de ja
 Name: "i18n_de"; Description: "Немецкий перевод"; Types: full custom; Languages: ru
-Name: "i18n_ja"; Description: "Japanese translation"; Types: full custom; Languages: en
+Name: "i18n_ja"; Description: "Japanese translation"; Types: full custom; Languages: en de ja
 Name: "i18n_ja"; Description: "Японский перевод"; Types: full custom; Languages: ru
 
 [Files]
