@@ -31,7 +31,7 @@ BEGIN
                   ID_BROWSE, 
                   322, 18, 50, 14
                   
-    LTEXT         "3比較コマンド",
+    LTEXT         "3-way比較コマンド",
                   104, 
                   14, 39, 82, 8
     EDITTEXT      
@@ -45,7 +45,7 @@ BEGIN
     AUTOCHECKBOX  "フォルダを比較",
                   ID_DIFF_DIRS, 
                   14, 54, 90, 10
-    AUTOCHECKBOX  "3比較",
+    AUTOCHECKBOX  "3-way比較",
                   ID_DIFF3, 
                   14, 64, 90, 10
     LTEXT         "言語",
