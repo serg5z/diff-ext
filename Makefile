@@ -17,6 +17,9 @@ all:
   cd setup
   $(MAKE) ROOT=$(ROOT) BUILD=$(BUILD) LIBRARY=$(LIBRARY)
   @cd ..
+  cd install
+  $(MAKE) ROOT=$(ROOT) BUILD=$(BUILD) LIBRARY=$(LIBRARY)
+  @cd ..
         
 clean:
   cd dialog-layout
@@ -29,5 +32,8 @@ clean:
   $(MAKE) ROOT=$(ROOT) BUILD=$(BUILD) LIBRARY=$(LIBRARY) clean 
   @cd ..
   cd setup
+  $(MAKE) ROOT=$(ROOT) BUILD=$(BUILD) LIBRARY=$(LIBRARY) clean 
+  @cd ..
+  cd install
   $(MAKE) ROOT=$(ROOT) BUILD=$(BUILD) LIBRARY=$(LIBRARY) clean 
   @cd ..
