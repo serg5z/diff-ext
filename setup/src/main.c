@@ -38,7 +38,6 @@ extern void about(HANDLE resource, HWND parent);
 
 static HANDLE resource;
 static WINDOW_PLACEMENT* window_placement = 0;
-static PAGE* pages[1];
 
 static WNDPROC old_button_procedure;
 
@@ -170,7 +169,7 @@ _tWinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used
 }
 
 static void
-init(HWND dialog, WPARAM not_used, LPARAM l_param) {
+init(HWND dialog, WPARAM not_used1, LPARAM not_used2) {
   HKEY key;
   TCHAR command[4*MAX_PATH] = TEXT("");
   TCHAR command3[6*MAX_PATH] = TEXT("");
