@@ -51,7 +51,7 @@ class STRING {
     }
     
     int length() const {
-      return _tcslen(_str);
+      return lstrlen(_str);
     }
     
     // String length in bytes. May differ from length() for Unicode or MBCS

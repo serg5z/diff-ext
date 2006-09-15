@@ -58,7 +58,7 @@ subclass_button() {
   
   tmp = CreateWindow(TEXT("BUTTON"), TEXT("tmp"), WS_POPUP, 0, 0, 50, 50, 0, NULL, GetModuleHandle(0), NULL);
   
-  old_button_procedure = (WNDPROC)SetClassLong(tmp, GCL_WNDPROC, (DWORD)new_button_procedure);
+  old_button_procedure = (WNDPROC)SetClassLongPtr(tmp, GCLP_WNDPROC, (LONG_PTR)new_button_procedure);
   
   DestroyWindow(tmp);
 }
@@ -151,13 +151,14 @@ _tWinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used
     }
   
     resource_handle = FindResource(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), RT_DIALOG);
+
     dialog_handle = LoadResource(resource, resource_handle);
     dialog = (DLGTEMPLATE*)LockResource(dialog_handle);
   
   /*  can not do because have to specify hinst as module instance and load dialog from translated resource only dll...
     ret = DialogBox(resource, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, (DLGPROC)main_dialog_func);
   */  
-    exit = DialogBoxIndirect(instance, dialog, NULL, (DLGPROC)main_dialog_func);
+    exit = (int)DialogBoxIndirect(instance, dialog, NULL, (DLGPROC)main_dialog_func);
 
     FreeResource(dialog);
     FreeLibrary(resource);
@@ -174,8 +175,8 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   TCHAR command[4*MAX_PATH] = TEXT("");
   TCHAR command3[6*MAX_PATH] = TEXT("");
   TCHAR home[MAX_PATH] = TEXT(".");
-  DWORD language;
-  DWORD three_way_compare_supported;
+  DWORD language = 1033;
+  DWORD three_way_compare_supported = 0;
   HANDLE file;
   WIN32_FIND_DATA file_info;
   TCHAR prefix[] = TEXT("diff_ext");
@@ -183,7 +184,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   TCHAR suffix[] = TEXT(".dll");
   TCHAR* locale_info;
   int locale_info_size;
-  int curr = 0;  
+  LRESULT curr = 0;  
   LPWSTR  tmp_guid;
   TCHAR class_id[MAX_PATH];
   
@@ -301,8 +302,8 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
   SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, 4*MAX_PATH, 0);
   SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETLIMITTEXT, 6*MAX_PATH, 0);
   
-  if(GetDllVersion("shlwapi.dll") >= PACKVERSION(5,0)) {
-    HMODULE libshlwapi = LoadLibrary("shlwapi.dll");
+  if(GetDllVersion(TEXT("shlwapi.dll")) >= PACKVERSION(5,0)) {
+    HMODULE libshlwapi = LoadLibrary(TEXT("shlwapi.dll"));
     
     if(libshlwapi != 0) {
       HRESULT (WINAPI* SHAutoComplete_fn)(HWND, DWORD) = 0;
@@ -316,7 +317,7 @@ init(HWND dialog, WPARAM not_used, LPARAM l_param) {
     }
   }
 /******************************************************************************/  
-  SetClassLong(dialog, GCL_HICON, (long)LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON)));
+  SetClassLongPtr(dialog, GCLP_HICON, (LONG_PTR)LoadIcon(resource, MAKEINTRESOURCE(MAIN_ICON)));
   
   attach_layout(resource, dialog, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
   
@@ -356,8 +357,8 @@ apply(HWND dialog) {
   }
 
   RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_SET_VALUE, &key);
-  RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, _tcslen(command)*sizeof(TCHAR));
-  RegSetValueEx(key, TEXT("diff3"), 0, REG_SZ, (const BYTE*)command3, _tcslen(command3)*sizeof(TCHAR));
+  RegSetValueEx(key, TEXT("diff"), 0, REG_SZ, (const BYTE*)command, lstrlen(command)*sizeof(TCHAR));
+  RegSetValueEx(key, TEXT("diff3"), 0, REG_SZ, (const BYTE*)command3, lstrlen(command3)*sizeof(TCHAR));
   RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
   RegSetValueEx(key, TEXT("3way_compare_supported"), 0, REG_DWORD, (const BYTE*)&three_way_compare_supported_value, sizeof(three_way_compare_supported_value));
   RegCloseKey(key);
@@ -382,7 +383,7 @@ apply(HWND dialog) {
       result = RegCreateKeyEx(HKEY_CLASSES_ROOT, TEXT("Folder\\shellex\\ContextMenuHandlers\\diff-ext"), 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &disp);
     
       if(result == NOERROR) {
-        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)value, _tcslen(value)*sizeof(TCHAR));
+        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)value, lstrlen(value)*sizeof(TCHAR));
         
         RegCloseKey(key);
       }
@@ -390,7 +391,7 @@ apply(HWND dialog) {
       result = RegCreateKeyEx(HKEY_CLASSES_ROOT, TEXT("Directory\\shellex\\ContextMenuHandlers\\diff-ext"), 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &key, &disp);
     
       if(result == NOERROR) {
-        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)value, _tcslen(value)*sizeof(TCHAR));
+        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)value, lstrlen(value)*sizeof(TCHAR));
         
         RegCloseKey(key);
       }

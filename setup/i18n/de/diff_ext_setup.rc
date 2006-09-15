@@ -12,7 +12,7 @@
 #endif
 #include "resource.h"
 
-//LANGUAGE LANG_GERMAN, SUBLANG_DEFAULT
+LANGUAGE LANG_GERMAN, SUBLANG_DEFAULT
 
 #ifndef __LCC__
   #ifdef __MINGW32__

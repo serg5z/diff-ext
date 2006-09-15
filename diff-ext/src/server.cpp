@@ -303,7 +303,7 @@ SERVER::do_register() {
 
         _stprintf(szData, entry[i].value, server_path);
 
-        result = RegSetValueEx(key, entry[i].name, 0, REG_SZ, (LPBYTE)szData, _tcslen(szData)*sizeof(TCHAR));
+        result = RegSetValueEx(key, entry[i].name, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData)*sizeof(TCHAR));
       }
       
       RegCloseKey(key);
@@ -318,7 +318,7 @@ SERVER::do_register() {
         //if necessary, create the value string
         _stprintf(szData, TEXT("%s"), class_id);
     
-        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)szData, _tcslen(szData)*sizeof(TCHAR));
+        result = RegSetValueEx(key, 0, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData)*sizeof(TCHAR));
     
         RegCloseKey(key);
     
@@ -337,7 +337,7 @@ SERVER::do_register() {
       
             lstrcpy(szData, TEXT("diff-ext"));
       
-            result = RegSetValueEx(key, class_id, 0, REG_SZ, (LPBYTE)szData, _tcslen(szData)*sizeof(TCHAR));
+            result = RegSetValueEx(key, class_id, 0, REG_SZ, (LPBYTE)szData, lstrlen(szData)*sizeof(TCHAR));
       
             RegCloseKey(key);
             

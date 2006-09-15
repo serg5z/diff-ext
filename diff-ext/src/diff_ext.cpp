@@ -163,7 +163,7 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
     initialize_language();
     
     _selection = new STRING[_n_files+1];
-    for(int i = 0; i < _n_files; i++) {
+    for(unsigned int i = 0; i < _n_files; i++) {
       DragQueryFile(drop, i, tmp, MAX_PATH);
       _selection[i+1] = STRING(tmp);
     }
@@ -437,7 +437,7 @@ DIFF_EXT::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT*, LPSTR pszName, UI
     } else if((idCmd >= IDM_DIFF_WITH_BASE) && (idCmd < IDM_DIFF_WITH_BASE+_recent_files->count())) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       if(!_recent_files->empty()) {
-	unsigned int num = idCmd-IDM_DIFF_WITH_BASE;
+	UINT_PTR num = idCmd-IDM_DIFF_WITH_BASE;
 	DLIST<STRING>::ITERATOR i = _recent_files->head();
 	for(unsigned int j = 0; j < num; j++) {
 	  i++;
@@ -478,7 +478,6 @@ DIFF_EXT::diff() {
   DWORD length = MAX_PATH;
   TCHAR command_template[MAX_PATH*4 + 8]; // path_to_diff+options(MAX_PATH)+2*path_to_files+qoutes&spaces
   LPTSTR command;
-  TCHAR tmp[MAX_PATH];
   void* args[] = {_selection[1], _selection[0]};
 
   ZeroMemory(command_template, sizeof(command_template));
@@ -569,7 +568,6 @@ DIFF_EXT::diff3() {
   DWORD length = MAX_PATH;
   TCHAR command_template[MAX_PATH*5 + 11]; // path_to_diff+options(MAX_PATH)+3*path_to_files+qoutes&spaces
   LPTSTR command;
-  TCHAR tmp[MAX_PATH];
   void* args[] = {_selection[1], _selection[2], _selection[0]};
 
   ZeroMemory(command_template, sizeof(command_template));

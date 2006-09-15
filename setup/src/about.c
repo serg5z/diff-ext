@@ -9,7 +9,7 @@
 
 #include "resource.h"
 
-static BOOL CALLBACK about_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param);
+static INT_PTR CALLBACK about_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param);
 
 void
 about(HANDLE resource, HWND parent) {
@@ -51,7 +51,7 @@ init(HWND dialog, WPARAM not_used_1, LPARAM l_param) {
   }
 }
 
-static BOOL CALLBACK
+static INT_PTR CALLBACK
 about_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
   BOOL ret = FALSE;
 

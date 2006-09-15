@@ -9,10 +9,10 @@
 #ifndef __diff_ext_setup_h__
 #define __diff_ext_setup_h__
 
-#define IDD_MAINDIALOG	        100L
-#define IDD_ABOUT	        200L
-#define IDD_OPTIONS             300L
-#define IDD_LOGGING             400L
+#define IDD_MAINDIALOG	        100
+#define IDD_ABOUT	        200
+#define IDD_OPTIONS             300
+#define IDD_LOGGING             400
 
 #define ID_LANGUAGE	        101L
 #define ID_DIFF_COMMAND	        102L
@@ -32,14 +32,14 @@
 #define ID_COMMAND_DIFF3	        117L
 #define ID_BROWSE1	        118L
 
-#define IDS_HELPMENU	        2010L
-#define MAIN_ICON               1L
+#define IDS_HELPMENU        2010L
+#define MAIN_ICON               1
 
-#define OPTIONS_STR	        1001L
-#define LOGGING_STR	        1002L
+#define OPTIONS_STR        1001L
+#define LOGGING_STR        1002L
 
-#define ID_MAINDIALOG_LAYOUT	1000L
-#define ID_OPTIONS_LAYOUT	2000L
-#define ID_LOGGING_LAYOUT	3000L
+#define ID_MAINDIALOG_LAYOUT 1000
+#define ID_OPTIONS_LAYOUT 2000
+#define ID_LOGGING_LAYOUT 3000
 
 #endif /* __diff_ext_setup_h__ */
