@@ -11,6 +11,8 @@ DisableProgramGroupPage=false
 OutputDir=.
 OutputBaseFilename=diff_ext
 ShowUndisplayableLanguages=yes
+ArchitecturesAllowed=x86 x64 ia64
+ArchitecturesInstallIn64BitMode=x64 ia64
 
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
 ; MinVersion=4,3.51

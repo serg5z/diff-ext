@@ -339,7 +339,7 @@ apply(HWND dialog) {
   HKEY key;
   TCHAR command[4*MAX_PATH];
   TCHAR command3[6*MAX_PATH];
-  LRESULT language;
+  DWORD language;
   LRESULT idx;
   LRESULT compare_folders;
   LRESULT three_way_compare_supported;
@@ -348,7 +348,7 @@ apply(HWND dialog) {
   GetDlgItemText(dialog, ID_DIFF_COMMAND, command, sizeof(command)/sizeof(command[0]));
   GetDlgItemText(dialog, ID_COMMAND_DIFF3, command3, sizeof(command3)/sizeof(command3[0]));
   idx = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_GETCURSEL, 0, 0);
-  language = SendDlgItemMessage(dialog, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
+  language = (DWORD)SendDlgItemMessage(dialog, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
   compare_folders = SendDlgItemMessage(dialog, ID_DIFF_DIRS, BM_GETCHECK, 0, 0);  
   three_way_compare_supported = SendDlgItemMessage(dialog, ID_DIFF3, BM_GETCHECK, 0, 0);  
   if(three_way_compare_supported == BST_CHECKED) {
@@ -485,8 +485,8 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
         case ID_APPLY:
         case IDOK: {
             HKEY key;
-	    LRESULT language = 1033;
-	    LRESULT old_language = 1033;
+	    DWORD language = 1033;
+	    DWORD old_language = 1033;
 	    DWORD hlen;
             RECT rect;
             
