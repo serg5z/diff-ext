@@ -34,7 +34,7 @@ LANG :=
 
 all: .depend all-before $(EXE) $(LANG) all-after
 
-.depend: Makefile $(SRC-C) $(SRC-RC) $(SRC-CXX)
+.depend: GNUmakefile $(SRC-C) $(SRC-RC) $(SRC-CXX)
 	$(CXX) -M $(CXXFLAGS) $(SRC-C) $(SRC-RC) $(SRC-CXX) > .depend
 	
 include .depend

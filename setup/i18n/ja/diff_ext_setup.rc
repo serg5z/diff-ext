@@ -21,8 +21,8 @@
 
 LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,7,4,378
- PRODUCTVERSION 1,7,4,378
+ FILEVERSION 1,7,5,378
+ PRODUCTVERSION 1,7,5,378
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -40,14 +40,14 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "Comments", "Translated by HAYASHI Kentaro"
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diffシェル拡張設定"
-            VALUE "FileVersion", "Release 1.7.4"
+            VALUE "FileVersion", "Release 1.7.5"
             VALUE "InternalName", "diffシェル拡張設定"
             VALUE "LegalCopyright", "Copyright (C) 2003-2006 Sergey Zorin"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "diff_ext_setup1041.exe"
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "Diff コンテキストメニュー拡張"
-            VALUE "ProductVersion", "Release 1.7.4"
+            VALUE "ProductVersion", "Release 1.7.5"
         }
     }
     BLOCK "VarFileInfo"
