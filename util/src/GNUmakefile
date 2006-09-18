@@ -2,6 +2,8 @@ PROJ := libutil.a
 
 ROOT ?= ../..
 
+LIB ?= .
+
 include $(ROOT)/make/static-library.mk
 
 CXXFLAGS += -I../../util/include -I../include
