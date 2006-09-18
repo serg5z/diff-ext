@@ -15,6 +15,3 @@ DLLWRAP ?= dllwrap.exe
 
 all-after: $(SRC-RC) $(LANG)
 	$(UPDATE_VERSION)  --input $< --output $<
-
-clean: clean-custom
-	$(RM)  $(OBJ) $(PROJ) 

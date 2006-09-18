@@ -5,8 +5,6 @@ include $(ROOT)/make/resource-library.mk
 
 RCFLAGS += -I../../include --language=407
 
-clean:
-	$(RM) $(RES)
 #all-after: $(SRC-RC) $(PROJ:%.dll=%).res
 #	echo $(OBJ)
 #	echo $(RES)

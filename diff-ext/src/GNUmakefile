@@ -17,6 +17,3 @@ all-after: $(SRC-RC)
 	echo $(OBJ)
 	echo $(RES)
 #	$(UPDATE_VERSION)  --input $< --output $<
-
-clean: clean-custom
-	$(RM)  $(OBJ) $(PROJ) $(EXPLIB) $(STATICLIB)
