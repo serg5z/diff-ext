@@ -12,8 +12,3 @@ LIBS :=  -lutil -luuid -luuid -lole32
 RCFLAGS += -I../include --language=409
 CXXFLAGS += -I$(ROOT)/util/include -I../include
 CFLAGS += -I$(ROOT)/util/include -I../include
-
-all-after: $(SRC-RC)
-	echo $(OBJ)
-	echo $(RES)
-#	$(UPDATE_VERSION)  --input $< --output $<

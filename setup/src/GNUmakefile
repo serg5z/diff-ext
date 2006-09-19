@@ -12,6 +12,3 @@ CFLAGS += -I$(ROOT)/dialog-layout/include -I../include -D_WIN32_WINNT=0x0501 -g
 RCFLAGS += -I$(ROOT)/dialog-layout/include -I../include --language=409
 LDFLAGS += -L$(ROOT)/dialog-layout/lib
 DLLWRAP ?= dllwrap.exe
-
-all-after: $(SRC-RC) $(LANG)
-	$(UPDATE_VERSION)  --input $< --output $<
