@@ -29,7 +29,7 @@ BEGIN
                   ID_BROWSE, 
                   322, 18, 50, 14
                   
-    LTEXT         "3 way compare command",
+    LTEXT         "3-way compare command",
                   104, 
                   14, 39, 82, 8
     EDITTEXT      
@@ -43,7 +43,7 @@ BEGIN
     AUTOCHECKBOX  "Compare folders",
                   ID_DIFF_DIRS, 
                   14, 54, 90, 10
-    AUTOCHECKBOX  "3 way compare",
+    AUTOCHECKBOX  "3-way compare",
                   ID_DIFF3, 
                   14, 64, 90, 10
     LTEXT         "Language",

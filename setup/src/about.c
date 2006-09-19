@@ -7,6 +7,8 @@
  */
 #include <windows.h>
 
+#include <util/dialog.h>
+
 #include "resource.h"
 
 static INT_PTR CALLBACK about_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param);
@@ -49,6 +51,8 @@ init(HWND dialog, WPARAM not_used_1, LPARAM l_param) {
     
     free(file_versioninfo);
   }
+  
+  urlctrl_set(GetDlgItem(dialog, 201), TEXT("http://www.google.com"), 0, 0, UCF_KBD | UCF_TXT_HCENTER);
 }
 
 static INT_PTR CALLBACK

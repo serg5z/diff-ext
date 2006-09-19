@@ -21,7 +21,8 @@ const UINT IDM_DIFF=1;
 const UINT IDM_DIFF3=2;
 const UINT IDM_DIFF_WITH=3;
 const UINT IDM_DIFF_LATER=4;
-const UINT IDM_DIFF_WITH_BASE=5;
+const UINT IDM_CLEAR=5;
+const UINT IDM_DIFF_WITH_BASE=6;
 
 DIFF_EXT::DIFF_EXT() : _n_files(0), _selection(0), _language(1033), _ref_count(0L) {
 //  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
@@ -216,7 +217,6 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__);
     UINT id = first_cmd;
     LPTSTR c_str;
-    UINT state = _recent_files->count() > 0 ? MFS_ENABLED : MFS_DISABLED;
     
     if(_n_files > 0) {
       MENUITEMINFO item_info;
@@ -237,14 +237,10 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
           
           load_resource_string(DIFF_WITH_FILE_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("compare to '%1'"));
           FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR)&c_str, 0, (char**)args);
-        } else {
-          load_resource_string(DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("compare to"));
-          c_str = resource_string;
-        }
-        
-        id = first_cmd + IDM_DIFF_WITH;
-        insert_menu(menu, position, id, state, c_str);
-        position++;
+          id = first_cmd + IDM_DIFF_WITH;
+          insert_menu(menu, position, id, MFS_ENABLED, c_str);
+          position++;
+        }        
       } else if(_n_files == 2) {
         if(SERVER::instance()->tree_way_compare_supported()) {
           if(_recent_files->count() > 0) {
@@ -252,16 +248,12 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
             STRING str1  = cut_to_length((*i)->data());
             void* args[] = {(void*)str1};
             
-            load_resource_string(DIFF3_WITH_FILE_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare '%1'"));
+            load_resource_string(DIFF3_WITH_FILE_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3-way compare '%1'"));
             FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR)&c_str, 0, (char**)args);
-          } else {
-            load_resource_string(DIFF3_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare to"));
-            c_str = resource_string;
+            id = first_cmd + IDM_DIFF_WITH;
+            insert_menu(menu, position, id, MFS_ENABLED, c_str);
+            position++;
           }
-          
-          id = first_cmd + IDM_DIFF_WITH;
-          insert_menu(menu, position, id, state, c_str);
-          position++;
         }
         
         load_resource_string(DIFF_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("compare"));
@@ -271,7 +263,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
         position++;
       } else if(_n_files == 3) {
         if(SERVER::instance()->tree_way_compare_supported()) {
-          load_resource_string(DIFF3_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare"));
+          load_resource_string(DIFF3_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3way compare"));
           
           id = first_cmd + IDM_DIFF3;
           insert_menu(menu, position, id, MFS_ENABLED, resource_string);
@@ -291,38 +283,52 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
         c_str = resource_string;
       } else if(_n_files == 2) {
         if(SERVER::instance()->tree_way_compare_supported()) {
-          load_resource_string(DIFF3_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare to"));
+          load_resource_string(DIFF3_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3-way compare to"));
           c_str = resource_string;
         }
       }
       
       if(c_str != 0) {
-        HMENU file_list = CreateMenu();
-        DLIST<STRING>::ITERATOR i = _recent_files->head();
+        if(_recent_files->count() > 0) {
+          HMENU file_list = CreateMenu();
+          DLIST<STRING>::ITERATOR i = _recent_files->head();
 
-        id = first_cmd+IDM_DIFF_WITH_BASE;
-        int n = 0;
-        while(!i.done()) {
-          STRING str;
+          id = first_cmd+IDM_DIFF_WITH_BASE;
+          int n = 0;
+          while(!i.done()) {
+            STRING str;
+            
+            str = cut_to_length((*i)->data());
+            c_str = str;
+
+            insert_menu(file_list, n, id, MFS_ENABLED, c_str);
+            id++;
+            i++;
+            n++;
+          }
           
-          str = cut_to_length((*i)->data());
-          c_str = str;
-
-          insert_menu(file_list, position, id, MFS_ENABLED, c_str);
-          id++;
-          i++;
+          ZeroMemory(&item_info, sizeof(item_info));
+          item_info.cbSize = sizeof(MENUITEMINFO);
+          item_info.fMask = MIIM_TYPE;
+          item_info.fType = MFT_SEPARATOR;
+          item_info.dwTypeData = 0;
+          InsertMenuItem(file_list, n, TRUE, &item_info);
           n++;
+
+          load_resource_string(CLEAR_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Clear"));
+          insert_menu(file_list, n, first_cmd + IDM_CLEAR, MFS_ENABLED, resource_string);          
+
+          load_resource_string(DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("compare to '%1'"));
+          
+          ZeroMemory(&item_info, sizeof(item_info));
+          item_info.cbSize = sizeof(MENUITEMINFO);
+          item_info.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID;
+          item_info.wID = first_cmd + IDM_DIFF_WITH;
+          item_info.hSubMenu = file_list;
+          item_info.dwTypeData = resource_string;
+          InsertMenuItem(menu, position, TRUE, &item_info);
+          position++;
         }
-        
-        ZeroMemory(&item_info, sizeof(item_info));
-        item_info.cbSize = sizeof(MENUITEMINFO);
-        item_info.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID | MIIM_STATE;
-        item_info.wID = first_cmd + IDM_DIFF_WITH;
-        item_info.fState = state;
-        item_info.hSubMenu = file_list;
-        item_info.dwTypeData = resource_string;
-        InsertMenuItem(menu, position, TRUE, &item_info);
-        position++;
       }
       
       ZeroMemory(&item_info, sizeof(item_info));
@@ -374,6 +380,9 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
       } else if((_n_files == 2) && (SERVER::instance()->tree_way_compare_supported())) {
         diff3_with(LOWORD(ici->lpVerb)-IDM_DIFF_WITH_BASE);
       }
+    } else if(LOWORD(ici->lpVerb) == IDM_CLEAR) {
+//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
+      _recent_files->clear();
     } else {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       ret = E_INVALIDARG;
@@ -397,12 +406,12 @@ DIFF_EXT::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT*, LPSTR pszName, UI
   if(uFlags == GCS_HELPTEXT) {
     if(idCmd == IDM_DIFF) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-      load_resource_string(DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare selected files"));
+      load_resource_string(DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare selected files."));
       
       lstrcpyn((LPTSTR)pszName, resource_string, cchMax);
     } else if(idCmd == IDM_DIFF3) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-      load_resource_string(DIFF3_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare selected files"));
+      load_resource_string(DIFF3_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3-way compare selected files."));
       
       lstrcpyn((LPTSTR)pszName, resource_string, cchMax);
     } else if(idCmd == IDM_DIFF_WITH) {
@@ -415,9 +424,9 @@ DIFF_EXT::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT*, LPSTR pszName, UI
         void* args[] = {(void*)file_name};
         
         if(_n_files == 1) {
-  	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare '%1'"));	
+  	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare ''%1''."));	
         } else if(_n_files == 2) {
-  	  load_resource_string(DIFF3_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare to '%1'"));	
+  	  load_resource_string(DIFF3_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3-way compare to ''%1''."));	
         } else {
           MessageBox(0, TEXT("This is bad"), TEXT(""), MB_OK);
         }
@@ -431,7 +440,11 @@ DIFF_EXT::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT*, LPSTR pszName, UI
       }
     } else if(idCmd == IDM_DIFF_LATER) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-      load_resource_string(DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Save selected file(s) for later comparison"));
+      load_resource_string(DIFF_LATER_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Save selected file(s) for later comparison."));
+      
+      lstrcpyn((LPTSTR)pszName, resource_string, cchMax);
+    } else if(idCmd == IDM_CLEAR) {
+      load_resource_string(CLEAR_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Clear selected files list."));
       
       lstrcpyn((LPTSTR)pszName, resource_string, cchMax);
     } else if((idCmd >= IDM_DIFF_WITH_BASE) && (idCmd < IDM_DIFF_WITH_BASE+_recent_files->count())) {
@@ -449,9 +462,9 @@ DIFF_EXT::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT*, LPSTR pszName, UI
         void* args[] = {(void*)file_name};
         
         if(_n_files == 1) {
-	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare to '%1'"));
+	  load_resource_string(DIFF_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare to ''%1''."));
         } else if(_n_files == 2) {
-	  load_resource_string(DIFF3_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3 way compare to '%1'"));
+	  load_resource_string(DIFF3_WITH_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3-way compare to ''%1''."));
         }
 
 	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR)&message, 0, (char**)args);

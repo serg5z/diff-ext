@@ -46,8 +46,7 @@ static LPCTSTR no[] = {
   TEXT("30"), TEXT("31"), TEXT("32"), TEXT("33"), TEXT("34"), TEXT("35"), TEXT("36"), TEXT("37"), TEXT("38"), TEXT("39"),
   TEXT("40"), TEXT("41"), TEXT("42"), TEXT("43"), TEXT("44"), TEXT("45"), TEXT("46"), TEXT("47"), TEXT("48"), TEXT("49"), 
   TEXT("50"), TEXT("51"), TEXT("52"), TEXT("53"), TEXT("54"),TEXT("55"), TEXT("56"), TEXT("57"), TEXT("58"), TEXT("59"),
-  TEXT("60"), TEXT("61"), TEXT("62"), TEXT("63"), TEXT("64"),
-  0
+  TEXT("60"), TEXT("61"), TEXT("62"), TEXT("63"), TEXT("64")
 };
 
 static const unsigned int max_history_size = sizeof(no)/sizeof(no[0]);
@@ -177,7 +176,7 @@ SERVER::recent_files() {
       TCHAR file[MAX_PATH];
       bool stop = false;
       
-      for(unsigned int i = 0; !stop && (no[i] != 0) && (i < history_size); i++) {
+      for(unsigned int i = 0; !stop && (i < history_size); i++) {
         len = MAX_PATH;
 	if(RegQueryValueEx(key, no[i], 0, 0, (BYTE*)file, &len) == ERROR_SUCCESS) {
 	  //~ char str[256];
@@ -259,6 +258,10 @@ SERVER::save_history() const {
 	}
 	n++;
 	i++;
+      }
+      
+      while(RegDeleteValue(key, no[n]) == ERROR_SUCCESS) {
+        n++;
       }
       
       RegCloseKey(key);

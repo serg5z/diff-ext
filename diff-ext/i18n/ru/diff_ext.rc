@@ -17,8 +17,8 @@
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 VS_VERSION_INFO VERSIONINFO
-  FILEVERSION 1,7,5,115
-  PRODUCTVERSION 1,7,5,115
+  FILEVERSION 1,7,5,117
+  PRODUCTVERSION 1,7,5,117
   FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
   FILEFLAGS VS_FF_DEBUG
@@ -54,13 +54,13 @@ VS_VERSION_INFO VERSIONINFO
 
 STRINGTABLE
 {
-  DIFF_STR "сравнить"
+  DIFF_STR "Сравнить"
   DIFF3_STR "3-х стороннее сравнение"
-  DIFF_WITH_STR "сравнить с"
-  DIFF_WITH_FILE_STR "сравнить с ''%1''"
+  DIFF_WITH_STR "Сравнить с"
+  DIFF_WITH_FILE_STR "Сравнить с ''%1''"
   DIFF3_WITH_STR "3-х стороннее сравнение с"
   DIFF3_WITH_FILE_STR "3-х стороннее сравнение с"
-  DIFF_LATER_STR "сравнить позже"
+  DIFF_LATER_STR "Сравнить позже"
   
   DIFF_HINT "Сравнить выбранные файлы"
   DIFF_WITH_HINT "Сравнить с ''%1''"

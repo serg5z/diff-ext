@@ -2,11 +2,12 @@
 ;
 ; Translated by Ryou Minakami (ryou32jp@yahoo.co.jp)
 ; Fix: Koichi Shirasuka (shirasuka@eugrid.co.jp)
+; Fix (LanguageName): Sergey Zorin (szorin@comcast.net)
 ;
 ; $jrsoftware: issrc/Files/Default.isl,v 1.66 2005/02/25 20:23:48 mlaan Exp $
 
 [LangOptions]
-LanguageName=Japanese
+LanguageName=<65e5><672c><8a9e>
 LanguageID=$0411
 LanguageCodePage=932
 

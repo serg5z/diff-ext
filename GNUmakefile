@@ -17,16 +17,10 @@ LDFLAGS ?= -L$(LIB)
 ARFLAGS ?= crv
 UPDATE_VERSION ?= $(BIN)/update_version.exe
 
-all:
+all: tools util dialog-layout diff-ext setup install
 	mkdir -p $(BIN)
 	mkdir -p $(BUILD)
 	mkdir -p $(LIB)
-	$(MAKE) -C tools
-	$(MAKE) -C util
-	$(MAKE) -C dialog-layout
-	$(MAKE) -C diff-ext
-	$(MAKE) -C setup
-	$(MAKE) -C install
 
 clean:
 	$(MAKE) -C tools clean
@@ -36,6 +30,26 @@ clean:
 	$(MAKE) -C setup clean
 	$(MAKE) -C install clean
         
+tools: FORSE
+	$(MAKE) -C tools
+        
+util: FORSE
+	$(MAKE) -C util
+        
+dialog-layout: FORSE
+	$(MAKE) -C dialog-layout
+        
+diff-ext: FORSE
+	$(MAKE) -C diff-ext
+        
+setup: FORSE
+	$(MAKE) -C setup
+        
+install: FORSE
+	$(MAKE) -C install
+        
+FORSE:
+
 debug:
 	$(MAKE) DEBUG=YES UNICODE=YES
 
