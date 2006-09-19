@@ -1,5 +1,6 @@
 18-Sep-2006:
-  added clean common target to make
+  *added clean common target to make
+  *fix make process to update build number
   
 17-Sep-2006:
-  switched update_version to make  
+  *switched update_version to make  
