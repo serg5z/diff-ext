@@ -25,4 +25,6 @@ void SetDlgItemUrl(HWND dialog, int id, LPTSTR url);
 #define UCF_FIT         64 
 BOOL urlctrl_set(HWND,TCHAR *url,COLORREF *unvisited,COLORREF *visited,DWORD flags);
 
+BOOL set_url(HWND hwndCtl, LPCTSTR strURL);
+BOOL set_url3(HWND hwndParent, UINT uiCtlId, LPCTSTR strURL);
 #endif /* __dialog_h__ */

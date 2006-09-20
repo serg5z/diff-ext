@@ -20,8 +20,9 @@ BEGIN
       203, 
       7, 7, 21, 20
     CTEXT "diff-ext", 
-      201, 
-      30, 7, 162, 8
+      ID_LINK, 
+      101, 7, 20, 8,
+      WS_TABSTOP
     CTEXT "No version information available.", 
       ID_VERSION, 
       30, 22, 162, 8

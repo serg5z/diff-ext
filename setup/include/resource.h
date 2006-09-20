@@ -31,6 +31,7 @@
 #define ID_DIFF3	        116L
 #define ID_COMMAND_DIFF3	        117L
 #define ID_BROWSE1	        118L
+#define ID_LINK 119L
 
 #define IDS_HELPMENU        2010L
 #define MAIN_ICON               1

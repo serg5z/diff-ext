@@ -45,14 +45,14 @@ init(HWND dialog, WPARAM not_used_1, LPARAM l_param) {
       VerQueryValue(file_versioninfo, version_block, (void**)&product_version, &length);
       
       if(length > 0) {
-	SetDlgItemText(dialog, ID_VERSION, product_version);
+        SetDlgItemText(dialog, ID_VERSION, product_version);
       }
     }
     
     free(file_versioninfo);
   }
   
-  urlctrl_set(GetDlgItem(dialog, 201), TEXT("http://www.google.com"), 0, 0, UCF_KBD | UCF_TXT_HCENTER);
+  set_url(GetDlgItem(dialog, ID_LINK), TEXT("http://diff-ext.sourceforge.net"));
 }
 
 static INT_PTR CALLBACK
