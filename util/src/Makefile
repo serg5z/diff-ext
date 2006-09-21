@@ -22,6 +22,7 @@ OBJ=file_sink.obj \
     log.obj \
     string.obj \
     trace.obj \
+    hyperlink.obj
     
 cflags = $(cflags) -I..\include
 

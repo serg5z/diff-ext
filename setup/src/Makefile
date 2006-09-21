@@ -40,7 +40,7 @@ $(BUILD)\$(PROJ): $(OBJ) $(DEF)
     -out:$(BUILD)\$(PROJ) \
     -def:$(DEF) \
     $(OBJ) \
-    $(olelibs) shlwapi.lib version.lib comctl32.lib layout.lib
+    $(olelibs) shlwapi.lib version.lib comctl32.lib shell32.lib layout.lib util.lib 
 
 .cpp.obj:
     $(cc) $(cflags) $(cvarsmt) $(cdebug) /WX $<

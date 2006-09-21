@@ -1,3 +1,8 @@
+20-Sep-2006:
+  *added clickable link to about dialogs
+  *removed disabled menu items from context menu
+  *added a way to clear the saved files list
+  
 18-Sep-2006:
   *added clean common target to make
   *fix make process to update build number
