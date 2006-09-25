@@ -5,7 +5,7 @@
 PROJ := diff_ext.dll
 ROOT ?= ../..
 
-include $(ROOT)/make/dynamic-library.mk
+include $(ROOT)/make/dynamic-library.gmk
 
 LIBS :=  -lutil -luuid -luuid -lole32
 

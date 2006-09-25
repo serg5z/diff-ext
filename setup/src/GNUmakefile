@@ -2,7 +2,7 @@ PROJ := diff_ext_setup.exe
 
 ROOT ?= ../..
 
-include $(ROOT)/make/executable.mk
+include $(ROOT)/make/executable.gmk
 
 LIBS :=  -llayout -lcomdlg32 -lcomctl32 -ladvapi32 -lversion -lole32 -lshlwapi -lutil
 

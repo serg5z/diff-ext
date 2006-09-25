@@ -4,7 +4,7 @@ BUILD := $(BIN)
 
 ROOT ?= ../../..
 
-include $(ROOT)/make/executable.mk
+include $(ROOT)/make/executable.gmk
 
 LIBS :=  -lrx
 
