@@ -1,33 +1,14 @@
 PROJ = diff_ext1049.dll
 !ifndef ROOT
-ROOT = ../../..
-!endif
-!ifndef BUILD
-BUILD = .
+ROOT = ..\..
 !endif
 
-# set NODEBUG _before_ win32.mak
-!ifndef DEBUG
-NODEBUG=yes 
-!endif
-
-!include <win32.mak>
+DEF=diff_ext.def
+OBJ=diff_ext.res
+    
+!include $(ROOT)\make\resource-library.mak
 
 # any modifications to the flags should go _after_ win32.mak
-
 rcflags = $(rcflags) -I..\..\include
 
-all: $(BUILD)\$(PROJ)
-
-clean:
-    del *.obj *.res $(BUILD)\$(PROJ)
-
-$(BUILD)\$(PROJ): diff_ext.res diff_ext.def
-    $(link) $(linkdebug) $(lflags) -dll    \
-    /NOENTRY \
-    -out:$(BUILD)\$(PROJ)   \
-    -def:diff_ext.def \
-    diff_ext.res
-    
-.rc.res: 
-    $(rc) $(rcvars) $(rcflags) /fo $@ $<
+#dependency information goes here
