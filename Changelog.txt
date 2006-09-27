@@ -1,3 +1,6 @@
+27-Sep-2006:
+  *extracted common sections from VC Makefiles
+
 20-Sep-2006:
   *added clickable link to about dialogs
   *removed disabled menu items from context menu
