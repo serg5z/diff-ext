@@ -16,3 +16,4 @@ cflags = $(cflags) -D_CRT_SECURE_NO_DEPRECATE -I..\include
 rcflags = $(rcflags) -I..\include
 
 #dependency information goes here
+!include depend.mak

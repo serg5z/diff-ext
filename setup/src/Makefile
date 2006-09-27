@@ -8,13 +8,14 @@ OBJ=about.obj \
     debug_page.obj \
     main.obj \
     diff_ext_setup.res
-LIBS =  $(olelibs) shlwapi.lib version.lib comctl32.lib shell32.lib layout.lib util.lib 
+LIBS=$(olelibs) shlwapi.lib version.lib comctl32.lib shell32.lib layout.lib util.lib 
+SRC_RC=diff_ext_setup.rc
 
 !include $(ROOT)\make\executable.mak
 
 # any modifications to the flags should go _after_ win32.mak
-cflags = $(cflags) -D_CRT_SECURE_NO_DEPRECATE -I$(ROOT)\include -I$(ROOT)\util\include -I$(ROOT)\dialog-layout\include -I..\include
+cflags = $(cflags) -I$(ROOT)\include -I$(ROOT)\util\include -I$(ROOT)\dialog-layout\include -I..\include
 rcflags = $(rcflags) -I..\include
 
 #dependency information goes here
-diff_ext_setup.res: ..\include\resource.h
+!include depend.mak
