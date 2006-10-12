@@ -310,8 +310,8 @@ init(HWND dialog, WPARAM not_used1, LPARAM not_used2) {
       SHAutoComplete_fn = (HRESULT (WINAPI*)(HWND, DWORD))GetProcAddress(libshlwapi, "SHAutoComplete");
       
       if(SHAutoComplete_fn != 0) {
-        SHAutoComplete_fn(GetDlgItem(dialog, ID_DIFF_COMMAND), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
-        SHAutoComplete_fn(GetDlgItem(dialog, ID_COMMAND_DIFF3), 9 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
+        SHAutoComplete_fn(GetDlgItem(dialog, ID_DIFF_COMMAND), 0 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
+        SHAutoComplete_fn(GetDlgItem(dialog, ID_COMMAND_DIFF3), 0 /*SHACF_FILESYSTEM | SHACF_USETAB*/);
       }
     }
   }
@@ -416,12 +416,13 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
         case ID_COMMAND_DIFF3:
         case ID_DIFF_COMMAND: {
             static int first = 1;
+          
             if((first != 0) && (HIWORD(w_param) == EN_SETFOCUS)) {
               SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETSEL, 0, 0);
               SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETSEL, 0, 0);
 	      
-              SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETMARGINS, EC_RIGHTMARGIN, MAKELPARAM(0, 3));
-              SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETMARGINS, EC_RIGHTMARGIN, MAKELPARAM(0, 3));
+              SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETMARGINS, EC_RIGHTMARGIN | EC_LEFTMARGIN, EC_USEFONTINFO);
+              SendDlgItemMessage(dialog, ID_COMMAND_DIFF3, EM_SETMARGINS, EC_RIGHTMARGIN | EC_LEFTMARGIN, EC_USEFONTINFO);
 	      
               first = 0;
             }
@@ -432,15 +433,17 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
 	  about(resource, dialog);
 	  break;
 	
-        case ID_BROWSE: {
+        case ID_BROWSE: 
+        case ID_BROWSE1: {
             OPENFILENAME ofn;
-            TCHAR szFile[MAX_PATH] = TEXT("");
+            TCHAR quoted_file_name[MAX_PATH+2] = TEXT("\"");
+            LPTSTR file_name = quoted_file_name+1;
 
             ZeroMemory(&ofn, sizeof(OPENFILENAME));
             ofn.lStructSize = sizeof(OPENFILENAME);
             ofn.hwndOwner = dialog;
-            ofn.lpstrFile = szFile;
-            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
+            ofn.lpstrFile = file_name;
+            ofn.nMaxFile = MAX_PATH;
             ofn.lpstrFilter = TEXT("Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0");
             ofn.nFilterIndex = 1;
             ofn.lpstrFileTitle = NULL;
@@ -450,37 +453,21 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
 
             if(GetOpenFileName(&ofn) == TRUE) {
-              SetDlgItemText(dialog, ID_DIFF_COMMAND, ofn.lpstrFile);
+              int len = lstrlen(file_name);
+              
+              file_name[len] = '\"';
+              file_name[len+1] = '\0';
+              if(LOWORD(w_param) == ID_BROWSE) {
+                SetDlgItemText(dialog, ID_DIFF_COMMAND, quoted_file_name);
+              } else {
+                SetDlgItemText(dialog, ID_COMMAND_DIFF3, quoted_file_name);
+              }
 	    }
 
             ret = TRUE;
           }
           break;
           
-        case ID_BROWSE1: {
-            OPENFILENAME ofn;
-            TCHAR szFile[MAX_PATH] = TEXT("");
-
-            ZeroMemory(&ofn, sizeof(OPENFILENAME));
-            ofn.lStructSize = sizeof(OPENFILENAME);
-            ofn.hwndOwner = dialog;
-            ofn.lpstrFile = szFile;
-            ofn.nMaxFile = sizeof(szFile)/sizeof(szFile[0]);
-            ofn.lpstrFilter = TEXT("Applications (*.exe)\0*.EXE\0All (*.*)\0*.*\0");
-            ofn.nFilterIndex = 1;
-            ofn.lpstrFileTitle = NULL;
-            ofn.nMaxFileTitle = 0;
-            ofn.lpstrInitialDir = NULL;
-	    ofn.lpstrTitle = TEXT("Select file compare utility");
-            ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING;
-
-            if(GetOpenFileName(&ofn) == TRUE) {
-              SetDlgItemText(dialog, ID_COMMAND_DIFF3, ofn.lpstrFile);
-	    }
-
-            ret = TRUE;
-          }
-          break;
           
         case ID_APPLY:
         case IDOK: {
