@@ -10,5 +10,5 @@ include $(ROOT)/make/dynamic-library.gmk
 LIBS :=  -lutil -luuid -luuid -lole32
 
 RCFLAGS += -I../include --language=409
-CXXFLAGS += -I$(ROOT)/util/include -I../include
-CFLAGS += -I$(ROOT)/util/include -I../include
+CXXFLAGS += -I$(ROOT)/util/include -I../include -D_WIN32_WINNT=0x0500
+CFLAGS += -I$(ROOT)/util/include -I../include -D_WIN32_WINNT=0x0500
