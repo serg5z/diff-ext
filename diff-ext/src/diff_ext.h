@@ -17,7 +17,7 @@
 #include <util/string.h>
 
 // this is the actual OLE Shell context menu handler
-class DIFF_EXT : public IContextMenu, IShellExtInit {
+class DIFF_EXT : public IContextMenu3, IShellExtInit {
   public:
     DIFF_EXT();
     virtual ~DIFF_EXT();
@@ -27,10 +27,16 @@ class DIFF_EXT : public IContextMenu, IShellExtInit {
     STDMETHODIMP_(ULONG) AddRef();
     STDMETHODIMP_(ULONG) Release();
 
-    //IShell members
+    //IContextMenu members
     STDMETHODIMP QueryContextMenu(HMENU menu, UINT index, UINT cmd_first, UINT cmd_last, UINT flags);
     STDMETHODIMP InvokeCommand(LPCMINVOKECOMMANDINFO info);
     STDMETHODIMP GetCommandString(UINT_PTR cmd, UINT flags, UINT* reserved, LPSTR name, UINT name_length);
+
+    //IContextMenu2 members
+    STDMETHODIMP HandleMenuMsg(UINT msg, WPARAM w_param, LPARAM l_param);
+
+    //IContextMenu3 members
+    STDMETHODIMP HandleMenuMsg2(UINT msg, WPARAM w_param, LPARAM l_param, LRESULT *result);
 
     //IShellExtInit methods
     STDMETHODIMP Initialize(LPCITEMIDLIST folder, IDataObject* subj, HKEY key);
@@ -52,11 +58,12 @@ class DIFF_EXT : public IContextMenu, IShellExtInit {
     HINSTANCE _resource;
     DWORD _language;
     HWND _hwnd;
-    HANDLE _diff_icon;
-    HANDLE _diff3_icon;
-    HANDLE _diff_later_icon;
-    HANDLE _diff_with_icon;
-    HANDLE _diff3_with_icon;
+    HICON _diff_icon;
+    HICON _diff3_icon;
+    HICON _diff_later_icon;
+    HICON _diff_with_icon;
+    HICON _diff3_with_icon;
+    HICON _clear_icon;
 
     ULONG  _ref_count;
 };

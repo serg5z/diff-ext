@@ -24,6 +24,46 @@ const UINT IDM_DIFF_LATER=4;
 const UINT IDM_CLEAR=5;
 const UINT IDM_DIFF_WITH_BASE=6;
 
+typedef struct tag_menu_item_data {
+  STRING text;
+  HICON icon;
+} MENU_ITEM_DATA;
+
+HBITMAP
+icon2bitmap(HANDLE icon) {
+  ICONINFO icon_info;
+  HBITMAP result = 0;
+  LONG d = GetMenuCheckMarkDimensions();
+  LONG dx = HIWORD(d);
+  LONG dy = LOWORD(d);
+  HDC bitmap_dc = CreateCompatibleDC(0);
+  HDC icon_dc = CreateCompatibleDC(0);
+  BITMAP bmp;
+  
+  GetIconInfo((HICON)icon, &icon_info);
+  GetObject(icon_info.hbmColor, sizeof(BITMAP), &bmp);
+  
+  result = CreateBitmap(bmp.bmWidth, bmp.bmWidth, bmp.bmPlanes, bmp.bmBitsPixel, 0);
+//  result = CreateCompatibleBitmap(bitmap_dc, d, d);
+  if(result == 0) {
+    MessageBox(0, TEXT(""), TEXT("No bitmap :("), MB_OK);
+  }
+  SelectObject(bitmap_dc, result);
+  
+  SelectObject(icon_dc, icon_info.hbmMask);
+  BitBlt(bitmap_dc, 0, 0, dx, dy, 
+             icon_dc, 0, 0, SRCAND);
+
+  SelectObject(icon_dc, icon_info.hbmColor);
+  BitBlt(bitmap_dc, 0, 0, dx, dy, 
+             icon_dc, 0, 0, SRCINVERT);
+  
+  DeleteDC(bitmap_dc);
+  DeleteDC(icon_dc);
+  
+  return result;
+}
+
 DIFF_EXT::DIFF_EXT() : _n_files(0), _selection(0), _language(1033), _ref_count(0L) {
 //  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
   
@@ -33,16 +73,14 @@ DIFF_EXT::DIFF_EXT() : _n_files(0), _selection(0), _language(1033), _ref_count(0
   
   SERVER::instance()->lock();
   
-  _diff_icon = LoadImage(_resource, MAKEINTRESOURCE(100), IMAGE_ICON, 0, 0, LR_SHARED | LR_DEFAULTCOLOR);
-  if(_diff_icon == 0) {
-    MessageBox(0, TEXT(""), TEXT("Could not load icon"), MB_OK);
-  } else {
-    MessageBox(0, TEXT(""), TEXT("Icon loaded"), MB_OK);
-  }
-  _diff3_icon = LoadImage(_resource, MAKEINTRESOURCE(100), IMAGE_ICON, 0, 0, LR_SHARED | LR_DEFAULTCOLOR);
-  _diff_later_icon = LoadImage(_resource, MAKEINTRESOURCE(100), IMAGE_ICON, 0, 0, LR_SHARED | LR_DEFAULTCOLOR);
-  _diff_with_icon = LoadImage(_resource, MAKEINTRESOURCE(100), IMAGE_ICON, 0, 0, LR_SHARED | LR_DEFAULTCOLOR);
-  _diff3_with_icon = LoadImage(_resource, MAKEINTRESOURCE(100), IMAGE_ICON, 0, 0, LR_SHARED | LR_DEFAULTCOLOR);
+  HICON icon = (HICON)LoadImage(_resource, MAKEINTRESOURCE(100), IMAGE_ICON, 0, 0, LR_SHARED | LR_DEFAULTCOLOR);
+  
+  _diff_icon = icon;
+  _diff3_icon = icon;
+  _diff_later_icon = icon;
+  _diff_with_icon = icon;
+  _diff3_with_icon = icon;
+  _clear_icon = icon;
 }
 
 DIFF_EXT::~DIFF_EXT() {
@@ -65,8 +103,12 @@ DIFF_EXT::QueryInterface(REFIID refiid, void** ppv) {
 
   if(IsEqualIID(refiid, IID_IShellExtInit) || IsEqualIID(refiid, IID_IUnknown)) {
     *ppv = static_cast<IShellExtInit*>(this);
-  } else if (IsEqualIID(refiid, IID_IContextMenu)) {
+  } else if(IsEqualIID(refiid, IID_IContextMenu)) {
     *ppv = static_cast<IContextMenu*>(this);
+  } else if(IsEqualIID(refiid, IID_IContextMenu2)) {
+    *ppv = static_cast<IContextMenu2*>(this);
+  } else if(IsEqualIID(refiid, IID_IContextMenu3)) {
+    *ppv = static_cast<IContextMenu3*>(this);
   }
 
   if(*ppv != 0) {
@@ -205,21 +247,180 @@ DIFF_EXT::load_resource_string(UINT string_id, TCHAR* string, int length, TCHAR*
 }
 
 void
-insert_menu(HMENU menu, UINT position, UINT id, UINT state, TCHAR* string, HANDLE icon) {
+insert_menu(HMENU menu, UINT position, UINT id, UINT state, TCHAR* string, HICON icon) {
   MENUITEMINFO item_info;
+  MENU_ITEM_DATA* data = new MENU_ITEM_DATA;
+  
+  data->text = string;
+  data->icon = icon;
   
   ZeroMemory(&item_info, sizeof(item_info));
   item_info.cbSize = sizeof(MENUITEMINFO);
-  item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE | MIIM_CHECKMARKS;
-  item_info.fType = MFT_STRING;
+  item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE | MIIM_DATA;
+  item_info.fType = MFT_OWNERDRAW;
   item_info.fState = state;
   item_info.wID = id;
-  item_info.dwTypeData = string;
-  item_info.hbmpChecked = (HBITMAP)icon;
-  item_info.hbmpUnchecked = (HBITMAP)icon;
-  if(InsertMenuItem(menu, position, TRUE, &item_info) == FALSE) {
-    MessageBox(0, string, TEXT("Could not insert menu"), MB_OK);
+  item_info.dwItemData = (ULONG_PTR)data;
+  item_info.dwTypeData = (LPTSTR)data;
+  InsertMenuItem(menu, position, TRUE, &item_info);
+}
+
+STDMETHODIMP 
+DIFF_EXT::HandleMenuMsg(UINT msg, WPARAM w_param, LPARAM l_param) {
+  LRESULT result;
+  
+  MessageBox(0, TEXT(""), TEXT("HandleMenuMsg"), MB_OK);
+  return HandleMenuMsg2(msg, w_param, l_param, &result);
+}
+
+STDMETHODIMP 
+DIFF_EXT::HandleMenuMsg2(UINT msg, WPARAM w_param, LPARAM l_param, LRESULT *result) {
+  LRESULT local;
+  
+  if(result == 0) {
+    result = &local;
   }
+  
+  *result = NOERROR;
+  
+//  MessageBox(0, TEXT(""), TEXT("HandleMenuMsg2"), MB_OK);
+  if(msg == WM_MEASUREITEM) {
+    MEASUREITEMSTRUCT* mis = (MEASUREITEMSTRUCT*)l_param;
+    
+//    MessageBox(0, TEXT(""), TEXT("WM_MEASUREITEM"), MB_OK);
+    if(mis != 0) {    
+      MENU_ITEM_DATA* data = (MENU_ITEM_DATA*)mis->itemData;
+      
+      *result = TRUE;
+            
+      NONCLIENTMETRICS ncm;
+
+      mis->itemWidth = 0;
+      mis->itemHeight = 0;
+      
+      ncm.cbSize = sizeof(NONCLIENTMETRICS);
+      
+      if(SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0) != 0) {
+        HDC dc = CreateCompatibleDC(0);
+        
+        if(dc != 0) {
+          HFONT font = CreateFontIndirect(&ncm.lfMenuFont);
+          
+          if(font != 0) {
+            SIZE size;
+            HFONT old_font = (HFONT)SelectObject(dc, font);
+            
+            if(data != 0) {
+              unsigned int icon_width = 0;
+              unsigned int icon_height = 0;
+              if(data->icon != 0) {
+                ICONINFO ii;
+                GetIconInfo(data->icon, &ii);
+                HBITMAP hb = ii.hbmColor;
+                BITMAP bm;
+                if(hb == 0) {
+                  hb = ii.hbmMask;
+                }
+                GetObject(hb, sizeof(bm), &bm);
+                if(hb == ii.hbmMask) {
+                  bm.bmHeight /= 2;
+                }
+                
+                icon_width = bm.bmWidth;
+                icon_height = bm.bmHeight;
+              }
+              GetTextExtentPoint32(dc, data->text, lstrlen(data->text), &size);
+              LPtoDP(dc, (POINT*)&size, 1);
+
+              SelectObject(dc, old_font);
+              DeleteObject(font);
+              DeleteDC(dc);
+
+              mis->itemWidth = size.cx + 3 + icon_width; //width of string + width of icon + space between ~icon~text~
+              mis->itemHeight = max(size.cy, ncm.iMenuHeight);     
+              mis->itemHeight = max(mis->itemHeight, icon_height+2)+1;     
+              
+//              MessageBox(0, TEXT("Ok"), TEXT("WM_MEASUREITEM"), MB_OK);
+            }
+          }
+        }
+      }
+    }
+  } else if(msg == WM_DRAWITEM) {
+    DRAWITEMSTRUCT* dis = (DRAWITEMSTRUCT*)l_param;
+    
+//    MessageBox(0, TEXT(""), TEXT("WM_DRAWITEM"), MB_OK);
+    
+    if(dis != 0) {
+      if(dis->CtlType == ODT_MENU) {
+        MENU_ITEM_DATA* data = (MENU_ITEM_DATA*)dis->itemData;
+        
+        if(data != 0) {
+          NONCLIENTMETRICS ncm;
+          COLORREF text;
+          COLORREF background;
+          HFONT font;
+          HFONT menu_font;
+          
+          ncm.cbSize = sizeof(NONCLIENTMETRICS);
+          SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0);
+          menu_font = CreateFontIndirect(&ncm.lfMenuFont);
+          
+          if (dis->itemState & ODS_SELECTED) {
+            if (dis->itemState & ODS_GRAYED) {
+              text = SetTextColor(dis->hDC, GetSysColor(COLOR_GRAYTEXT));
+            } else {
+              text = SetTextColor(dis->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
+            }
+            
+            background = SetBkColor(dis->hDC, GetSysColor(COLOR_HIGHLIGHT));
+          } else { 
+            text = SetTextColor(dis->hDC, GetSysColor(COLOR_MENUTEXT)); 
+            background = SetBkColor(dis->hDC, GetSysColor(COLOR_MENU)); 
+          } 
+    
+          font = (HFONT)SelectObject(dis->hDC, menu_font);
+          
+          ExtTextOut(dis->hDC, dis->rcItem.left, dis->rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &dis->rcItem, 0, 0, 0); 
+          if(data->icon != 0) {
+            ICONINFO ii;
+            GetIconInfo(data->icon, &ii);
+            HBITMAP hb = ii.hbmColor;
+            BITMAP bm;
+            if(hb == 0) {
+              hb = ii.hbmMask;
+            }
+            GetObject(hb, sizeof(bm), &bm);
+            if(hb == ii.hbmMask) {
+              bm.bmHeight /= 2;
+            }
+            DrawIconEx(dis->hDC, dis->rcItem.left+1, dis->rcItem.top+1, data->icon, bm.bmWidth, bm.bmHeight, 0, 0, DI_NORMAL);
+            dis->rcItem.left += bm.bmWidth+3;
+          } else {
+            dis->rcItem.left += GetSystemMetrics(SM_CXSMICON);
+          }
+          int y;
+          SIZE size = {0, 0};
+          GetTextExtentPoint32(dis->hDC, data->text, lstrlen(data->text), &size);
+//          LPtoDP(dis->hDC, (POINT*)&size, 1);
+          y = ((dis->rcItem.bottom - dis->rcItem.top) - size.cy) / 2;
+          y = dis->rcItem.top + (y >= 0 ? y : 0);
+          ExtTextOut(dis->hDC, dis->rcItem.left, y, ETO_OPAQUE, &dis->rcItem, data->text, lstrlen(data->text), 0); 
+          
+          SelectObject(dis->hDC, font);
+          if (dis->itemState & ODS_SELECTED) {
+            SetTextColor(dis->hDC, text);
+            SetBkColor(dis->hDC, background);
+          }
+          
+          *result = TRUE;
+//          MessageBox(0, TEXT("Ok"), TEXT("WM_DRAWITEM"), MB_OK);
+        }
+      }
+    }
+  }
+  
+  return NOERROR;
 }
 
 STDMETHODIMP
@@ -312,11 +513,13 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
           int n = 0;
           while(!i.done()) {
             STRING str;
+            SHFILEINFO file_info;
             
             str = cut_to_length((*i)->data());
             c_str = str;
 
-            insert_menu(file_list, n, id, MFS_ENABLED, c_str, 0);
+            SHGetFileInfo((*i)->data(), 0, &file_info, sizeof(file_info), SHGFI_ICON | SHGFI_SMALLICON);
+            insert_menu(file_list, n, id, MFS_ENABLED, c_str, file_info.hIcon);
             id++;
             i++;
             n++;
@@ -331,7 +534,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
           n++;
 
           load_resource_string(CLEAR_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Clear"));
-          insert_menu(file_list, n, first_cmd + IDM_CLEAR, MFS_ENABLED, resource_string, 0);
+          insert_menu(file_list, n, first_cmd + IDM_CLEAR, MFS_ENABLED, resource_string, _clear_icon);
 
           load_resource_string(DIFF_WITH_STR, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("compare to '%1'"));
           
@@ -449,8 +652,7 @@ DIFF_EXT::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT*, LPSTR pszName, UI
 	FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_ARGUMENT_ARRAY, resource_string, 0, 0, (LPTSTR)&message, 0, (char**)args);
 	lstrcpyn((LPTSTR)pszName, message, cchMax);
 	LocalFree(message);
-      }
-      else {
+      } else {
 	lstrcpyn((LPTSTR)pszName, TEXT(""), cchMax);
       }
     } else if(idCmd == IDM_DIFF_LATER) {
