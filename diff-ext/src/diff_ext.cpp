@@ -397,7 +397,7 @@ DIFF_EXT::HandleMenuMsg2(UINT msg, WPARAM w_param, LPARAM l_param, LRESULT *resu
             DrawIconEx(dis->hDC, dis->rcItem.left+1, dis->rcItem.top+1, data->icon, bm.bmWidth, bm.bmHeight, 0, 0, DI_NORMAL);
             dis->rcItem.left += bm.bmWidth+3;
           } else {
-            dis->rcItem.left += GetSystemMetrics(SM_CXSMICON);
+            dis->rcItem.left += GetSystemMetrics(SM_CXSMICON)+3;
           }
           int y;
           SIZE size = {0, 0};
@@ -519,7 +519,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
             c_str = str;
 
             SHGetFileInfo((*i)->data(), 0, &file_info, sizeof(file_info), SHGFI_ICON | SHGFI_SMALLICON);
-            insert_menu(file_list, n, id, MFS_ENABLED, c_str, file_info.hIcon);
+            insert_menu(file_list, n, id, MFS_ENABLED, c_str, 0/*file_info.hIcon*/);
             id++;
             i++;
             n++;
