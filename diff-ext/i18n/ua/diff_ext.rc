@@ -1,0 +1,67 @@
+#pragma code_page(1251)
+
+#include <windows.h>
+
+#include "resource.h"
+
+#define xstr(x) str(x)
+#define str(x) #x
+
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+
+VS_VERSION_INFO VERSIONINFO
+  FILEVERSION 1,7,5,0
+  PRODUCTVERSION 1,7,5,0
+  FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+  FILEFLAGS VS_FF_DEBUG
+#else
+  FILEFLAGS 0L
+#endif
+  FILEOS VOS_NT_WINDOWS32
+  FILETYPE VFT_DLL
+  FILESUBTYPE VFT_UNKNOWN
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "041904e3"
+        {
+            VALUE "Comments", ""
+            VALUE "CompanyName", ""
+            VALUE "FileDescription", "diff shell extension"
+            VALUE "FileVersion", "Выпуск 1.7.5"
+            VALUE "InternalName", "diff shell extension"
+            VALUE "LegalCopyright", "Copyright © 2003-2005 Сергей Зорин"
+            VALUE "LegalTrademarks", ""
+            VALUE "OriginalFilename", "diff_ext1049.dll"
+            VALUE "PrivateBuild", ""
+            VALUE "ProductName", "Diff Context Menu Extension"
+            VALUE "ProductVersion", "Выпуск 1.7.5"
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x419, 1251
+    }
+}
+
+STRINGTABLE
+{
+  DIFF_STR "Сравнить"
+  DIFF3_STR "3-х стороннее сравнение"
+  DIFF_WITH_STR "Сравнить с"
+  DIFF_WITH_FILE_STR "Сравнить с ''%1''"
+  DIFF3_WITH_STR "3-х стороннее сравнение с"
+  DIFF3_WITH_FILE_STR "3-х стороннее сравнение с"
+  DIFF_LATER_STR "Сравнить позже"
+  
+  DIFF_HINT "Сравнить выбранные файлы"
+  DIFF_WITH_HINT "Сравнить с ''%1''"
+  DIFF3_HINT "3-х стороннее сравнение выбранных файлов"
+  DIFF3_WITH_HINT "3-х стороннее сравнение с ''%1''"
+  DIFF_LATER_HINT "Запомнить файл(ы) для последующего сравнения"
+
+  CREATE_PROCESS_STR "Не могу запустить программу сравнения. Пожалуста проверьте установки diff_ext."
+  
+  ERROR_STR "Ошибка"
+}
