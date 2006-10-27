@@ -15,6 +15,7 @@
 
 #include <util/cont/dlist.h>
 #include <util/string.h>
+#include <util/menu.h>
 
 // this is the actual OLE Shell context menu handler
 class DIFF_EXT : public IContextMenu3, IShellExtInit {
@@ -58,6 +59,13 @@ class DIFF_EXT : public IContextMenu3, IShellExtInit {
     HINSTANCE _resource;
     DWORD _language;
     HWND _hwnd;
+
+    MENUITEM _diff;
+    MENUITEM _diff_later;
+    MENUITEM _diff_with_file;
+    SUBMENU _diff_with;
+    MENUITEM _clear;
+  
     HICON _diff_icon;
     HICON _diff3_icon;
     HICON _diff_later_icon;
