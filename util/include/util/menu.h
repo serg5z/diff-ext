@@ -17,31 +17,37 @@
 class MENUITEM {
   public:
     MENUITEM();
-    MENUITEM(STRING text, HICON icon=0);  
+    MENUITEM(UINT id, STRING text, HICON icon=0);  
     MENUITEM(const MENUITEM& item);
   
     virtual ~MENUITEM();
   
-    virtual void insert(HMENU menu, UINT id, UINT position, BOOL by_position=TRUE);
     virtual void measure(MEASUREITEMSTRUCT* mis);
     virtual void draw(DRAWITEMSTRUCT* dis);
   
     MENUITEM& operator=(const MENUITEM& item);
   
-  protected:
+    virtual MENUITEMINFO* item_info();
+  
+  private:
     STRING _text;
     HICON _icon;
+    UINT _id;
 };
 
 class SUBMENU : public MENUITEM {
   public:
     SUBMENU();
-    SUBMENU(HMENU menu, STRING text, HICON icon=0);
+    SUBMENU(HMENU menu, UINT id=0, STRING text=TEXT(""), HICON icon=0);
     SUBMENU(const SUBMENU& menu);
   
-    virtual void insert(HMENU menu, UINT id, UINT position, BOOL by_position=TRUE);
+    virtual void insert(MENUITEM& item, UINT position);
+    virtual void append(MENUITEM& item, UINT id = 0);
   
     SUBMENU& operator=(const SUBMENU& item);
+  
+  protected:
+    virtual MENUITEMINFO* item_info();
   
   private:
     HMENU _menu;
@@ -51,10 +57,11 @@ extern "C" {
 #else /*__cplusplus*/
 typedef void* MENUITEM;
 
-MENUITEM create_menu_item();
-MENUITEM create_submenu();
+MENUITEM create_menu_item(UINT id, LPTSTR text, HICON icon);
+MENUITEM create_submenu(HMENU menu, UINT id, LPTSTR text, HICON icon);
   
-void insert(MENUITEM menuitem/*MENUITEM or SUBMENU handle*/);
+void insert(MENUITEM menu, MENUITEM item/*MENUITEM or SUBMENU handle*/, UINT position);
+void append(MENUITEM menu, MENUITEM item/*MENUITEM or SUBMENU handle*/, UINT id);
 void measure(MENUITEM menuitem, MEASUREITEMSTRUCT* mis);
 void draw(MENUITEM menuitem, DRAWITEMSTRUCT* dis);
 #endif /*__cplusplus*/

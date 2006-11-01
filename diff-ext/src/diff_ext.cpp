@@ -246,20 +246,6 @@ DIFF_EXT::load_resource_string(UINT string_id, TCHAR* string, int length, TCHAR*
   }
 }
 
-void
-insert_menu(HMENU menu, UINT position, UINT id, UINT state, TCHAR* string, HICON icon) {
-  MENUITEMINFO item_info;
-  
-  ZeroMemory(&item_info, sizeof(item_info));
-  item_info.cbSize = sizeof(MENUITEMINFO);
-  item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
-  item_info.fType = MFT_STRING;
-  item_info.fState = state;
-  item_info.wID = id;
-  item_info.dwTypeData = string;
-  InsertMenuItem(menu, position, TRUE, &item_info);
-}
-
 STDMETHODIMP 
 DIFF_EXT::HandleMenuMsg(UINT msg, WPARAM w_param, LPARAM l_param) {
   LRESULT result;
@@ -314,6 +300,7 @@ STDMETHODIMP
 DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*last_cmd not used*/, UINT flags) {
 //  TRACE trace(__FUNCTION__, __FILE__, __LINE__);  
   HRESULT ret = MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, 0);
+  SUBMENU context_menu(menu);
 
   if(!(flags & CMF_DEFAULTONLY)) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__);
@@ -344,8 +331,8 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
           FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY, format, 0, 0, (LPTSTR)&c_str, sizeof(c_str)/sizeof(c_str[0]), (char**)args);
           id = first_cmd + IDM_DIFF_WITH;
           
-          _diff_with_file = MENUITEM(c_str, _diff_with_icon);
-          _diff_with_file.insert(menu, id, position);
+          _diff_with_file = MENUITEM(id, c_str, _diff_with_icon);
+          context_menu.insert(_diff_with_file, position);
           position++;
         }        
       } else if(_n_files == 2) {
@@ -360,8 +347,8 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
             FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY, format, 0, 0, (LPTSTR)&c_str, sizeof(c_str)/sizeof(c_str[0]), (char**)args);
             id = first_cmd + IDM_DIFF_WITH;
             
-            _diff_with_file = MENUITEM(c_str, _diff3_with_icon);
-            _diff_with_file.insert(menu, id, position);
+            _diff_with_file = MENUITEM(id, c_str, _diff3_with_icon);
+            context_menu.insert(_diff_with_file, position);
             position++;
           }
         }
@@ -369,16 +356,16 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
         load_resource_string(DIFF_STR, c_str, sizeof(c_str)/sizeof(c_str[0]), TEXT("Compare"));
         
         id = first_cmd + IDM_DIFF;
-        _diff = MENUITEM(c_str, _diff_icon);
-        _diff.insert(menu, id, position);
+        _diff = MENUITEM(id, c_str, _diff_icon);
+        context_menu.insert(_diff, position);
         position++;
       } else if(_n_files == 3) {
         if(SERVER::instance()->tree_way_compare_supported()) {
           load_resource_string(DIFF3_STR, c_str, sizeof(c_str)/sizeof(c_str[0]), TEXT("3-way compare"));
           
           id = first_cmd + IDM_DIFF3;
-          _diff = MENUITEM(c_str, _diff3_icon);
-          _diff.insert(menu, id, position);
+          _diff = MENUITEM(id, c_str, _diff3_icon);
+          context_menu.insert(_diff, position);
           position++;
         }
       }
@@ -386,8 +373,8 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       load_resource_string(DIFF_LATER_STR, c_str, sizeof(c_str)/sizeof(c_str[0]), TEXT("Compare later"));
       
       id = first_cmd + IDM_DIFF_LATER;
-      _diff_later = MENUITEM(c_str, _diff_later_icon);
-      _diff_later.insert(menu, id, position);
+      _diff_later = MENUITEM(id, c_str, _diff_later_icon);
+      context_menu.insert(_diff_later, position);
       position++;
       
       c_str[0] = '\0';
@@ -404,7 +391,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
           HMENU file_list = CreateMenu();
           DLIST<STRING>::ITERATOR i = _recent_files->head();
 
-          _diff_with = SUBMENU(file_list, c_str, _diff_with_icon);
+          _diff_with = SUBMENU(file_list, first_cmd + IDM_DIFF_WITH, c_str, _diff_with_icon);
           
           id = first_cmd+IDM_DIFF_WITH_BASE;
           int n = 0;
@@ -416,8 +403,9 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
             str = cut_to_length((*i)->data());
             tmp = str;
 
-            SHGetFileInfo((*i)->data(), 0, &file_info, sizeof(file_info), SHGFI_ICON | SHGFI_SMALLICON);
-            insert_menu(file_list, n, id, MFS_ENABLED, tmp, 0/*file_info.hIcon*/);
+//            SHGetFileInfo((*i)->data(), 0, &file_info, sizeof(file_info), SHGFI_ICON | SHGFI_SMALLICON);
+            MENUITEM item(id, tmp);
+            _diff_with.insert(item, n);
             id++;
             i++;
             n++;
@@ -427,10 +415,10 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
           n++;
 
           load_resource_string(CLEAR_STR, c_str, sizeof(c_str)/sizeof(c_str[0]), TEXT("Clear"));
-          _clear = MENUITEM(c_str, _clear_icon);
-          _clear.insert(file_list, first_cmd + IDM_CLEAR, n);
+          _clear = MENUITEM(first_cmd + IDM_CLEAR, c_str, _clear_icon);
+          _diff_with.insert(_clear, n);
 
-          _diff_with.insert(menu,  first_cmd + IDM_DIFF_WITH, position);
+          context_menu.insert(_diff_with, position);
 
           position++;
         }

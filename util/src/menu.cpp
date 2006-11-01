@@ -3,37 +3,38 @@
 MENUITEM::MENUITEM() {
 }
 
-MENUITEM::MENUITEM(STRING text, HICON icon) : _text(text), _icon(icon) {
+MENUITEM::MENUITEM(UINT id, STRING text, HICON icon) : _text(text), _icon(icon), _id(id) {
 }
 
 MENUITEM::MENUITEM(const MENUITEM& item) {
   _text = item._text;
   _icon = item._icon;
+  _id = item._id;
 }
 
 MENUITEM::~MENUITEM() {
 }
 
-void 
-MENUITEM::insert(HMENU menu, UINT id, UINT position, BOOL by_position) {
-  MENUITEMINFO item_info;
+MENUITEMINFO* 
+MENUITEM::item_info() {
+  MENUITEMINFO* result = new MENUITEMINFO;
   
-  ZeroMemory(&item_info, sizeof(item_info));
-  item_info.cbSize = sizeof(MENUITEMINFO);
+  ZeroMemory(result, sizeof(MENUITEMINFO));
+  result->cbSize = sizeof(MENUITEMINFO);
   
   if(_icon == 0) {
-    item_info.fMask = MIIM_ID | MIIM_TYPE;
-    item_info.fType = MFT_STRING;
-    item_info.wID = id;
-    item_info.dwTypeData = _text;
+    result->fMask = MIIM_ID | MIIM_TYPE;
+    result->fType = MFT_STRING;
+    result->wID = _id;
+    result->dwTypeData = _text;
   } else {
-    item_info.fMask = MIIM_ID | MIIM_TYPE | MIIM_DATA;
-    item_info.fType = MFT_OWNERDRAW;
-    item_info.wID = id;
-    item_info.dwItemData = (ULONG_PTR)this;
+    result->fMask = MIIM_ID | MIIM_TYPE | MIIM_DATA;
+    result->fType = MFT_OWNERDRAW;
+    result->wID = _id;
+    result->dwItemData = (ULONG_PTR)this;
   }
-  
-  InsertMenuItem(menu, position, by_position, &item_info);  
+
+  return  result;
 }
 
 void 
@@ -86,7 +87,7 @@ MENUITEM::measure(MEASUREITEMSTRUCT* mis) {
 
         mis->itemWidth = size.cx + 3 + icon_width; //width of string + width of icon + space between ~icon~text~
         mis->itemHeight = max(size.cy, ncm.iMenuHeight);     
-        mis->itemHeight = max(mis->itemHeight, icon_height+2)+1;     
+        mis->itemHeight = max(mis->itemHeight, icon_height+2);//+1;     
       }
     }
   }
@@ -137,7 +138,7 @@ MENUITEM::draw(DRAWITEMSTRUCT* dis) {
       bm.bmHeight /= 2;
     }
     
-    DrawIconEx(dis->hDC, dis->rcItem.left+1, dis->rcItem.top+1, _icon, bm.bmWidth, bm.bmHeight, 0, 0, DI_NORMAL);
+    DrawIconEx(dis->hDC, dis->rcItem.left+1, 1+(dis->rcItem.bottom+dis->rcItem.top-bm.bmHeight)/2, _icon, bm.bmWidth, bm.bmHeight, 0, 0, DI_NORMAL);
     dis->rcItem.left += bm.bmWidth+3;
   } else {
     dis->rcItem.left += GetSystemMetrics(SM_CXSMICON)+3;
@@ -163,6 +164,7 @@ MENUITEM&
 MENUITEM::operator=(const MENUITEM& item) {
   _text = item._text;
   _icon = item._icon;
+  _id = item._id;
   
   return *this;
 }
@@ -170,7 +172,7 @@ MENUITEM::operator=(const MENUITEM& item) {
 SUBMENU::SUBMENU() {
 }
 
-SUBMENU::SUBMENU(HMENU menu, STRING text, HICON icon) : MENUITEM(text, icon), _menu(menu) {
+SUBMENU::SUBMENU(HMENU menu, UINT id, STRING text, HICON icon) : MENUITEM(id, text, icon), _menu(menu) {
 }
 
 SUBMENU::SUBMENU(const SUBMENU& menu) : MENUITEM(menu) {
@@ -178,27 +180,25 @@ SUBMENU::SUBMENU(const SUBMENU& menu) : MENUITEM(menu) {
 }
 
 void 
-SUBMENU::insert(HMENU menu, UINT id, UINT position, BOOL by_position) {
-  MENUITEMINFO item_info;
+SUBMENU::insert(MENUITEM& item, UINT position) {
+  MENUITEMINFO* info = item.item_info();
   
-  ZeroMemory(&item_info, sizeof(item_info));
-  item_info.cbSize = sizeof(MENUITEMINFO);
-  
-  if(_icon == 0) {
-    item_info.fMask = MIIM_SUBMENU | MIIM_ID | MIIM_TYPE;
-    item_info.fType = MFT_STRING;
-    item_info.wID = id;
-    item_info.hSubMenu = _menu;
-    item_info.dwTypeData = _text;
-  } else {
-    item_info.fMask = MIIM_SUBMENU | MIIM_ID | MIIM_TYPE | MIIM_DATA;
-    item_info.fType = MFT_OWNERDRAW;
-    item_info.wID = id;
-    item_info.hSubMenu = _menu;
-    item_info.dwItemData = (ULONG_PTR)this;
-  }
+  if(info != 0) {
+    InsertMenuItem(_menu, position, TRUE, info);
     
-  InsertMenuItem(menu, position, by_position, &item_info);  
+    delete info;
+  }
+}
+
+void 
+SUBMENU::append(MENUITEM& item, UINT id) {
+  MENUITEMINFO* info = item.item_info();
+  
+  if(info != 0) {
+    InsertMenuItem(_menu, id, FALSE, info);
+    
+    delete info;
+  }
 }
 
 SUBMENU&
@@ -209,3 +209,16 @@ SUBMENU::operator=(const SUBMENU& menu) {
   
   return *this;
 }
+
+MENUITEMINFO* 
+SUBMENU::item_info() {
+  MENUITEMINFO* result = MENUITEM::item_info();
+  
+  if(result != 0) {
+    result->fMask |= MIIM_SUBMENU;
+    result->hSubMenu = _menu;
+  }
+  
+  return result;
+}
+
