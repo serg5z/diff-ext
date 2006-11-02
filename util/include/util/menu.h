@@ -59,12 +59,15 @@ typedef void* MENUITEM;
 
 MENUITEM create_menu_item(UINT id, LPTSTR text, HICON icon);
 MENUITEM create_submenu(HMENU menu, UINT id, LPTSTR text, HICON icon);
+void delete_menu_item(MENUITEM item);
   
 void insert(MENUITEM menu, MENUITEM item/*MENUITEM or SUBMENU handle*/, UINT position);
 void append(MENUITEM menu, MENUITEM item/*MENUITEM or SUBMENU handle*/, UINT id);
 void measure(MENUITEM menuitem, MEASUREITEMSTRUCT* mis);
 void draw(MENUITEM menuitem, DRAWITEMSTRUCT* dis);
 #endif /*__cplusplus*/
+#ifdef __cplusplus
 }
+#endif /*__cplusplus*/
 
 #endif /* __menu_h__ */

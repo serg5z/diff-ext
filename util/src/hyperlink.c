@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <shellapi.h>
 #include <tchar.h>
 
 #ifndef IDC_HAND

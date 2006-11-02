@@ -222,3 +222,37 @@ SUBMENU::item_info() {
   return result;
 }
 
+extern "C" void* 
+create_menu_item(UINT id, LPTSTR text, HICON icon) {
+  return new MENUITEM(id, text, icon);
+}
+
+extern "C" void* 
+create_submenu(HMENU menu, UINT id, LPTSTR text, HICON icon) {
+  return new SUBMENU(menu, id, text, icon);
+}
+
+extern "C" void 
+delete_menu_item(void* item) {
+  delete (MENUITEM*)item;
+}
+  
+extern "C" void 
+insert(void* menu, void* item/*MENUITEM or SUBMENU handle*/, UINT position) {
+  ((SUBMENU*)menu)->insert(*(MENUITEM*)item, position);
+}
+
+extern "C" void 
+append(void* menu, void* item/*MENUITEM or SUBMENU handle*/, UINT id) {
+  ((SUBMENU*)menu)->append(*(MENUITEM*)item, id);
+}
+
+extern "C" void 
+measure(void* menuitem, MEASUREITEMSTRUCT* mis) {
+  ((MENUITEM*)menuitem)->measure(mis);
+}
+
+extern "C" void 
+draw(void* menuitem, DRAWITEMSTRUCT* dis) {
+  ((MENUITEM*)menuitem)->draw(dis);
+}
