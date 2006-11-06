@@ -209,20 +209,31 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
 
   if(data->GetData(&format, &medium) == S_OK) {
 //    TRACE trace(__FUNCTION__, __FILE__, __LINE__);
-    HDROP drop = (HDROP)medium.hGlobal;
-    _n_files = DragQueryFile(drop, 0xFFFFFFFF, 0, 0);
+    HDROP drop = (HDROP)GlobalLock(medium.hGlobal);
+    if(drop != 0) {
+      _n_files = DragQueryFile(drop, 0xFFFFFFFF, 0, 0);
 
-    TCHAR tmp[MAX_PATH];
-    
-    initialize_language();
-    
-    _selection = new STRING[_n_files+1];
-    for(unsigned int i = 0; i < _n_files; i++) {
-      DragQueryFile(drop, i, tmp, MAX_PATH);
-      _selection[i+1] = STRING(tmp);
+      if(_n_files != 0) {
+        TCHAR tmp[MAX_PATH];
+        
+        initialize_language();
+        
+        _selection = new STRING[_n_files+1];
+        for(unsigned int i = 0; i < _n_files; i++) {
+          DragQueryFile(drop, i, tmp, MAX_PATH);
+          _selection[i+1] = STRING(tmp);
+        }
+      } else {
+        ret = E_INVALIDARG;
+      }
+      GlobalUnlock(medium.hGlobal);
+    } else {
+      ret = E_INVALIDARG;
     }
+    
+    ReleaseStgMedium(&medium);
   }
-
+  
   return ret;
 }
 

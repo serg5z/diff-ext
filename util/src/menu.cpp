@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2006, Sergey Zorin. All rights reserved.
+ *
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
+ *
+ */
+
 #include <util/menu.h>
 
 MENUITEM::MENUITEM() {
@@ -13,6 +21,9 @@ MENUITEM::MENUITEM(const MENUITEM& item) {
 }
 
 MENUITEM::~MENUITEM() {
+  if(_icon != 0) {
+    DestroyIcon(_icon);
+  }
 }
 
 MENUITEMINFO* 
@@ -87,7 +98,7 @@ MENUITEM::measure(MEASUREITEMSTRUCT* mis) {
 
         mis->itemWidth = size.cx + 3 + icon_width; //width of string + width of icon + space between ~icon~text~
         mis->itemHeight = max(size.cy, ncm.iMenuHeight);     
-        mis->itemHeight = max(mis->itemHeight, icon_height+2);//+1;     
+        mis->itemHeight = max(mis->itemHeight, icon_height+2)+1;     
       }
     }
   }
@@ -154,6 +165,7 @@ MENUITEM::draw(DRAWITEMSTRUCT* dis) {
   ExtTextOut(dis->hDC, dis->rcItem.left, y, ETO_OPAQUE, &dis->rcItem, _text, lstrlen(_text), 0); 
   
   SelectObject(dis->hDC, font);
+  DeleteObject(menu_font);
   if (dis->itemState & ODS_SELECTED) {
     SetTextColor(dis->hDC, text);
     SetBkColor(dis->hDC, background);
@@ -169,14 +181,26 @@ MENUITEM::operator=(const MENUITEM& item) {
   return *this;
 }
 
-SUBMENU::SUBMENU() {
+SUBMENU::SUBMENU() : _own_menu(true) {
+  _menu = CreateMenu();
 }
 
-SUBMENU::SUBMENU(HMENU menu, UINT id, STRING text, HICON icon) : MENUITEM(id, text, icon), _menu(menu) {
+SUBMENU::SUBMENU(HMENU menu, UINT id, STRING text, HICON icon) : MENUITEM(id, text, icon), _menu(menu), _own_menu(false) {
+  if(menu == 0) {
+    _menu = CreateMenu();
+    _own_menu = true;
+  }
 }
 
 SUBMENU::SUBMENU(const SUBMENU& menu) : MENUITEM(menu) {
   _menu = menu._menu;
+  _own_menu = menu._own_menu;
+}
+
+SUBMENU::~SUBMENU() {
+  if(_own_menu) {
+    DestroyMenu(_menu);
+  }
 }
 
 void 
@@ -206,6 +230,7 @@ SUBMENU::operator=(const SUBMENU& menu) {
   MENUITEM::operator=(menu);
     
   _menu = menu._menu;
+  _own_menu = menu._own_menu;
   
   return *this;
 }
@@ -222,37 +247,39 @@ SUBMENU::item_info() {
   return result;
 }
 
-extern "C" void* 
+extern "C" {
+void* 
 create_menu_item(UINT id, LPTSTR text, HICON icon) {
   return new MENUITEM(id, text, icon);
 }
 
-extern "C" void* 
+void* 
 create_submenu(HMENU menu, UINT id, LPTSTR text, HICON icon) {
   return new SUBMENU(menu, id, text, icon);
 }
 
-extern "C" void 
+void
 delete_menu_item(void* item) {
   delete (MENUITEM*)item;
 }
   
-extern "C" void 
+void
 insert(void* menu, void* item/*MENUITEM or SUBMENU handle*/, UINT position) {
   ((SUBMENU*)menu)->insert(*(MENUITEM*)item, position);
 }
 
-extern "C" void 
+void
 append(void* menu, void* item/*MENUITEM or SUBMENU handle*/, UINT id) {
   ((SUBMENU*)menu)->append(*(MENUITEM*)item, id);
 }
 
-extern "C" void 
+void
 measure(void* menuitem, MEASUREITEMSTRUCT* mis) {
   ((MENUITEM*)menuitem)->measure(mis);
 }
 
-extern "C" void 
+void
 draw(void* menuitem, DRAWITEMSTRUCT* dis) {
   ((MENUITEM*)menuitem)->draw(dis);
+}
 }

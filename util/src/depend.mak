@@ -16,6 +16,11 @@ log.o: \
   ..\..\util\include\log\log.h \
   ..\..\util\include\util\cont\list.h
   
+menu.o: \
+  menu.cpp \
+  ../../util/include/util/menu.h \
+  ../../util/include/util/string.h
+  
 string.o: \
   string.cpp \
   ..\..\util\include\util\string.h 

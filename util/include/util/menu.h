@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2006, Sergey Zorin. All rights reserved.
  *
- * This software is distributable under the BSD license. See the terms of the
- * BSD license in the LICENSE file provided with this software.
+ * This software is distributable under the BSD license. See the terms
+ * of the BSD license in the LICENSE file provided with this software.
  *
  */
 
@@ -41,6 +41,8 @@ class SUBMENU : public MENUITEM {
     SUBMENU(HMENU menu, UINT id=0, STRING text=TEXT(""), HICON icon=0);
     SUBMENU(const SUBMENU& menu);
   
+    virtual ~SUBMENU();
+  
     virtual void insert(MENUITEM& item, UINT position);
     virtual void append(MENUITEM& item, UINT id = 0);
   
@@ -51,6 +53,7 @@ class SUBMENU : public MENUITEM {
   
   private:
     HMENU _menu;
+    bool _own_menu;
 };
 
 extern "C" {
