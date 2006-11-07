@@ -87,6 +87,14 @@ MENUITEM::measure(MEASUREITEMSTRUCT* mis) {
           
           icon_width = bm.bmWidth;
           icon_height = bm.bmHeight;
+          
+          if(ii.hbmColor != 0) {
+            DeleteObject(ii.hbmColor);
+          }
+          
+          if(ii.hbmMask != 0) {
+            DeleteObject(ii.hbmMask);
+          }
         }
         
         GetTextExtentPoint32(dc, _text, lstrlen(_text), &size);
@@ -149,8 +157,16 @@ MENUITEM::draw(DRAWITEMSTRUCT* dis) {
       bm.bmHeight /= 2;
     }
     
-    DrawIconEx(dis->hDC, dis->rcItem.left+1, 1+(dis->rcItem.bottom+dis->rcItem.top-bm.bmHeight)/2, _icon, bm.bmWidth, bm.bmHeight, 0, 0, DI_NORMAL);
+    DrawIconEx(dis->hDC, dis->rcItem.left+1, 1+(dis->rcItem.bottom+dis->rcItem.top-bm.bmHeight)/2, _icon, bm.bmWidth, bm.bmHeight, 0, 0, DI_NORMAL);    
     dis->rcItem.left += bm.bmWidth+3;
+    
+    if(ii.hbmColor != 0) {
+      DeleteObject(ii.hbmColor);
+    }
+    
+    if(ii.hbmMask != 0) {
+      DeleteObject(ii.hbmMask);
+    }
   } else {
     dis->rcItem.left += GetSystemMetrics(SM_CXSMICON)+3;
   }
