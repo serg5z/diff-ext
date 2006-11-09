@@ -13,6 +13,21 @@
 *             standart output is used.                              *
 *  --help   - prints out usage help.                                *
 ********************************************************************/
+typedef int (UPDATE_FUNCTION*)(int);
+
+int
+increment(int x) {
+  return x+1;
+}
+
+int 
+decrement(int x) {
+  return x-1;
+}
+
+int
+set(int x) {
+}
 
 int 
 min(int x1, int x2) {
@@ -41,28 +56,83 @@ usage(char* program_name) {
   printf(message, program_name, program_name);
 }
 
+int
+init(char* update_string, update_function[4] update) {
+  int result = -1;
+/*  char* update_re_str = "\\([[:digit:]]+|\\+|\\*\\)\\.\\([[:digit:]]+|\\+|\\*\\)\\.\\([[:digit:]]+|\\+|\\*\\)\\.\\([[:digit:]]+|\\+|\\*\\)";*/
+  char* update_re_str = 
+    "\\([[:digit:]][[:digit:]]*\\|\\*\\|\\+\\|-\\)\\."
+    "\\([[:digit:]][[:digit:]]*\\|\\*\\|\\+\\|-\\)\\."
+    "\\([[:digit:]][[:digit:]]*\\|\\*\\|\\+\\|-\\)\\."
+    "\\([[:digit:]][[:digit:]]*\\|\\*\\|\\+\\|-\\)";
+  regex_t update_re;
+  regmatch_t version[5];
+  char buffer[4096];
+  int ret;
+  
+  memset(&update_re, 0, sizeof(regex_t));
+  
+  if((ret = regcomp(&update_re, update_re_str, REG_ICASE)) == 0) {
+    if(regexec(&update_re, update_string, 5, version, 0) == 0) {
+      int n;
+      
+      if(version[1].rm_so >= 0) { 
+        n = min(version[1].rm_eo-version[1].rm_so, 4096);
+        strncpy(buffer, update_string+version[1].rm_so, n);
+        buffer[n] = '\0';
+        printf("1: '%s'\n", buffer);
+      }
+      if(version[2].rm_so > 0) { 
+        n = min(version[2].rm_eo-version[2].rm_so, 4096);
+        strncpy(buffer, update_string+version[2].rm_so, n);
+        buffer[n] = '\0';
+        printf("2: '%s'\n", buffer);
+      }
+      if(version[3].rm_so > 0) { 
+        n = min(version[3].rm_eo-version[3].rm_so, 4096);
+        strncpy(buffer, update_string+version[3].rm_so, n);
+        buffer[n] = '\0';
+        printf("3: '%s'\n", buffer);
+      }
+      if(version[4].rm_so > 0) { 
+        n = min(version[4].rm_eo-version[4].rm_so, 4096);
+        strncpy(buffer, update_string+version[4].rm_so, n);
+        buffer[n] = '\0';
+        printf("4: '%s'\n", buffer);
+      }
+      result = 0;
+    }
+    regfree(&update_re);
+  } else {
+    regerror(ret, &update_re, buffer, sizeof(buffer)/sizeof(buffer[0]));
+    fprintf(stderr, "update_version: %s (%s)\n", buffer, update_re_str);
+  }
+
+  return result;
+}
+
 void
 update_version(FILE* input, FILE* output) {
   char buffer[4096];
   char* fileversion_re_str =
     /* 1 */ "\\(^[[:space:]]*FILEVERSION[[:space:]]*\\)"
-    /* 2 */ "\\([[:digit:]]*\\)"
+    /* 2 */ "\\([[:digit:]][[:digit:]]*\\)"
     /* 3 */ "\\([[:space:]]*,[[:space:]]*\\)"
-    /* 4 */ "\\([[:digit:]]*\\)"
+    /* 4 */ "\\([[:digit:]][[:digit:]]*\\)"
     /* 5 */ "\\([[:space:]]*,[[:space:]]*\\)"
-    /* 6 */ "\\([[:digit:]]*\\)"
+    /* 6 */ "\\([[:digit:]][[:digit:]]*\\)"
     /* 7 */ "\\([[:space:]]*,[[:space:]]*\\)"
-    /* 8 */ "\\([[:digit:]]*\\)"
+    /* 8 */ "\\([[:digit:]][[:digit:]]*\\)"
     /* 9 */ "\\([[:space:]]*$\\)";
   char* productversion_re_str =
     /* 1 */ "\\(^[[:space:]]*PRODUCTVERSION[[:space:]]*\\)"
-    /* 2 */ "\\([[:digit:]]*\\)"
+    /* 2 */ "\\([[:digit:]][[:digit:]]*\\)"
     /* 3 */ "\\([[:space:]]*,[[:space:]]*\\)"
-    /* 4 */ "\\([[:digit:]]*\\)"
+    /* 4 */ "\\([[:digit:]][[:digit:]]*\\)"
     /* 5 */ "\\([[:space:]]*,[[:space:]]*\\)"
-    /* 6 */ "\\([[:digit:]]*\\)"
+    /* 6 */ "\\([[:digit:]][[:digit:]]*\\)"
     /* 7 */ "\\([[:space:]]*,[[:space:]]*\\)"
-    /* 8 */ "\\([[:digit:]]*\\)"
+    /* 8 */ "\\([[:digit:]][[:digit:]]*\\)"
     /* 9 */ "\\([[:space:]]*$\\)";
   int ret;
   regex_t fileversion_re;
@@ -72,13 +142,13 @@ update_version(FILE* input, FILE* output) {
   memset(&fileversion_re, 0, sizeof(regex_t));
   memset(&productversion_re, 0, sizeof(regex_t));
 
-  if ((ret=regcomp(&fileversion_re, fileversion_re_str, REG_ICASE )) != 0) {
+  if((ret=regcomp(&fileversion_re, fileversion_re_str, REG_ICASE)) != 0) {
     regerror(ret, &fileversion_re, buffer, sizeof(buffer)/sizeof(buffer[0]));
     fprintf(stderr, "update_version: %s (%s)\n", buffer, fileversion_re_str);
     re_compiled = 0;
   }
   
-  if ((ret=regcomp(&productversion_re, productversion_re_str, REG_ICASE )) != 0) {
+  if((ret=regcomp(&productversion_re, productversion_re_str, REG_ICASE)) != 0) {
     regerror(ret, &fileversion_re, buffer, sizeof(buffer)/sizeof(buffer[0]));
     fprintf(stderr, "update_version: %s (%s)\n", buffer, productversion_re_str);
     re_compiled = 0;
@@ -184,13 +254,17 @@ main(int argc, char** argv) {
         input = 0;
         output = 0;
       } else {
-        fprintf(stderr, "Unknown option '%s'\n\n", argv[index]);
-        usage(argv[0]);
-        index = argc;
-        input_name = 0;
-        output_name = 0;
-        input = 0;
-        output = 0;
+        if(init(argv[index]) != 0) {
+          fprintf(stderr, "Unknown option '%s'\n\n", argv[index]);
+          usage(argv[0]);
+          index = argc;
+          input_name = 0;
+          output_name = 0;
+          input = 0;
+          output = 0;
+        } else {
+          return 0;
+        }
       }
     }
   }
