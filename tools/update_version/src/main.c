@@ -13,33 +13,35 @@
 *             standart output is used.                              *
 *  --help   - prints out usage help.                                *
 ********************************************************************/
-typedef int (*UPDATE_FUNCTION)(int);
+/*typedef int (*UPDATE_FUNCTION)(int);*/
+typedef struct UPDATE_INTERFACE {
+  int (update*)(struct UPDATE_INTERFACE* this, int x);
+} UPDATE;
+
+typedef struct {
+  UPDATE _super;
+  int _x;
+} SET;
 
 int
-increment(int x) {
+increment(struct UPDATE_INTERFACE* this, int x) {
   return x+1;
 }
 
 int 
-decrement(int x) {
+decrement(struct UPDATE_INTERFACE* this, int x) {
   return x-1;
 }
 
 int
-set(int x) {
-  static int first = 1;
-  static int y;
+set(struct UPDATE_INTERFACE* super, int x) {
+  SET* this = (SET*)super;
   
-  if(first == 1) {
-    first = 0;
-    y = x;
-  }
-  
-  return y;
+  return this->_x;
 }
 
 int
-keep(int x) {
+keep(struct UPDATE_INTERFACE* this, int x) {
   return x;
 }
 
@@ -71,7 +73,7 @@ usage(char* program_name) {
 }
 
 int
-init(char* update_string, UPDATE_FUNCTION update[4]) {
+init(char* update_string, UPDATE* update[4]) {
   int result = -1;
 /*  char* update_re_str = "\\([[:digit:]]+|\\+|\\*\\)\\.\\([[:digit:]]+|\\+|\\*\\)\\.\\([[:digit:]]+|\\+|\\*\\)\\.\\([[:digit:]]+|\\+|\\*\\)";*/
   char* update_re_str = 
@@ -96,15 +98,21 @@ init(char* update_string, UPDATE_FUNCTION update[4]) {
         buffer[n] = '\0';
         
         if(buffer[0] == '*') {
-          update[0] = keep;
+          update[0] = malloc(sizeof(UPDATE));
+          update[0]->update = keep;
         } else if(buffer[0] == '+') {
-          update[0] = increment;
+          update[0] = malloc(sizeof(UPDATE));
+          update[0]->update = increment;
         } else if(buffer[0] == '-') {
-          update[0] = decrement;
+          update[0] = malloc(sizeof(UPDATE));
+          update[0]->update = decrement;
         } else {
           int x = atoi(buffer);
+          SET* tmp = malloc(sizeof(SET));
           
-          update[0] = set;
+          tmp->update = set;
+          tmp->_x = x;
+          update[0] = malloc(sizeof(SET));
         }
       }
       if(version[2].rm_so > 0) { 
@@ -136,7 +144,7 @@ init(char* update_string, UPDATE_FUNCTION update[4]) {
 }
 
 void
-update_version(FILE* input, FILE* output) {
+update_version(FILE* input, FILE* output, UPDATE* update[4]) {
   char buffer[4096];
   char* fileversion_re_str =
     /* 1 */ "\\(^[[:space:]]*FILEVERSION[[:space:]]*\\)"
@@ -162,7 +170,6 @@ update_version(FILE* input, FILE* output) {
   regex_t fileversion_re;
   regex_t productversion_re;
   int re_compiled = 1;
-  UPDATE_FUNCTION update[4] = {keep, keep, keep, increment};
 
   memset(&fileversion_re, 0, sizeof(regex_t));
   memset(&productversion_re, 0, sizeof(regex_t));
@@ -229,10 +236,10 @@ update_version(FILE* input, FILE* output) {
           strncpy(space[4], buffer+version[9].rm_so, min(version[9].rm_eo-version[9].rm_so, 4096));
         }
         
-        major = update[0](major);
-        minor = update[1](minor);
-        patch = update[2](patch);
-        build = update[3](build);
+        major = update[0]->update(update[0], major);
+        minor = update[1]->update(update[1], minor);
+        patch = update[2]->update(update[2], patch);
+        build = update[3]->update(update[3], build);
         
         fprintf(output, "%s%d%s%d%s%d%s%d%s", space[0], major, space[1], minor, space[2], patch, space[3], build, space[4]);
       } else {
