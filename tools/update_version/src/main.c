@@ -13,7 +13,7 @@
 *             standart output is used.                              *
 *  --help   - prints out usage help.                                *
 ********************************************************************/
-typedef int (UPDATE_FUNCTION*)(int);
+typedef int (*UPDATE_FUNCTION)(int);
 
 int
 increment(int x) {
@@ -27,6 +27,20 @@ decrement(int x) {
 
 int
 set(int x) {
+  static int first = 1;
+  static int y;
+  
+  if(first == 1) {
+    first = 0;
+    y = x;
+  }
+  
+  return y;
+}
+
+int
+keep(int x) {
+  return x;
 }
 
 int 
@@ -57,14 +71,14 @@ usage(char* program_name) {
 }
 
 int
-init(char* update_string, update_function[4] update) {
+init(char* update_string, UPDATE_FUNCTION update[4]) {
   int result = -1;
 /*  char* update_re_str = "\\([[:digit:]]+|\\+|\\*\\)\\.\\([[:digit:]]+|\\+|\\*\\)\\.\\([[:digit:]]+|\\+|\\*\\)\\.\\([[:digit:]]+|\\+|\\*\\)";*/
   char* update_re_str = 
-    "\\([[:digit:]][[:digit:]]*\\|\\*\\|\\+\\|-\\)\\."
-    "\\([[:digit:]][[:digit:]]*\\|\\*\\|\\+\\|-\\)\\."
-    "\\([[:digit:]][[:digit:]]*\\|\\*\\|\\+\\|-\\)\\."
-    "\\([[:digit:]][[:digit:]]*\\|\\*\\|\\+\\|-\\)";
+    "\\([[:digit:]]\\+\\|\\*\\|+\\|-\\)\\."
+    "\\([[:digit:]]\\+\\|\\*\\|+\\|-\\)\\."
+    "\\([[:digit:]]\\+\\|\\*\\|+\\|-\\)\\."
+    "\\([[:digit:]]\\+\\|\\*\\|+\\|-\\)";
   regex_t update_re;
   regmatch_t version[5];
   char buffer[4096];
@@ -80,28 +94,38 @@ init(char* update_string, update_function[4] update) {
         n = min(version[1].rm_eo-version[1].rm_so, 4096);
         strncpy(buffer, update_string+version[1].rm_so, n);
         buffer[n] = '\0';
-        printf("1: '%s'\n", buffer);
+        
+        if(buffer[0] == '*') {
+          update[0] = keep;
+        } else if(buffer[0] == '+') {
+          update[0] = increment;
+        } else if(buffer[0] == '-') {
+          update[0] = decrement;
+        } else {
+          int x = atoi(buffer);
+          
+          update[0] = set;
+        }
       }
       if(version[2].rm_so > 0) { 
         n = min(version[2].rm_eo-version[2].rm_so, 4096);
         strncpy(buffer, update_string+version[2].rm_so, n);
         buffer[n] = '\0';
-        printf("2: '%s'\n", buffer);
       }
       if(version[3].rm_so > 0) { 
         n = min(version[3].rm_eo-version[3].rm_so, 4096);
         strncpy(buffer, update_string+version[3].rm_so, n);
         buffer[n] = '\0';
-        printf("3: '%s'\n", buffer);
       }
       if(version[4].rm_so > 0) { 
         n = min(version[4].rm_eo-version[4].rm_so, 4096);
         strncpy(buffer, update_string+version[4].rm_so, n);
         buffer[n] = '\0';
-        printf("4: '%s'\n", buffer);
       }
+      
       result = 0;
     }
+    
     regfree(&update_re);
   } else {
     regerror(ret, &update_re, buffer, sizeof(buffer)/sizeof(buffer[0]));
@@ -138,6 +162,7 @@ update_version(FILE* input, FILE* output) {
   regex_t fileversion_re;
   regex_t productversion_re;
   int re_compiled = 1;
+  UPDATE_FUNCTION update[4] = {keep, keep, keep, increment};
 
   memset(&fileversion_re, 0, sizeof(regex_t));
   memset(&productversion_re, 0, sizeof(regex_t));
@@ -204,9 +229,12 @@ update_version(FILE* input, FILE* output) {
           strncpy(space[4], buffer+version[9].rm_so, min(version[9].rm_eo-version[9].rm_so, 4096));
         }
         
-        new_build = build+1;
+        major = update[0](major);
+        minor = update[1](minor);
+        patch = update[2](patch);
+        build = update[3](build);
         
-        fprintf(output, "%s%d%s%d%s%d%s%d%s", space[0], major, space[1], minor, space[2], patch, space[3], new_build, space[4]);
+        fprintf(output, "%s%d%s%d%s%d%s%d%s", space[0], major, space[1], minor, space[2], patch, space[3], build, space[4]);
       } else {
         fputs(buffer, output);
       }
@@ -254,7 +282,7 @@ main(int argc, char** argv) {
         input = 0;
         output = 0;
       } else {
-        if(init(argv[index]) != 0) {
+        if(init(argv[index], 0) != 0) {
           fprintf(stderr, "Unknown option '%s'\n\n", argv[index]);
           usage(argv[0]);
           index = argc;
