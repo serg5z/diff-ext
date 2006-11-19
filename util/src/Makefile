@@ -5,6 +5,7 @@ ROOT = ..\..
 
 OBJ=file_sink.obj \
     log.obj \
+    menu.obj \
     string.obj \
     trace.obj \
     hyperlink.obj

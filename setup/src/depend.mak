@@ -1,15 +1,15 @@
-about.o: \
+about.obj: \
   about.c \
   $(ROOT)\util\include\util\dialog.h \
   ..\include\resource.h
 
-debug_page.o: \
+debug_page.obj: \
   debug_page.c \
   $(ROOT)\dialog-layout\include\layout.h \
   page.h \
   ..\include\resource.h
   
-main.o: \
+main.obj: \
   main.c \
   $(ROOT)\dialog-layout\include\layout.h \
   page.h \

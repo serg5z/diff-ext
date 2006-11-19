@@ -15,7 +15,7 @@
 ********************************************************************/
 /*typedef int (*UPDATE_FUNCTION)(int);*/
 typedef struct UPDATE_INTERFACE {
-  int (update*)(struct UPDATE_INTERFACE* this, int x);
+  int (*update)(struct UPDATE_INTERFACE* this, int x);
 } UPDATE;
 
 typedef struct {
@@ -92,6 +92,11 @@ init(char* update_string, UPDATE* update[4]) {
     if(regexec(&update_re, update_string, 5, version, 0) == 0) {
       int n;
       
+      free(update[0]);
+      free(update[1]);
+      free(update[2]);
+      free(update[3]);
+      
       if(version[1].rm_so >= 0) { 
         n = min(version[1].rm_eo-version[1].rm_so, 4096);
         strncpy(buffer, update_string+version[1].rm_so, n);
@@ -110,7 +115,7 @@ init(char* update_string, UPDATE* update[4]) {
           int x = atoi(buffer);
           SET* tmp = malloc(sizeof(SET));
           
-          tmp->update = set;
+          tmp->_super.update = set;
           tmp->_x = x;
           update[0] = malloc(sizeof(SET));
         }
@@ -119,16 +124,70 @@ init(char* update_string, UPDATE* update[4]) {
         n = min(version[2].rm_eo-version[2].rm_so, 4096);
         strncpy(buffer, update_string+version[2].rm_so, n);
         buffer[n] = '\0';
+        
+        if(buffer[0] == '*') {
+          update[1] = malloc(sizeof(UPDATE));
+          update[1]->update = keep;
+        } else if(buffer[0] == '+') {
+          update[1] = malloc(sizeof(UPDATE));
+          update[1]->update = increment;
+        } else if(buffer[0] == '-') {
+          update[1] = malloc(sizeof(UPDATE));
+          update[1]->update = decrement;
+        } else {
+          int x = atoi(buffer);
+          SET* tmp = malloc(sizeof(SET));
+          
+          tmp->_super.update = set;
+          tmp->_x = x;
+          update[1] = malloc(sizeof(SET));
+        }
       }
       if(version[3].rm_so > 0) { 
         n = min(version[3].rm_eo-version[3].rm_so, 4096);
         strncpy(buffer, update_string+version[3].rm_so, n);
         buffer[n] = '\0';
+        
+        if(buffer[0] == '*') {
+          update[2] = malloc(sizeof(UPDATE));
+          update[2]->update = keep;
+        } else if(buffer[0] == '+') {
+          update[2] = malloc(sizeof(UPDATE));
+          update[2]->update = increment;
+        } else if(buffer[0] == '-') {
+          update[2] = malloc(sizeof(UPDATE));
+          update[2]->update = decrement;
+        } else {
+          int x = atoi(buffer);
+          SET* tmp = malloc(sizeof(SET));
+          
+          tmp->_super.update = set;
+          tmp->_x = x;
+          update[2] = malloc(sizeof(SET));
+        }
       }
       if(version[4].rm_so > 0) { 
         n = min(version[4].rm_eo-version[4].rm_so, 4096);
         strncpy(buffer, update_string+version[4].rm_so, n);
         buffer[n] = '\0';
+        
+        if(buffer[0] == '*') {
+          update[3] = malloc(sizeof(UPDATE));
+          update[3]->update = keep;
+        } else if(buffer[0] == '+') {
+          update[3] = malloc(sizeof(UPDATE));
+          update[3]->update = increment;
+        } else if(buffer[0] == '-') {
+          update[3] = malloc(sizeof(UPDATE));
+          update[3]->update = decrement;
+        } else {
+          int x = atoi(buffer);
+          SET* tmp = malloc(sizeof(SET));
+          
+          tmp->_super.update = set;
+          tmp->_x = x;
+          update[3] = malloc(sizeof(SET));
+        }
       }
       
       result = 0;
@@ -260,6 +319,17 @@ main(int argc, char** argv) {
   char* output_name = "-";
   int status = 0;
   int remove_input = 0;
+  UPDATE* update[4] = {0, 0, 0, 0};
+  
+  update[0] = malloc(sizeof(UPDATE));
+  update[1] = malloc(sizeof(UPDATE));
+  update[2] = malloc(sizeof(UPDATE));
+  update[3] = malloc(sizeof(UPDATE));
+  
+  update[0]->update = keep;
+  update[1]->update = keep;
+  update[2]->update = keep;
+  update[3]->update = increment;
   
   if(argc > 1) {
     int index = 1;
@@ -303,7 +373,7 @@ main(int argc, char** argv) {
       }
     }
   }
-  
+    
   if((input != 0) && (output != 0)) {    
     if((strcmp(input_name, output_name) == 0) && (strcmp(input_name, "-") != 0)) {
 /*      char template_name[] = "iv_XXXXXX"; // was used with mktemp() */
@@ -352,7 +422,7 @@ main(int argc, char** argv) {
       }
     }
     
-   update_version(input, output);
+   update_version(input, output, update);
     
     if(input != stdin) {
       fclose(input);
