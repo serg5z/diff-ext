@@ -10,7 +10,7 @@
 #include <windows.h>
 #include <commctrl.h>
 #endif
-#include "resource.h"
+#include "../include/resource.h"
 
 #ifndef __LCC__
   #define MANIFEST 24
@@ -20,8 +20,8 @@
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,7,5,469
- PRODUCTVERSION 1,7,5,469
+ FILEVERSION 1,8,0,470
+ PRODUCTVERSION 1,8,0,470
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -39,14 +39,14 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "Comments", ""
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diff shell extension setup"
-            VALUE "FileVersion", "Release 1.7.5"
+            VALUE "FileVersion", "1.8.0"
             VALUE "InternalName", "diff shell extension setup"
             VALUE "LegalCopyright", "Copyright © 2003-2006 Sergey Zorin"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "diff_ext_setup.exe"
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "Release 1.7.5"
+            VALUE "ProductVersion", "1.8.0"
         }
     }
     BLOCK "VarFileInfo"
