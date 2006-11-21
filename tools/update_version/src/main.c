@@ -117,7 +117,7 @@ init(char* update_string, UPDATE* update[4]) {
           
           tmp->_super.update = set;
           tmp->_x = x;
-          update[0] = malloc(sizeof(SET));
+          update[0] = tmp;
         }
       }
       if(version[2].rm_so > 0) { 
@@ -140,7 +140,7 @@ init(char* update_string, UPDATE* update[4]) {
           
           tmp->_super.update = set;
           tmp->_x = x;
-          update[1] = malloc(sizeof(SET));
+          update[1] = tmp;
         }
       }
       if(version[3].rm_so > 0) { 
@@ -163,7 +163,7 @@ init(char* update_string, UPDATE* update[4]) {
           
           tmp->_super.update = set;
           tmp->_x = x;
-          update[2] = malloc(sizeof(SET));
+          update[2] = tmp;
         }
       }
       if(version[4].rm_so > 0) { 
@@ -186,7 +186,7 @@ init(char* update_string, UPDATE* update[4]) {
           
           tmp->_super.update = set;
           tmp->_x = x;
-          update[3] = malloc(sizeof(SET));
+          update[3] = tmp;
         }
       }
       
