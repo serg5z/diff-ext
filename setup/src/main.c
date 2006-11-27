@@ -36,7 +36,7 @@ extern PAGE* create_options_page(HANDLE resource, HWND parent);
 extern PAGE* create_debug_page(HANDLE resource, HWND parent);
 extern void about(HANDLE resource, HWND parent);
 
-static HANDLE resource;
+HANDLE resource;
 static WINDOW_PLACEMENT* window_placement = 0;
 
 static WNDPROC old_button_procedure;

@@ -5,7 +5,6 @@ ROOT = ..\..
 
 DEF=diff_ext_setup.def
 OBJ=about.obj \
-    debug_page.obj \
     main.obj \
     diff_ext_setup.res
 LIBS=$(olelibs) shlwapi.lib version.lib comctl32.lib shell32.lib layout.lib util.lib 

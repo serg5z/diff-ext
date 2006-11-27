@@ -6,7 +6,7 @@ file_sink.o: \
   ..\..\util\include\log\file_sink.h \
   ..\..\util\include\log\log_sink.h \
   ..\..\util\include\log\log_message.h \
-  ..\..\util\include\util\string.h 
+  ..\..\util\include\util\string.h \
   
 log.o: \
   log.cpp \
@@ -14,16 +14,20 @@ log.o: \
   ..\..\util\include\util\string.h \
   ..\..\util\include\log\log_sink.h \
   ..\..\util\include\log\log.h \
-  ..\..\util\include\util\cont\list.h
+  ..\..\util\include\util\cont\list.h \
   
 menu.o: \
   menu.cpp \
   ../../util/include/util/menu.h \
-  ../../util/include/util/string.h
+  ../../util/include/util/string.h \
+  
+resource_string.o: \
+  resource_string.c \
+  ../../util/include/util/resource_string.h \
   
 string.o: \
   string.cpp \
-  ..\..\util\include\util\string.h 
+  ..\..\util\include\util\string.h \
   
 trace.o: \
   trace.cpp \
@@ -31,4 +35,4 @@ trace.o: \
   ..\..\util\include\log\log.h \
   ..\..\util\include\util\cont\list.h \
   ..\..\util\include\log\log_message.h \
-  ..\..\util\include\util\string.h
+  ..\..\util\include\util\string.h \

@@ -8,6 +8,7 @@ OBJ=file_sink.obj \
     menu.obj \
     string.obj \
     trace.obj \
+    resource_string.obj \
     hyperlink.obj
     
 !include $(ROOT)\make\static-library.mak

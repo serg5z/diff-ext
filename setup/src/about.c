@@ -8,8 +8,11 @@
 #include <windows.h>
 
 #include <util/dialog.h>
+#include <util/resource_string.h>
 
 #include "resource.h"
+
+extern HANDLE resource;
 
 static INT_PTR CALLBACK about_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param);
 
@@ -45,7 +48,14 @@ init(HWND dialog, WPARAM not_used_1, LPARAM l_param) {
       VerQueryValue(file_versioninfo, version_block, (void**)&product_version, &length);
       
       if(length > 0) {
-        SetDlgItemText(dialog, ID_VERSION, product_version);
+        TCHAR release[256];
+        TCHAR format[256];
+        void* args[] = {(void*)product_version};
+        
+        load_resource_string(resource, RELEASE_STR, format, sizeof(format)/sizeof(format[0]), TEXT("Release: %1"));
+
+        FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY, format, 0, 0, (LPTSTR)&release, sizeof(release)/sizeof(release[0]), (char**)args);
+        SetDlgItemText(dialog, ID_VERSION, release);
       }
     }
     

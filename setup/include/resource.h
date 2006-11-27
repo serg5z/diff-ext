@@ -36,8 +36,9 @@
 #define IDS_HELPMENU        2010L
 #define MAIN_ICON               1
 
-#define OPTIONS_STR        1001L
-#define LOGGING_STR        1002L
+#define OPTIONS_STR 1001L
+#define LOGGING_STR 1002L
+#define RELEASE_STR 1003L
 
 #define ID_MAINDIALOG_LAYOUT 1000
 #define ID_OPTIONS_LAYOUT 2000

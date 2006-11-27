@@ -50,7 +50,6 @@ class DIFF_EXT : public IContextMenu3, IShellExtInit {
     void diff_later();
     STRING cut_to_length(STRING, int length = 64);
     void initialize_language();
-    void load_resource_string(UINT string_id, TCHAR* string, int length, TCHAR* default_value);
 
   private:
     UINT _n_files;
@@ -59,6 +58,7 @@ class DIFF_EXT : public IContextMenu3, IShellExtInit {
     HINSTANCE _resource;
     DWORD _language;
     HWND _hwnd;
+    HINSTANCE _shell32;
 
     MENUITEM _diff;
     MENUITEM _diff_later;

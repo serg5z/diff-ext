@@ -104,7 +104,7 @@ MENUITEM::measure(MEASUREITEMSTRUCT* mis) {
         DeleteObject(font);
         DeleteDC(dc);
 
-        mis->itemWidth = size.cx + 3 + icon_width; //width of string + width of icon + space between ~icon~text~
+        mis->itemWidth = size.cx + 1 + icon_width; //width of string + width of icon + space between ~icon~text~
         mis->itemHeight = max(size.cy, ncm.iMenuHeight);     
         mis->itemHeight = max(mis->itemHeight, icon_height+2)+1;     
       }
@@ -158,7 +158,7 @@ MENUITEM::draw(DRAWITEMSTRUCT* dis) {
     }
     
     DrawIconEx(dis->hDC, dis->rcItem.left+1, 1+(dis->rcItem.bottom+dis->rcItem.top-bm.bmHeight)/2, _icon, bm.bmWidth, bm.bmHeight, 0, 0, DI_NORMAL);    
-    dis->rcItem.left += bm.bmWidth+3;
+    dis->rcItem.left += bm.bmWidth+1;
     
     if(ii.hbmColor != 0) {
       DeleteObject(ii.hbmColor);
