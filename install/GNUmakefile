@@ -1,11 +1,11 @@
-VERSION := 1.7.5
+VERSION := 1.8.0
 
 ISCC := /c/Program\ Files/Inno\ Setup\ 5/ISCC
 
 ifdef UNICODE
-  INSTALLER := diff_ext-$(VERSION)-UNICODE.exe
+  INSTALLER := diff_ext-$(VERSION)-i386-UNICODE.exe
 else
-  INSTALLER := diff_ext-$(VERSION).exe
+  INSTALLER := diff_ext-$(VERSION)-i386.exe
 endif
   
 all: $(INSTALLER)

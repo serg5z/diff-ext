@@ -28,6 +28,7 @@ init(HWND dialog, WPARAM not_used_1, LPARAM l_param) {
   TCHAR path[MAX_PATH];
   HANDLE resource = (HANDLE)l_param;
   
+  not_used_1 = 0; /* to stop compiler complaints about unreferenced variables */
   GetModuleFileName(resource, path, sizeof(path)/sizeof(path[0]));
   file_versioninfo_size = GetFileVersionInfoSize(path, &version_handle);
   
@@ -50,7 +51,9 @@ init(HWND dialog, WPARAM not_used_1, LPARAM l_param) {
       if(length > 0) {
         TCHAR release[256];
         TCHAR format[256];
-        void* args[] = {(void*)product_version};
+        void* args[1];
+
+        args[0] = (void*)product_version;
         
         load_resource_string(resource, RELEASE_STR, format, sizeof(format)/sizeof(format[0]), TEXT("Release: %1"));
 

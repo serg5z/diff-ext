@@ -74,7 +74,7 @@ DIFF_EXT::DIFF_EXT() : _n_files(0), _selection(0), _language(1033), _ref_count(0
   
   SERVER::instance()->lock();
   
-  _shell32 = LoadLibrary("shell32");
+  _shell32 = LoadLibrary(TEXT("shell32"));
   
   HICON icon = (HICON)LoadImage(_shell32, MAKEINTRESOURCE(330), IMAGE_ICON, 16, 16, LR_SHARED | LR_DEFAULTCOLOR);
   if(icon == 0) {
@@ -260,7 +260,7 @@ DIFF_EXT::HandleMenuMsg(UINT msg, WPARAM w_param, LPARAM l_param) {
 }
 
 STDMETHODIMP 
-DIFF_EXT::HandleMenuMsg2(UINT msg, WPARAM w_param, LPARAM l_param, LRESULT *result) {
+DIFF_EXT::HandleMenuMsg2(UINT msg, WPARAM, LPARAM l_param, LRESULT *result) {
   LRESULT local;
   
   if(result == 0) {

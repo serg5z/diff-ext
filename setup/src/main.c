@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <shlguid.h>
-#include <olectl.h>
 #include <objidl.h>
 #include <shlwapi.h>
 #include <objbase.h>
@@ -113,10 +112,10 @@ DWORD GetDllVersion(LPCTSTR lpszDllName)
 Wait for wide startup module from MinGW
 */
 int APIENTRY
-WinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used3) {
+WinMain(HINSTANCE instance, HINSTANCE not_used_1, LPSTR not_used_2, int not_used_3) {
 #else  
 int APIENTRY
-_tWinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used3) {
+_tWinMain(HINSTANCE instance, HINSTANCE not_used_1, LPTSTR not_used_2, int not_used_3) {
 #endif  
   HRESULT exit = ID_APPLY;
   HKEY key;
@@ -127,7 +126,9 @@ _tWinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used
   HRSRC resource_handle;
   DLGTEMPLATE* dialog;
   
-/*  subclass_button();*/
+  not_used_1 = 0; /* to stop compiler complaints about unreferenced variables */
+  not_used_2 = 0; /* to stop compiler complaints about unreferenced variables */
+  not_used_3 = 0; /* to stop compiler complaints about unreferenced variables */
 
   CoInitialize(0);
   SetThreadLocale(LOCALE_USER_DEFAULT);
@@ -169,7 +170,7 @@ _tWinMain(HINSTANCE instance, HINSTANCE not_used1, LPSTR not_used2, int not_used
 }
 
 static void
-init(HWND dialog, WPARAM not_used1, LPARAM not_used2) {
+init(HWND dialog, WPARAM not_used_1, LPARAM not_used_2) {
   HKEY key;
   TCHAR command[4*MAX_PATH] = TEXT("");
   TCHAR command3[6*MAX_PATH] = TEXT("");
@@ -186,6 +187,9 @@ init(HWND dialog, WPARAM not_used1, LPARAM not_used2) {
   LRESULT curr = 0;  
   LPWSTR  tmp_guid;
   TCHAR class_id[MAX_PATH];
+  
+  not_used_1 = 0; /* to stop compiler complaints about unreferenced variables */
+  not_used_2 = 0; /* to stop compiler complaints about unreferenced variables */
   
   if(StringFromIID(&CLSID_DIFF_EXT, &tmp_guid) == S_OK) {
     TCHAR clsid[MAX_PATH] = TEXT("");
