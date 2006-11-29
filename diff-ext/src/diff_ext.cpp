@@ -30,41 +30,6 @@ typedef struct tag_menu_item_data {
   HICON icon;
 } MENU_ITEM_DATA;
 
-HBITMAP
-icon2bitmap(HANDLE icon) {
-  ICONINFO icon_info;
-  HBITMAP result = 0;
-  LONG d = GetMenuCheckMarkDimensions();
-  LONG dx = HIWORD(d);
-  LONG dy = LOWORD(d);
-  HDC bitmap_dc = CreateCompatibleDC(0);
-  HDC icon_dc = CreateCompatibleDC(0);
-  BITMAP bmp;
-  
-  GetIconInfo((HICON)icon, &icon_info);
-  GetObject(icon_info.hbmColor, sizeof(BITMAP), &bmp);
-  
-  result = CreateBitmap(bmp.bmWidth, bmp.bmWidth, bmp.bmPlanes, bmp.bmBitsPixel, 0);
-//  result = CreateCompatibleBitmap(bitmap_dc, d, d);
-  if(result == 0) {
-    MessageBox(0, TEXT(""), TEXT("No bitmap :("), MB_OK);
-  }
-  SelectObject(bitmap_dc, result);
-  
-  SelectObject(icon_dc, icon_info.hbmMask);
-  BitBlt(bitmap_dc, 0, 0, dx, dy, 
-             icon_dc, 0, 0, SRCAND);
-
-  SelectObject(icon_dc, icon_info.hbmColor);
-  BitBlt(bitmap_dc, 0, 0, dx, dy, 
-             icon_dc, 0, 0, SRCINVERT);
-  
-  DeleteDC(bitmap_dc);
-  DeleteDC(icon_dc);
-  
-  return result;
-}
-
 DIFF_EXT::DIFF_EXT() : _n_files(0), _selection(0), _language(1033), _ref_count(0L) {
 //  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
   
