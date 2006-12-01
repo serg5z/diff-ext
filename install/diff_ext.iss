@@ -54,8 +54,8 @@ Filename: {app}\diff_ext_setup.exe; Flags: postinstall
 Root: HKCU; Subkey: Software\Z; Flags: uninsdeletekeyifempty
 Root: HKCU; Subkey: Software\Z\diff-ext; Flags: uninsdeletekey 
 Root: HKCU; Subkey: Software\Z\diff-ext\history; Flags: uninsdeletekey
-Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: diff; ValueData: <path to diff>; Flags: uninsdeletekey createvalueifdoesntexist
-Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: diff3; ValueData: <path to diff3>; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: diff; ValueData: "<path to diff> ""%1"" ""%2"""; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: string; ValueName: diff3; ValueData: "<path to diff3> ""%1"" ""%2"" ""%3"""; Flags: uninsdeletekey createvalueifdoesntexist
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1033; Flags: uninsdeletekey; Languages: en
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1049; Flags: uninsdeletekey; Languages: ru
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1031; Flags: uninsdeletekey; Languages: de
