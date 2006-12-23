@@ -1,4 +1,4 @@
-VERSION := 1.8.0
+VERSION := 1.8.5
 
 ISCC := /c/Program\ Files/Inno\ Setup\ 5/ISCC
 

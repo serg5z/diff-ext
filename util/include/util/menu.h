@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006, Sergey Zorin. All rights reserved.
+ * Copyright (c) 2006 Sergey Zorin. All rights reserved.
  *
  * This software is distributable under the BSD license. See the terms
  * of the BSD license in the LICENSE file provided with this software.
@@ -13,11 +13,13 @@
 
 #ifdef __cplusplus
 #include <util/string.h>
+#include <util/icon.h>
 
 class MENUITEM {
   public:
     MENUITEM();
     MENUITEM(UINT id, STRING text, HICON icon=0);  
+    MENUITEM(UINT id, STRING text, ICON icon);  
     MENUITEM(const MENUITEM& item);
   
     virtual ~MENUITEM();
@@ -31,7 +33,7 @@ class MENUITEM {
   
   private:
     STRING _text;
-    HICON _icon;
+    ICON _icon;
     UINT _id;
 };
 
@@ -39,6 +41,7 @@ class SUBMENU : public MENUITEM {
   public:
     SUBMENU();
     SUBMENU(HMENU menu, UINT id=0, STRING text=TEXT(""), HICON icon=0);
+    SUBMENU(HMENU menu, UINT id, STRING text, ICON icon);
     SUBMENU(const SUBMENU& menu);
   
     virtual ~SUBMENU();

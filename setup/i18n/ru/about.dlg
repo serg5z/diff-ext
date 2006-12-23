@@ -22,7 +22,7 @@ BEGIN
       7, 7, 21, 20
     CTEXT "diff-ext", 
       ID_LINK, 
-      101, 7, 20, 8,
+      98, 7, 26, 8,
       WS_TABSTOP
     CTEXT "Информация о версии отсутствует.", 
       ID_VERSION, 

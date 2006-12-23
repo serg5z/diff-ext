@@ -1,4 +1,4 @@
-PROJ = diff_ext1049.dll
+PROJ = diff_ext1058.dll
 !ifndef ROOT
 ROOT = ..\..
 !endif

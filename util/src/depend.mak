@@ -8,6 +8,10 @@ file_sink.o: \
   ..\..\util\include\log\log_message.h \
   ..\..\util\include\util\string.h \
   
+icon.o: \
+  icon.cpp \
+  ../../util/include/util/icon.h \
+
 log.o: \
   log.cpp \
   ..\..\util\include\log\log_message.h \

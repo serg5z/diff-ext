@@ -8,21 +8,21 @@
 
 #include <util/menu.h>
 
-MENUITEM::MENUITEM() {
+MENUITEM::MENUITEM() : _text(TEXT("")), _icon(0), _id(0) {
 }
 
 MENUITEM::MENUITEM(UINT id, STRING text, HICON icon) : _text(text), _icon(icon), _id(id) {
 }
 
-MENUITEM::MENUITEM(const MENUITEM& item) {
-  _text = item._text;
-  _icon = item._icon;
-  _id = item._id;
+MENUITEM::MENUITEM(UINT id, STRING text, ICON icon) : _text(text), _icon(icon), _id(id) {
+}
+
+MENUITEM::MENUITEM(const MENUITEM& item) : _text(item._text), _icon(item._icon), _id(item._id) {
 }
 
 MENUITEM::~MENUITEM() {
   if(_icon != 0) {
-    DestroyIcon(_icon);
+//    DestroyIcon(_icon);
   }
 }
 
@@ -71,29 +71,30 @@ MENUITEM::measure(MEASUREITEMSTRUCT* mis) {
         
         if(_icon != 0) {
           ICONINFO ii;
-          GetIconInfo(_icon, &ii);
-          HBITMAP hb = ii.hbmColor;
-          BITMAP bm;
-          
-          if(hb == 0) {
-            hb = ii.hbmMask;
-          }
-          
-          GetObject(hb, sizeof(bm), &bm);
-          
-          if(hb == ii.hbmMask) {
-            bm.bmHeight /= 2;
-          }
-          
-          icon_width = bm.bmWidth;
-          icon_height = bm.bmHeight;
-          
-          if(ii.hbmColor != 0) {
-            DeleteObject(ii.hbmColor);
-          }
-          
-          if(ii.hbmMask != 0) {
-            DeleteObject(ii.hbmMask);
+          if(GetIconInfo(_icon, &ii) != 0) {
+            HBITMAP hb = ii.hbmColor;
+            BITMAP bm;
+            
+            if(hb == 0) {
+              hb = ii.hbmMask;
+            }
+            
+            if(GetObject(hb, sizeof(bm), &bm) != 0) {            
+              if(hb == ii.hbmMask) {
+                bm.bmHeight /= 2;
+              }
+              
+              icon_width = bm.bmWidth;
+              icon_height = bm.bmHeight;
+            }
+              
+            if(ii.hbmColor != 0) {
+              DeleteObject(ii.hbmColor);
+            }
+            
+            if(ii.hbmMask != 0) {
+              DeleteObject(ii.hbmMask);
+            }
           }
         }
         
@@ -104,7 +105,7 @@ MENUITEM::measure(MEASUREITEMSTRUCT* mis) {
         DeleteObject(font);
         DeleteDC(dc);
 
-        mis->itemWidth = size.cx + 1 + icon_width; //width of string + width of icon + space between ~icon~text~
+        mis->itemWidth = size.cx + 4 + GetSystemMetrics(SM_CXMENUCHECK); //width of string + width of icon + space between ~icon~text~
         mis->itemHeight = max(size.cy, ncm.iMenuHeight);     
         mis->itemHeight = max(mis->itemHeight, icon_height+2)+1;     
       }
@@ -119,6 +120,8 @@ MENUITEM::draw(DRAWITEMSTRUCT* dis) {
   COLORREF background;
   HFONT font;
   HFONT menu_font;
+  bool has_icon = false;
+  int menu_check_width = GetSystemMetrics(SM_CXMENUCHECK);
   
   ncm.cbSize = sizeof(NONCLIENTMETRICS);
   SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0);
@@ -143,32 +146,37 @@ MENUITEM::draw(DRAWITEMSTRUCT* dis) {
   
   if(_icon != 0) {
     ICONINFO ii;
-    GetIconInfo(_icon, &ii);
-    HBITMAP hb = ii.hbmColor;
-    BITMAP bm;
-    
-    if(hb == 0) {
-      hb = ii.hbmMask;
+    if(GetIconInfo(_icon, &ii) != 0) {
+      HBITMAP hb = ii.hbmColor;
+      BITMAP bm;
+      
+      if(hb == 0) {
+        hb = ii.hbmMask;
+      }
+      
+      if(GetObject(hb, sizeof(bm), &bm) != 0) {      
+        if(hb == ii.hbmMask) {
+          bm.bmHeight /= 2;
+        }
+        
+        DrawIconEx(dis->hDC, dis->rcItem.left+1, 1+(dis->rcItem.bottom+dis->rcItem.top-bm.bmHeight)/2, _icon, bm.bmWidth, bm.bmHeight, 0, 0, DI_NORMAL);    
+        dis->rcItem.left += menu_check_width+4;
+        
+        has_icon = true;
+      }
+      
+      if(ii.hbmColor != 0) {
+        DeleteObject(ii.hbmColor);
+      }
+      
+      if(ii.hbmMask != 0) {
+        DeleteObject(ii.hbmMask);
+      }
     }
-    
-    GetObject(hb, sizeof(bm), &bm);
-    
-    if(hb == ii.hbmMask) {
-      bm.bmHeight /= 2;
-    }
-    
-    DrawIconEx(dis->hDC, dis->rcItem.left+1, 1+(dis->rcItem.bottom+dis->rcItem.top-bm.bmHeight)/2, _icon, bm.bmWidth, bm.bmHeight, 0, 0, DI_NORMAL);    
-    dis->rcItem.left += bm.bmWidth+1;
-    
-    if(ii.hbmColor != 0) {
-      DeleteObject(ii.hbmColor);
-    }
-    
-    if(ii.hbmMask != 0) {
-      DeleteObject(ii.hbmMask);
-    }
-  } else {
-    dis->rcItem.left += GetSystemMetrics(SM_CXSMICON)+3;
+  }
+  
+  if(!has_icon) {
+    dis->rcItem.left += menu_check_width+4;
   }
   
   int y;
@@ -202,6 +210,13 @@ SUBMENU::SUBMENU() : _own_menu(true) {
 }
 
 SUBMENU::SUBMENU(HMENU menu, UINT id, STRING text, HICON icon) : MENUITEM(id, text, icon), _menu(menu), _own_menu(false) {
+  if(menu == 0) {
+    _menu = CreateMenu();
+    _own_menu = true;
+  }
+}
+
+SUBMENU::SUBMENU(HMENU menu, UINT id, STRING text, ICON icon) : MENUITEM(id, text, icon), _menu(menu), _own_menu(false) {
   if(menu == 0) {
     _menu = CreateMenu();
     _own_menu = true;

@@ -1,6 +1,9 @@
 27-Oct-2006:
   *added support for context menu icons  
   
+20-dec-2006
+  fixed bug #1618725 
+
 27-Sep-2006:
   *extracted common sections from VC Makefiles
 

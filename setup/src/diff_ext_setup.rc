@@ -20,8 +20,8 @@
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,8,0,498
- PRODUCTVERSION 1,8,0,498
+ FILEVERSION 1,8,5,515
+ PRODUCTVERSION 1,8,5,515
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -39,14 +39,14 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "Comments", ""
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diff shell extension setup"
-            VALUE "FileVersion", "1.8.0"
+            VALUE "FileVersion", "1.8.5"
             VALUE "InternalName", "diff shell extension setup"
             VALUE "LegalCopyright", "Copyright © 2003-2006 Sergey Zorin"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "diff_ext_setup.exe"
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "1.8.0"
+            VALUE "ProductVersion", "1.8.5"
         }
     }
     BLOCK "VarFileInfo"
@@ -67,11 +67,11 @@ BEGIN
   CONTROL "", ID_GROUP, "Button", BS_GROUPBOX, 7, 7, 247, 106
   CONTROL "", ID_DIFF_COMMAND, "Edit", ES_AUTOHSCROLL|WS_BORDER|WS_TABSTOP, 16, 29, 177, 14
   CONTROL "Browse...", ID_BROWSE, "Button", WS_TABSTOP, 197, 29, 50, 14
-  CONTROL "3 way compare command:", 4002, "Static", WS_GROUP, 16, 47, 150, 8
+  CONTROL "3-way compare command:", 4002, "Static", WS_GROUP, 16, 47, 150, 8
   CONTROL "", ID_COMMAND_DIFF3, "Edit", ES_AUTOHSCROLL|WS_BORDER|WS_TABSTOP, 16, 58, 177, 14
   CONTROL "Browse...", ID_BROWSE1, "Button", WS_TABSTOP, 197, 58, 50, 14
   CONTROL "Compare folders", ID_DIFF_DIRS, "Button", BS_AUTOCHECKBOX|WS_TABSTOP, 16, 79, 64, 10
-  CONTROL "3 way compare", ID_DIFF3, "Button", BS_AUTOCHECKBOX|WS_TABSTOP, 16, 96, 61, 10
+  CONTROL "3-way compare", ID_DIFF3, "Button", BS_AUTOCHECKBOX|WS_TABSTOP, 16, 96, 61, 10
   CONTROL "Language", 4003, "Static", WS_GROUP, 7, 122, 37, 8
   CONTROL "", ID_LANGUAGE, "ComboBox", WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP, 45, 120, 100, 100
   CONTROL "Compare command:", 104, "Static", WS_GROUP, 16, 18, 150, 8

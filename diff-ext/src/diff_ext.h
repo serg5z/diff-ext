@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003-2004, Sergey Zorin. All rights reserved.
+ * Copyright (c) 2003-2006, Sergey Zorin. All rights reserved.
  *
  * This software is distributable under the BSD license. See the terms
  * of the BSD license in the LICENSE file provided with this software.
@@ -58,21 +58,20 @@ class DIFF_EXT : public IContextMenu3, IShellExtInit {
     HINSTANCE _resource;
     DWORD _language;
     HWND _hwnd;
-    HINSTANCE _shell32;
 
     MENUITEM _diff;
     MENUITEM _diff_later;
     MENUITEM _diff_with_file;
     SUBMENU _diff_with;
     MENUITEM _clear;
-  
+/*  
     HICON _diff_icon;
     HICON _diff3_icon;
     HICON _diff_later_icon;
     HICON _diff_with_icon;
     HICON _diff3_with_icon;
     HICON _clear_icon;
-
+*/
     ULONG  _ref_count;
 };
 

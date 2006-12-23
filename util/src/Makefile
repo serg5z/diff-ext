@@ -4,6 +4,7 @@ ROOT = ..\..
 !endif
 
 OBJ=file_sink.obj \
+    icon.obj \
     log.obj \
     menu.obj \
     string.obj \

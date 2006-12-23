@@ -22,6 +22,13 @@ diff_ext.o: \
   server.h \
   ../include/resource.h
 
+icon_factory.o: \
+  icon_factory.cpp \
+  server.h \
+  $(ROOT)/util/include/util/string.h \
+  $(ROOT)/util/include/log/file_sink.h \
+  $(ROOT)/util/include/log/log_sink.h icon_factory.h \
+  
 server.o: \
   server.cpp \
   $(ROOT)/util/include/log/log.h \

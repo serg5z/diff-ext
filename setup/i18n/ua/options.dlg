@@ -13,40 +13,40 @@ STYLE DS_CONTROL | WS_CHILD | DS_3DLOOK | WS_CLIPSIBLINGS //| WS_CLIPCHILDREN
 FONT 8, "Ms Shell Dlg"
 EXSTYLE WS_EX_CONTROLPARENT
 BEGIN
-    GROUPBOX      "Общие", 
+    GROUPBOX      "Загальні", 
       ID_GROUP, 
       7, 7, 200, 72,
       WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
                   
-    LTEXT         "Комада сравнения",
+    LTEXT         "Комада порівняння",
       104, 
       14, 21, 82, 8
     EDITTEXT      
       ID_DIFF_COMMAND, 
       100, 18, 218, 14,
       ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
-    PUSHBUTTON    "Обзор...",
+    PUSHBUTTON    "Огляд...",
       ID_BROWSE, 
       322, 18, 50, 14
                   
-    LTEXT         "Комада сравнения 3-х файлов",
+    LTEXT         "Комада порівняння 3-х файлів",
       104, 
       14, 39, 103, 8
     EDITTEXT      
       ID_COMMAND_DIFF3, 
       121, 36, 50, 14,
       ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
-    PUSHBUTTON    "Обзор...",
+    PUSHBUTTON    "Огляд...",
       ID_BROWSE1, 
       175, 36, 50, 14
                   
-    AUTOCHECKBOX  "Сравнивать директории",
+    AUTOCHECKBOX  "Порівнювати директорії",
       ID_DIFF_DIRS, 
       14, 54, 90, 10
     AUTOCHECKBOX  "3-х стороннее сравнение",
       ID_DIFF3, 
       14, 64, 90, 10
-    LTEXT         "Язык",
+    LTEXT         "Мова",
       104, 
       7, 88, 35, 8
     COMBOBOX      

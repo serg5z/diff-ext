@@ -17,7 +17,9 @@ LDFLAGS ?= -L$(LIB)
 ARFLAGS ?= crv
 UPDATE_VERSION ?= $(BIN)/update_version.exe
 
-all: tools util dialog-layout diff-ext setup install
+all: all-before tools util dialog-layout diff-ext setup install
+
+all-before:
 	mkdir -p $(BIN)
 	mkdir -p $(BUILD)
 	mkdir -p $(LIB)

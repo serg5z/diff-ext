@@ -6,9 +6,10 @@ ROOT = ..\..
 DEF=diff_ext.def
 OBJ=class_factory.obj \
     diff_ext.obj \
+    icon_factory.obj \
     server.obj \
     resource.res
-LIBS=$(olelibs) shell32.lib util.lib uuid.lib
+LIBS=$(olelibs) shell32.lib util.lib uuid.lib shlwapi.lib
     
 !include $(ROOT)\make\dynamic-library.mak
 

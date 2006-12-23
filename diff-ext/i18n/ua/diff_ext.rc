@@ -10,8 +10,8 @@
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 VS_VERSION_INFO VERSIONINFO
-  FILEVERSION 1,8,0,1
-  PRODUCTVERSION 1,8,0,1
+  FILEVERSION 1,8,5,13
+  PRODUCTVERSION 1,8,5,13
   FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
   FILEFLAGS VS_FF_DEBUG
@@ -24,44 +24,46 @@ VS_VERSION_INFO VERSIONINFO
 {
     BLOCK "StringFileInfo"
     {
-        BLOCK "041904e3"
+        BLOCK "042204e3"
         {
             VALUE "Comments", ""
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diff shell extension"
-            VALUE "FileVersion", "1.8.0"
+            VALUE "FileVersion", "1.8.5"
             VALUE "InternalName", "diff shell extension"
-            VALUE "LegalCopyright", "Copyright © 2003-2005 Сергей Зорин"
+            VALUE "LegalCopyright", "Copyright © 2003-2006 Сергій Зорін"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "diff_ext1049.dll"
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "1.8.0"
+            VALUE "ProductVersion", "1.8.5"
         }
     }
     BLOCK "VarFileInfo"
     {
-        VALUE "Translation", 0x419, 1251
+        VALUE "Translation", 0x422, 1251
     }
 }
 
 STRINGTABLE
 {
-  DIFF_STR "Сравнить"
-  DIFF3_STR "3-х стороннее сравнение"
-  DIFF_WITH_STR "Сравнить с"
-  DIFF_WITH_FILE_STR "Сравнить с ''%1''"
-  DIFF3_WITH_STR "3-х стороннее сравнение с"
-  DIFF3_WITH_FILE_STR "3-х стороннее сравнение с"
-  DIFF_LATER_STR "Сравнить позже"
+  DIFF_STR "Порівняти"
+  DIFF3_STR "Тристороннє порівняння"
+  DIFF_WITH_STR "Порівняти з"
+  DIFF_WITH_FILE_STR "Порівняти з ''%1''"
+  DIFF3_WITH_STR "Тристороннє порівняння з"
+  DIFF3_WITH_FILE_STR "Тристороннє порівняння з ''%1''"
+  DIFF_LATER_STR "Порівняти пізніше"
+  CLEAR_STR "Очистити"
   
-  DIFF_HINT "Сравнить выбранные файлы"
-  DIFF_WITH_HINT "Сравнить с ''%1''"
-  DIFF3_HINT "3-х стороннее сравнение выбранных файлов"
-  DIFF3_WITH_HINT "3-х стороннее сравнение с ''%1''"
-  DIFF_LATER_HINT "Запомнить файл(ы) для последующего сравнения"
+  DIFF_HINT "Порівняти вибрані файли"
+  DIFF_WITH_HINT "Порівняти з ''%1''"
+  DIFF3_HINT "Тристороннє порівняння вибраних файлів"
+  DIFF3_WITH_HINT "Тристороннє порівняння з ''%1''"
+  DIFF_LATER_HINT "Запам'ятати файл(и) для подальшого порівняння"
+  CLEAR_HINT "Очистити список файлів, що запам'ятали"
 
-  CREATE_PROCESS_STR "Не могу запустить программу сравнения. Пожалуста проверьте установки diff_ext."
+  CREATE_PROCESS_STR "Не можу запустити програму порівняння. Будь ласка перевірте налаштування diff_ext."
   
-  ERROR_STR "Ошибка"
+  ERROR_STR "Помилка"
 }
