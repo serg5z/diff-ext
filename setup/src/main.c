@@ -177,6 +177,7 @@ init(HWND dialog, WPARAM not_used_1, LPARAM not_used_2) {
   TCHAR home[MAX_PATH] = TEXT(".");
   DWORD language = 1033;
   DWORD three_way_compare_supported = 0;
+  DWORD persistent_selection = 0;
   HANDLE file;
   WIN32_FIND_DATA file_info;
   TCHAR prefix[] = TEXT("diff_ext");
@@ -239,6 +240,9 @@ init(HWND dialog, WPARAM not_used_1, LPARAM not_used_2) {
     if(RegQueryValueEx(key, TEXT("3way_compare_supported"), 0, NULL, (BYTE*)(&three_way_compare_supported), &hlen) != ERROR_SUCCESS) {
       three_way_compare_supported = 0;
     }
+    if(RegQueryValueEx(key, TEXT("persistent_selection"), 0, NULL, (BYTE*)(&persistent_selection), &hlen) != ERROR_SUCCESS) {
+      persistent_selection = 0;
+    }
 
     hlen = MAX_PATH;
     if(RegQueryValueEx(key, TEXT("home"), 0, NULL, (BYTE*)home, &hlen) != ERROR_SUCCESS) {
@@ -300,6 +304,9 @@ init(HWND dialog, WPARAM not_used_1, LPARAM not_used_2) {
   if(three_way_compare_supported != 0) {
     SendDlgItemMessage(dialog, ID_DIFF3, BM_SETCHECK, BST_CHECKED, 0);
   }
+  if(persistent_selection != 0) {
+    SendDlgItemMessage(dialog, ID_PERSISTENT_SELECTION, BM_SETCHECK, BST_CHECKED, 0);
+  }
   SetDlgItemText(dialog, ID_DIFF_COMMAND, command);
   SetDlgItemText(dialog, ID_COMMAND_DIFF3, command3);
   SendDlgItemMessage(dialog, ID_DIFF_COMMAND, EM_SETLIMITTEXT, 4*MAX_PATH, 0);
@@ -348,6 +355,8 @@ apply(HWND dialog) {
   LRESULT compare_folders;
   LRESULT three_way_compare_supported;
   DWORD three_way_compare_supported_value = 0;
+  LRESULT persistent_selection;
+  DWORD persistent_selection_value = 0;
   
   GetDlgItemText(dialog, ID_DIFF_COMMAND, command, sizeof(command)/sizeof(command[0]));
   GetDlgItemText(dialog, ID_COMMAND_DIFF3, command3, sizeof(command3)/sizeof(command3[0]));
@@ -355,8 +364,12 @@ apply(HWND dialog) {
   language = (DWORD)SendDlgItemMessage(dialog, ID_LANGUAGE, CB_GETITEMDATA, idx, 0);
   compare_folders = SendDlgItemMessage(dialog, ID_DIFF_DIRS, BM_GETCHECK, 0, 0);  
   three_way_compare_supported = SendDlgItemMessage(dialog, ID_DIFF3, BM_GETCHECK, 0, 0);  
+  persistent_selection = SendDlgItemMessage(dialog, ID_PERSISTENT_SELECTION, BM_GETCHECK, 0, 0);  
   if(three_way_compare_supported == BST_CHECKED) {
     three_way_compare_supported_value = 1;
+  }
+  if(persistent_selection == BST_CHECKED) {
+    persistent_selection_value = 1;
   }
 
   RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_SET_VALUE, &key);
@@ -364,6 +377,7 @@ apply(HWND dialog) {
   RegSetValueEx(key, TEXT("diff3"), 0, REG_SZ, (const BYTE*)command3, lstrlen(command3)*sizeof(TCHAR));
   RegSetValueEx(key, TEXT("language"), 0, REG_DWORD, (const BYTE*)&language, sizeof(language));
   RegSetValueEx(key, TEXT("3way_compare_supported"), 0, REG_DWORD, (const BYTE*)&three_way_compare_supported_value, sizeof(three_way_compare_supported_value));
+  RegSetValueEx(key, TEXT("persistent_selection"), 0, REG_DWORD, (const BYTE*)&persistent_selection_value, sizeof(persistent_selection_value));
   RegCloseKey(key);
   
   if(compare_folders == BST_CHECKED) {

@@ -218,6 +218,25 @@ SERVER::tree_way_compare_supported() {
   return result;
 }
 
+bool 
+SERVER::persistent_selection() {
+  bool result = false; 
+  HKEY key;
+    
+  if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Z\\diff-ext"), 0, KEY_READ, &key) == ERROR_SUCCESS) {
+    DWORD persistent_selection;
+    DWORD hlen = sizeof(persistent_selection);
+    
+    if(RegQueryValueEx(key, TEXT("persistent_selection"), 0, NULL, (BYTE*)(&persistent_selection), &hlen) != ERROR_SUCCESS) {
+      persistent_selection = 0;
+    }
+    
+    result = (persistent_selection != 0);
+  }
+
+  return result;
+}
+
 void
 SERVER::save_history() const {
   HKEY key;

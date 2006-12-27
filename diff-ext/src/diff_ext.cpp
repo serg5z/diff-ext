@@ -20,13 +20,12 @@
 #include "icon_factory.h"
 
 const UINT IDM_DIFF=1;
-const UINT IDM_DIFF3=2;
 const UINT IDM_DIFF_WITH=3;
 const UINT IDM_DIFF_LATER=4;
 const UINT IDM_CLEAR=5;
 const UINT IDM_DIFF_WITH_BASE=6;
 
-DIFF_EXT::DIFF_EXT() : _n_files(0), _selection(0), _language(1033), _ref_count(0L) {
+DIFF_EXT::DIFF_EXT() : _n_files(0), _selection(0), _language(1033), _start_menu(false), _ref_count(0L)  {
 //  TRACE trace(TEXT("DIFF_EXT::DIFF_EXT()"), TEXT(__FILE__), __LINE__);
   
   _recent_files = SERVER::instance()->recent_files();
@@ -34,14 +33,6 @@ DIFF_EXT::DIFF_EXT() : _n_files(0), _selection(0), _language(1033), _ref_count(0
   _resource = SERVER::instance()->handle();
   
   SERVER::instance()->lock();
-/*  
-  _diff_icon = ICON_FACTORY::instance()->diff_icon();
-  _diff3_icon = ICON_FACTORY::instance()->diff3_icon();
-  _diff_later_icon = ICON_FACTORY::instance()->diff_later_icon();
-  _diff_with_icon = ICON_FACTORY::instance()->diff_with_icon();
-  _diff3_with_icon = ICON_FACTORY::instance()->diff3_with_icon();
-  _clear_icon = ICON_FACTORY::instance()->clear_icon();
-*/
 }
 
 DIFF_EXT::~DIFF_EXT() {
@@ -160,7 +151,7 @@ DIFF_EXT::initialize_language() {
 }
 
 STDMETHODIMP
-DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY /*key not used*/) {
+DIFF_EXT::Initialize(LPCITEMIDLIST folder, IDataObject* data, HKEY /*key not used*/) {
 //  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
 
   FORMATETC format = {CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
@@ -175,7 +166,7 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
       _n_files = DragQueryFile(drop, 0xFFFFFFFF, 0, 0);
 
       if(_n_files != 0) {
-        TCHAR tmp[MAX_PATH];
+        TCHAR tmp[MAX_PATH]; // use DragQueryFile(drop, i, 0, 0) to obtain and reallocate buffer as needed
         
         initialize_language();
         
@@ -184,9 +175,27 @@ DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY 
           DragQueryFile(drop, i, tmp, MAX_PATH);
           _selection[i+1] = STRING(tmp);
         }
+        
+        if(_n_files == 1) {
+          LPITEMIDLIST start_menu;
+          
+          DragQueryFile(drop, 0, tmp, MAX_PATH);
+          
+          if(SUCCEEDED(SHGetFolderLocation(NULL, CSIDL_STARTMENU, 0, 0, &start_menu))) {
+            TCHAR start_menu_path[MAX_PATH]; // use DragQueryFile(drop, i, 0, 0) to obtain and reallocate buffer as needed
+            SHGetPathFromIDList(start_menu, start_menu_path);
+            
+            if(lstrcmp(tmp, start_menu_path) == 0) {
+              _start_menu = true;
+            }
+            
+            ILFree(start_menu);
+          }
+        }
       } else {
         ret = E_INVALIDARG;
       }
+      
       GlobalUnlock(medium.hGlobal);
     } else {
       ret = E_INVALIDARG;
@@ -284,7 +293,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
           FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY, format, 0, 0, (LPTSTR)&c_str, sizeof(c_str)/sizeof(c_str[0]), (char**)args);
           id = first_cmd + IDM_DIFF_WITH;
           
-          _diff_with_file = MENUITEM(id, c_str, ICON_FACTORY::instance()->diff_with_icon()/*_diff_with_icon*/);
+          _diff_with_file = MENUITEM(id, c_str, _start_menu ? 0 : ICON_FACTORY::instance()->diff_with_icon()/*_diff_with_icon*/);
           context_menu.insert(_diff_with_file, position);
           position++;
         }        
@@ -300,7 +309,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
             FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ARGUMENT_ARRAY, format, 0, 0, (LPTSTR)&c_str, sizeof(c_str)/sizeof(c_str[0]), (char**)args);
             id = first_cmd + IDM_DIFF_WITH;
             
-            _diff_with_file = MENUITEM(id, c_str, ICON_FACTORY::instance()->diff3_with_icon()/*_diff3_with_icon*/);
+            _diff_with_file = MENUITEM(id, c_str, _start_menu ? 0 : ICON_FACTORY::instance()->diff3_with_icon()/*_diff3_with_icon*/);
             context_menu.insert(_diff_with_file, position);
             position++;
           }
@@ -309,15 +318,15 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
         load_resource_string(_resource, DIFF_STR, c_str, sizeof(c_str)/sizeof(c_str[0]), TEXT("Compare"));
         
         id = first_cmd + IDM_DIFF;
-        _diff = MENUITEM(id, c_str, ICON_FACTORY::instance()->diff_icon()/*_diff_icon*/);
+        _diff = MENUITEM(id, c_str, _start_menu ? 0 : ICON_FACTORY::instance()->diff_icon()/*_diff_icon*/);
         context_menu.insert(_diff, position);
         position++;
       } else if(_n_files == 3) {
         if(SERVER::instance()->tree_way_compare_supported()) {
           load_resource_string(_resource, DIFF3_STR, c_str, sizeof(c_str)/sizeof(c_str[0]), TEXT("3-way compare"));
           
-          id = first_cmd + IDM_DIFF3;
-          _diff = MENUITEM(id, c_str, ICON_FACTORY::instance()->diff3_icon()/*_diff3_icon*/);
+          id = first_cmd + IDM_DIFF;
+          _diff = MENUITEM(id, c_str, _start_menu ? 0 : ICON_FACTORY::instance()->diff3_icon()/*_diff3_icon*/);
           context_menu.insert(_diff, position);
           position++;
         }
@@ -326,18 +335,18 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
       load_resource_string(_resource, DIFF_LATER_STR, c_str, sizeof(c_str)/sizeof(c_str[0]), TEXT("Compare later"));
       
       id = first_cmd + IDM_DIFF_LATER;
-      _diff_later = MENUITEM(id, c_str, ICON_FACTORY::instance()->diff_later_icon()/*_diff_later_icon*/);
+      _diff_later = MENUITEM(id, c_str, _start_menu ? 0 : ICON_FACTORY::instance()->diff_later_icon()/*_diff_later_icon*/);
       context_menu.insert(_diff_later, position);
       position++;
       
       c_str[0] = '\0';
       if(_n_files == 1) {
         load_resource_string(_resource, DIFF_WITH_STR, c_str, sizeof(c_str)/sizeof(c_str[0]), TEXT("Compare to"));
-        icon = ICON_FACTORY::instance()->diff_with_icon();
+        icon = _start_menu ? 0 : ICON_FACTORY::instance()->diff_with_icon();
       } else if(_n_files == 2) {
         if(SERVER::instance()->tree_way_compare_supported()) {
           load_resource_string(_resource, DIFF3_WITH_STR, c_str, sizeof(c_str)/sizeof(c_str[0]), TEXT("3-way compare to"));
-          icon = ICON_FACTORY::instance()->diff3_with_icon();
+          icon = _start_menu ? 0 : ICON_FACTORY::instance()->diff3_with_icon();
         }
       }
       
@@ -370,7 +379,7 @@ DIFF_EXT::QueryContextMenu(HMENU menu, UINT position, UINT first_cmd, UINT /*las
           n++;
 
           load_resource_string(_resource, CLEAR_STR, c_str, sizeof(c_str)/sizeof(c_str[0]), TEXT("Clear"));
-          _clear = MENUITEM(first_cmd + IDM_CLEAR, c_str, ICON_FACTORY::instance()->clear_icon());
+          _clear = MENUITEM(first_cmd + IDM_CLEAR, c_str, _start_menu ? 0 : ICON_FACTORY::instance()->clear_icon());
           _diff_with.insert(_clear, n);
 
           context_menu.insert(_diff_with, position);
@@ -400,12 +409,13 @@ DIFF_EXT::InvokeCommand(LPCMINVOKECOMMANDINFO ici) {
   if(HIWORD(ici->lpVerb) == 0) {
     if(LOWORD(ici->lpVerb) == IDM_DIFF) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-      _selection[0] = _selection[2];
-      diff();
-    } else if(LOWORD(ici->lpVerb) == IDM_DIFF3) {
-//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-      _selection[0] = _selection[3];
-      diff3();
+      if(_n_files == 2) {
+        _selection[0] = _selection[2];
+        diff();
+      } else if(_n_files == 3) {
+        _selection[0] = _selection[3];
+        diff3();
+      }
     } else if(LOWORD(ici->lpVerb) == IDM_DIFF_WITH) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
       if(_n_files == 1) {
@@ -451,12 +461,13 @@ DIFF_EXT::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT*, LPSTR pszName, UI
   if(uFlags == GCS_HELPTEXT) {
     if(idCmd == IDM_DIFF) {
 //      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-      load_resource_string(_resource, DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare selected files."));
-      
-      lstrcpyn((LPTSTR)pszName, resource_string, cchMax);
-    } else if(idCmd == IDM_DIFF3) {
-//      TRACE trace(__FUNCTION__, __FILE__, __LINE__, 4);
-      load_resource_string(_resource, DIFF3_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3-way compare selected files."));
+      if(_n_files == 2) {
+        load_resource_string(_resource, DIFF_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("Compare selected files."));
+      } else if(_n_files == 3) {
+        load_resource_string(_resource, DIFF3_HINT, resource_string, sizeof(resource_string)/sizeof(resource_string[0]), TEXT("3-way compare selected files."));
+      } else {
+        MessageBox(0, TEXT("This is bad"), TEXT(""), MB_OK);
+      }
       
       lstrcpyn((LPTSTR)pszName, resource_string, cchMax);
     } else if(idCmd == IDM_DIFF_WITH) {
@@ -715,6 +726,10 @@ DIFF_EXT::diff_with(unsigned int num) {
   _selection[0] = (*i)->data();
 
   diff();
+  
+  if(!SERVER::instance()->persistent_selection()) {
+    _recent_files->remove(i);
+  }
 }
 
 void
@@ -730,6 +745,10 @@ DIFF_EXT::diff3_with(unsigned int num) {
   _selection[0] = (*i)->data();
 
   diff3();
+  
+  if(!SERVER::instance()->persistent_selection()) {
+    _recent_files->remove(i);
+  }
 }
 
 void

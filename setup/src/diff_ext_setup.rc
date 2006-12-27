@@ -12,112 +12,187 @@
 #endif
 #include "../include/resource.h"
 
+LANGUAGE LANG_ENGLISH,SUBLANG_ENGLISH_US
+
 #ifndef __LCC__
+  #ifdef __MINGW32__
   #define MANIFEST 24
+  #endif
 
 1 MANIFEST "../common/diff_ext_setup.manifest"
 #endif
 
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,8,5,515
- PRODUCTVERSION 1,8,5,515
- FILEFLAGSMASK 0x3fL
+FILEVERSION 1,9,0,520
+PRODUCTVERSION 1,9,0,520
+FILEFLAGSMASK 0x3F
 #ifdef _DEBUG
- FILEFLAGS VS_FF_DEBUG
+FILEFLAGS VS_FF_DEBUG
 #else
- FILEFLAGS 0L
+FILEFLAGS 0L
 #endif
- FILEOS VOS_NT_WINDOWS32
- FILETYPE VFT_APP
- FILESUBTYPE VFT_UNKNOWN
-{
-    BLOCK "StringFileInfo"
-    {
-        BLOCK "040904b0"
-        {
-            VALUE "Comments", ""
-            VALUE "CompanyName", ""
-            VALUE "FileDescription", "diff shell extension setup"
-            VALUE "FileVersion", "1.8.5"
-            VALUE "InternalName", "diff shell extension setup"
-            VALUE "LegalCopyright", "Copyright © 2003-2006 Sergey Zorin"
-            VALUE "LegalTrademarks", ""
-            VALUE "OriginalFilename", "diff_ext_setup.exe"
-            VALUE "PrivateBuild", ""
-            VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "1.8.5"
-        }
-    }
-    BLOCK "VarFileInfo"
-    {
-        VALUE "Translation", 0x409, 1200
-    }
-}
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904b0"
+    BEGIN
+      VALUE "Comments", ""
+      VALUE "CompanyName", ""
+      VALUE "FileDescription", "diff shell extension setup"
+      VALUE "FileVersion", "1.9.0"
+      VALUE "InternalName", "diff shell extension setup"
+      VALUE "LegalCopyright", "Copyright © 2003-2006 Sergey Zorin"
+      VALUE "LegalTrademarks", ""
+      VALUE "OriginalFilename", "diff_ext_setup.exe"
+      VALUE "PrivateBuild", ""
+      VALUE "ProductName", "Diff Context Menu Extension"
+      VALUE "ProductVersion", "1.9.0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 0x4B0
+  END
+END
 
-MAIN_ICON ICON "../common/de.ico"
+MAIN_ICON ICON "..\\common\\de.ico"
 
 #include "about.dlg"
 
-IDD_MAINDIALOG DIALOGEX DISCARDABLE 70, 60, 261, 162
+IDD_MAINDIALOG DIALOGEX
+70, 60, 261, 179
 STYLE WS_POPUP|DS_3DLOOK|DS_CENTER|WS_THICKFRAME|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_VISIBLE
 CAPTION "Diff-ext Setup"
-FONT 8, "Ms Shell Dlg", 0, 0, 1
+FONT 8, "Ms Shell Dlg"
 BEGIN
-  CONTROL "", ID_GROUP, "Button", BS_GROUPBOX, 7, 7, 247, 106
-  CONTROL "", ID_DIFF_COMMAND, "Edit", ES_AUTOHSCROLL|WS_BORDER|WS_TABSTOP, 16, 29, 177, 14
-  CONTROL "Browse...", ID_BROWSE, "Button", WS_TABSTOP, 197, 29, 50, 14
-  CONTROL "3-way compare command:", 4002, "Static", WS_GROUP, 16, 47, 150, 8
-  CONTROL "", ID_COMMAND_DIFF3, "Edit", ES_AUTOHSCROLL|WS_BORDER|WS_TABSTOP, 16, 58, 177, 14
-  CONTROL "Browse...", ID_BROWSE1, "Button", WS_TABSTOP, 197, 58, 50, 14
-  CONTROL "Compare folders", ID_DIFF_DIRS, "Button", BS_AUTOCHECKBOX|WS_TABSTOP, 16, 79, 64, 10
-  CONTROL "3-way compare", ID_DIFF3, "Button", BS_AUTOCHECKBOX|WS_TABSTOP, 16, 96, 61, 10
-  CONTROL "Language", 4003, "Static", WS_GROUP, 7, 122, 37, 8
-  CONTROL "", ID_LANGUAGE, "ComboBox", WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP, 45, 120, 100, 100
-  CONTROL "Compare command:", 104, "Static", WS_GROUP, 16, 18, 150, 8
-  CONTROL "OK", MAIN_ICON, "Button", BS_DEFPUSHBUTTON|WS_GROUP|WS_TABSTOP, 39, 141, 50, 14
-  CONTROL "Cancel", IDCANCEL, "Button", WS_TABSTOP, 93, 141, 50, 14
-  CONTROL "Apply", ID_APPLY, "Button", WS_TABSTOP, 147, 141, 50, 14
-  CONTROL "About", ID_ABOUT, "Button", WS_TABSTOP, 204, 141, 50, 14
-  CONTROL "", 4001, "ScrollBar", 0x04000014, 250, 151, 11, 11
+  CONTROL "",
+    ID_GROUP,
+    "Button",
+    BS_GROUPBOX,
+    7, 7, 247, 123
+  CONTROL "Compare command:",
+    104,
+    "Static",
+    WS_GROUP,
+    16, 18, 150, 8
+  CONTROL "",
+    ID_DIFF_COMMAND,
+    "Edit",
+    ES_AUTOHSCROLL|WS_BORDER|WS_TABSTOP,
+    16, 29, 177, 14
+  CONTROL "Browse...",
+    ID_BROWSE,
+    "Button",
+    WS_TABSTOP,
+    197, 29, 50, 14
+  CONTROL "3-way compare command:",
+    4002,
+    "Static",
+    WS_GROUP,
+    16, 47, 150, 8
+  CONTROL "",
+    ID_COMMAND_DIFF3,
+    "Edit",
+    ES_AUTOHSCROLL|WS_BORDER|WS_TABSTOP,
+    16, 58, 177, 14
+  CONTROL "Browse...",
+    ID_BROWSE1,
+    "Button",
+    WS_TABSTOP,
+    197, 58, 50, 14
+  CONTROL "Compare folders",
+    ID_DIFF_DIRS,
+    "Button",
+    BS_AUTOCHECKBOX|WS_TABSTOP,
+    16, 79, 64, 10
+  CONTROL "3-way compare",
+    ID_DIFF3,
+    "Button",
+    BS_AUTOCHECKBOX|WS_TABSTOP,
+    16, 96, 61, 10
+  CONTROL "Persistent selection",
+    ID_PERSISTENT_SELECTION,
+    "Button",
+    BS_AUTOCHECKBOX|WS_TABSTOP,
+    16, 113, 73, 10
+  CONTROL "Language",
+    4003,
+    "Static",
+    WS_GROUP,
+    7, 139, 35, 8
+  CONTROL "",
+    ID_LANGUAGE,
+    "ComboBox",
+    WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,
+    43, 137, 100, 100
+  CONTROL "OK",
+    MAIN_ICON,
+    "Button",
+    BS_DEFPUSHBUTTON|WS_GROUP|WS_TABSTOP,
+    39, 158, 50, 14
+  CONTROL "Cancel",
+    IDCANCEL,
+    "Button",
+    WS_TABSTOP,
+    93, 158, 50, 14
+  CONTROL "Apply",
+    ID_APPLY,
+    "Button",
+    WS_TABSTOP,
+    147, 158, 50, 14
+  CONTROL "About",
+    ID_ABOUT,
+    "Button",
+    WS_TABSTOP,
+    204, 158, 50, 14
+  CONTROL "",
+    4001,
+    "ScrollBar",
+    0x04000014,
+    250, 168, 11, 11
 END
 
-ID_MAINDIALOG_LAYOUT RCDATA {
-  ID_GROUP, 
+ID_MAINDIALOG_LAYOUT RCDATA
+BEGIN
+  ID_GROUP,
     3L, /* ANCOR_LEFT | ANCOR_TOP */
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  ID_DIFF_COMMAND, 
+  ID_DIFF_COMMAND,
     3L, /* ANCOR_LEFT | ANCOR_TOP */
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  ID_BROWSE, 
+  ID_BROWSE,
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  ID_COMMAND_DIFF3, 
+  ID_COMMAND_DIFF3,
     3L, /* ANCOR_LEFT | ANCOR_TOP */
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
-  ID_BROWSE1, 
+  ID_BROWSE1,
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
     6L, /* ANCOR_RIGHT | ANCOR_TOP */
   ID_ABOUT, /*ID_ABOUT*/
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
-  2L, /*IDCANCEL*/ 
+  2L, /*IDCANCEL*/
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
-  1L, /*IDOK*/ 
+  1L, /*IDOK*/
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
-  ID_APPLY, /*ID_APPLY*/ 
+  ID_APPLY, /*ID_APPLY*/
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
-  4001L, 
+  4001L,
     12L, /* ANCOR_RIGHT | ANCOR_BOTTOM */
     12L /* ANCOR_RIGHT | ANCOR_BOTTOM */
-}
+END
 
 STRINGTABLE
-{
-  OPTIONS_STR "Options"
-  LOGGING_STR "Logging"
-  RELEASE_STR "Release: %1"
-}
+BEGIN
+  OPTIONS_STR, "Options"
+  LOGGING_STR, "Logging"
+  RELEASE_STR, "Release: %1"
+END
+

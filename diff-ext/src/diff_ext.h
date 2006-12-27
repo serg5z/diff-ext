@@ -58,20 +58,14 @@ class DIFF_EXT : public IContextMenu3, IShellExtInit {
     HINSTANCE _resource;
     DWORD _language;
     HWND _hwnd;
+    bool _start_menu;
 
     MENUITEM _diff;
     MENUITEM _diff_later;
     MENUITEM _diff_with_file;
     SUBMENU _diff_with;
     MENUITEM _clear;
-/*  
-    HICON _diff_icon;
-    HICON _diff3_icon;
-    HICON _diff_later_icon;
-    HICON _diff_with_icon;
-    HICON _diff3_with_icon;
-    HICON _clear_icon;
-*/
+
     ULONG  _ref_count;
 };
 

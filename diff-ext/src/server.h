@@ -43,6 +43,7 @@ class SERVER {
     DLIST<STRING>* recent_files();
     
     bool tree_way_compare_supported();
+    bool persistent_selection();
     
     void save_history() const;
     

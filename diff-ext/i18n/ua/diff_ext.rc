@@ -10,8 +10,8 @@
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 VS_VERSION_INFO VERSIONINFO
-  FILEVERSION 1,8,5,13
-  PRODUCTVERSION 1,8,5,13
+  FILEVERSION 1,9,0,17
+  PRODUCTVERSION 1,9,0,17
   FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
   FILEFLAGS VS_FF_DEBUG
@@ -29,14 +29,14 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "Comments", ""
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diff shell extension"
-            VALUE "FileVersion", "1.8.5"
+            VALUE "FileVersion", "1.9.0"
             VALUE "InternalName", "diff shell extension"
             VALUE "LegalCopyright", "Copyright © 2003-2006 Ñåðã³é Çîð³í"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "diff_ext1049.dll"
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "1.8.5"
+            VALUE "ProductVersion", "1.9.0"
         }
     }
     BLOCK "VarFileInfo"

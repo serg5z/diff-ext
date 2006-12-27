@@ -3,7 +3,7 @@ Compression=lzma/normal
 SolidCompression=yes
 AppName=diff_ext
 AppId=A0482097-C69D-4DEC-8AB6-D3A259ACC151
-AppVerName=diff-ext 1.8.5
+AppVerName=diff-ext 1.9.0
 AppPublisher=Z
 DefaultDirName={pf}\Z\diff_ext
 DefaultGroupName=Z\diff_ext
@@ -113,6 +113,7 @@ Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; 
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1058; Flags: uninsdeletekey; Languages: ua
 ;Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: language; ValueData: 1036; Flags: uninsdeletekey; Languages: fr
 Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: 3way_compare_supported; ValueData: 0; Flags: uninsdeletekey createvalueifdoesntexist
+Root: HKCU; Subkey: Software\Z\diff-ext; ValueType: dword; ValueName: persistent_selection; ValueData: 1; Flags: uninsdeletekey createvalueifdoesntexist
 
 [Code]
 procedure CurStepChanged(CurStep: TSetupStep);
