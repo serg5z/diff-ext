@@ -16,9 +16,7 @@
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 #ifndef __LCC__
-  #ifdef __MINGW32__
   #define MANIFEST 24
-  #endif
 
 1 MANIFEST "../../common/diff_ext_setup.manifest"
 #endif
