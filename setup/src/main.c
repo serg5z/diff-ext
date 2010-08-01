@@ -462,13 +462,11 @@ main_dialog_func(HWND dialog, UINT msg, WPARAM w_param, LPARAM l_param) {
             ofn.hwndOwner = dialog;
             ofn.lpstrFile = file_name;
             ofn.nMaxFile = MAX_PATH;
-            ofn.lpstrFilter = TEXT(
-                "All Executables (*.exe; *.com; *.pif; *.bat; *.cmd)\0*.exe;*.com;*.pif;*.bat;*.cmd\0"
-                "Command Files (*.com)\0*.com\0"
-                "Information Files (*.pif)\0*.pif\0"
-                "Batch Files (*.bat; *.cmd)\0*.bat;*.cmd\0"
-                "All (*.*)\0*.*\0"
-              );
+            ofn.lpstrFilter = TEXT("All Executables (*.exe; *.com; *.pif; *.bat; *.cmd)\0*.exe;*.com;*.pif;*.bat;*.cmd\0")
+                TEXT("Command Files (*.com)\0*.com\0")
+                TEXT("Information Files (*.pif)\0*.pif\0")
+                TEXT("Batch Files (*.bat; *.cmd)\0*.bat;*.cmd\0")
+                TEXT("All (*.*)\0*.*\0");
             ofn.nFilterIndex = 1;
             ofn.lpstrFileTitle = NULL;
             ofn.nMaxFileTitle = 0;
