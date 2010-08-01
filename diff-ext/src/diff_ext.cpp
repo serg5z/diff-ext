@@ -151,7 +151,7 @@ DIFF_EXT::initialize_language() {
 }
 
 STDMETHODIMP
-DIFF_EXT::Initialize(LPCITEMIDLIST folder, IDataObject* data, HKEY /*key not used*/) {
+DIFF_EXT::Initialize(LPCITEMIDLIST /*folder not used*/, IDataObject* data, HKEY /*key not used*/) {
 //  TRACE trace(__FUNCTION__, __FILE__, __LINE__);
 
   FORMATETC format = {CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
