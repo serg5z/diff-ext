@@ -2,7 +2,7 @@
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1"
                  manifestVersion="1.0">
   <assemblyIdentity
-      version="1.7.5.0"
+      version="1.9.1.0"
       processorArchitecture="*"
       name="diff_ext_setup"
       type="win32"

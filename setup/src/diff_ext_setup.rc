@@ -23,8 +23,8 @@ LANGUAGE LANG_ENGLISH,SUBLANG_ENGLISH_US
 #endif
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 1,9,0,520
-PRODUCTVERSION 1,9,0,520
+FILEVERSION 1,9,1,522
+PRODUCTVERSION 1,9,1,522
 FILEFLAGSMASK 0x3F
 #ifdef _DEBUG
 FILEFLAGS VS_FF_DEBUG
@@ -42,14 +42,14 @@ BEGIN
       VALUE "Comments", ""
       VALUE "CompanyName", ""
       VALUE "FileDescription", "diff shell extension setup"
-      VALUE "FileVersion", "1.9.0"
+      VALUE "FileVersion", "1.9.1"
       VALUE "InternalName", "diff shell extension setup"
       VALUE "LegalCopyright", "Copyright © 2003-2006 Sergey Zorin"
       VALUE "LegalTrademarks", ""
       VALUE "OriginalFilename", "diff_ext_setup.exe"
       VALUE "PrivateBuild", ""
       VALUE "ProductName", "Diff Context Menu Extension"
-      VALUE "ProductVersion", "1.9.0"
+      VALUE "ProductVersion", "1.9.1"
     END
   END
   BLOCK "VarFileInfo"
@@ -113,11 +113,11 @@ BEGIN
     "Button",
     BS_AUTOCHECKBOX|WS_TABSTOP,
     16, 96, 61, 10
-  CONTROL "Persistent selection",
+  CONTROL "Keep file in the list after comparison",
     ID_PERSISTENT_SELECTION,
     "Button",
     BS_AUTOCHECKBOX|WS_TABSTOP,
-    16, 113, 73, 10
+    16, 113, 124, 10
   CONTROL "Language",
     4003,
     "Static",

@@ -17,8 +17,8 @@
 LANGUAGE LANG_GERMAN, SUBLANG_DEFAULT
 
 VS_VERSION_INFO VERSIONINFO
-  FILEVERSION 1,9,0,159
-  PRODUCTVERSION 1,9,0,159
+  FILEVERSION 1,9,1,162
+  PRODUCTVERSION 1,9,1,162
   FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
   FILEFLAGS VS_FF_DEBUG
@@ -36,14 +36,14 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "Comments", "Translated by Mathias Weinert"
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diff shell extension"
-            VALUE "FileVersion", "1.9.0"
+            VALUE "FileVersion", "1.9.1"
             VALUE "InternalName", "diff shell extension"
             VALUE "LegalCopyright", "Copyright © 2003-2006 Sergey Zorin"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "diff_ext1031.dll"
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "1.9.0"
+            VALUE "ProductVersion", "1.9.1"
         }
     }
     BLOCK "VarFileInfo"
@@ -61,12 +61,14 @@ STRINGTABLE
   DIFF3_WITH_STR "3-fach-Vergleich mit"
   DIFF3_WITH_FILE_STR "3-fach-Vergleich mit ''%1''"
   DIFF_LATER_STR "Später vergleichen"
+  CLEAR_STR "Leeren"
   
-  DIFF_HINT "Vergleiche ausgewählte Dateien"
-  DIFF_WITH_HINT "Vergleichen mit ''%1''"
-  DIFF3_HINT "3-fach-Vergleich der ausgewählten Dateien"
-  DIFF3_WITH_HINT "3-fach-Vergleich mit ''%1''"
-  DIFF_LATER_HINT "Speichere ausgewählte Datei(en) für späteren Vergleich"
+  DIFF_HINT "Vergleiche ausgewählte Dateien."
+  DIFF_WITH_HINT "Vergleichen mit ''%1''."
+  DIFF3_HINT "3-fach-Vergleich der ausgewählten Dateien."
+  DIFF3_WITH_HINT "3-fach-Vergleich mit ''%1''."
+  DIFF_LATER_HINT "Speichere ausgewählte Datei(en) für späteren Vergleich."
+  CLEAR_HINT "Liste der gespeicherten Dateien leeren."
 
   CREATE_PROCESS_STR "Konnte Vergleichsprogramm nicht starten. Bitte führen Sie das diff_ext-Setup-Programm aus und überprüfen Sie Ihre Konfiguration."
   

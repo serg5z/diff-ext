@@ -24,8 +24,8 @@ LANGUAGE LANG_UKRAINIAN, SUBLANG_DEFAULT
 #endif
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 1,9,0,217
-PRODUCTVERSION 1,9,0,217
+FILEVERSION 1,9,1,219
+PRODUCTVERSION 1,9,1,219
 FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
 FILEFLAGS VS_FF_DEBUG
@@ -43,14 +43,14 @@ BEGIN
             VALUE "Comments", ""
             VALUE "CompanyName", ""
             VALUE "FileDescription", "diff shell extension setup"
-            VALUE "FileVersion", "1.9.0"
+            VALUE "FileVersion", "1.9.1"
             VALUE "InternalName", "diff shell extension setup"
             VALUE "LegalCopyright", "Copyright © 2003-2006 Сергій Зорін"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "diff_ext_setup1049.dll"
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "Diff Context Menu Extension"
-            VALUE "ProductVersion", "1.9.0"
+            VALUE "ProductVersion", "1.9.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -104,16 +104,16 @@ BEGIN
     ID_DIFF_DIRS, 
     "Button", 
     BS_AUTOCHECKBOX|WS_TABSTOP, 
-    16, 79, 100, 10
+    16, 79, 94, 10
   CONTROL "Тристороннє порівняння", 
     ID_DIFF3, "Button", 
     BS_AUTOCHECKBOX|WS_TABSTOP, 
     16, 96, 98, 10
-  CONTROL "постійний вибір",
+  CONTROL "Залишати файл в списку після порівняння",
     ID_PERSISTENT_SELECTION,
     "Button",
     BS_AUTOCHECKBOX|WS_TABSTOP,
-    16, 113, 64, 10
+    16, 113, 155, 10
   CONTROL "Мова", 
     4003, "Static", 
     WS_GROUP, 
