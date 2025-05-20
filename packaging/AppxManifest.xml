@@ -11,7 +11,7 @@
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
   IgnorableNamespaces="uap uap10 rescap desktop6 desktop4 desktop5 com">
 
-  <Identity Name="Minimal.CompareExtension"
+  <Identity Name="diff-ext"
             Publisher="CN=Sergey Zorin"
             Version="2.0.0.0"
             ProcessorArchitecture="neutral" />
@@ -82,13 +82,13 @@
             </desktop5:ItemType>
           </desktop4:FileExplorerContextMenus>
         </desktop4:Extension>
+
         <desktop9:Extension Category="windows.fileExplorerClassicContextMenuHandler">
           <desktop9:FileExplorerClassicContextMenuHandler>
             <desktop9:ExtensionHandler Type="*"         Clsid="C42D835A-32CB-11F0-8E44-FAE5B572B91D" />
             <desktop9:ExtensionHandler Type="Directory" Clsid="C42D835A-32CB-11F0-8E44-FAE5B572B91D" />
           </desktop9:FileExplorerClassicContextMenuHandler>
         </desktop9:Extension>
-
 
         <com:Extension Category="windows.comServer">
           <com:ComServer>
