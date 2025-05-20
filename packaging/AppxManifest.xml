@@ -17,12 +17,14 @@
             ProcessorArchitecture="neutral" />
 
   <Properties>
-    <DisplayName>Minimal.CompareCommand</DisplayName>
+    <DisplayName>diff-ext</DisplayName>
     <PublisherDisplayName>Sergey Zorin</PublisherDisplayName>
     <Logo>assets/Logo.png</Logo>
     <desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
     <desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization>
+    <!--
     <uap10:AllowExternalContent>true</uap10:AllowExternalContent>
+    -->
   </Properties>
 
   <Resources>
@@ -30,7 +32,7 @@
   </Resources>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.18950.0" MaxVersionTested="10.0.22000.160" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22621.0" MaxVersionTested="10.0.26100.4061" />
   </Dependencies>
 
   <Capabilities>
@@ -39,12 +41,12 @@
   </Capabilities>
 
   <Applications>
-    <Application Id="CompareHost"
+    <Application Id="DiffExtSetup"
                  Executable="diff-ext-setup.exe"
                  uap10:TrustLevel="mediumIL"
                  uap10:RuntimeBehavior="win32App">
       <uap:VisualElements
-        DisplayName="Compare commands"
+        DisplayName="diff-ext setup"
         BackgroundColor="transparent"
         Square150x150Logo="assets/Logo.png"
         Square44x44Logo="assets/SmallLogo.png"
