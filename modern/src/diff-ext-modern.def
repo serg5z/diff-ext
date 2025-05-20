@@ -1,0 +1,4 @@
+LIBRARY "diff-ext-modern"
+EXPORTS
+    DllCanUnloadNow           PRIVATE
+    DllGetClassObject         PRIVATE

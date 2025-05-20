@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
+  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+  xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
+  xmlns:desktop9="http://schemas.microsoft.com/appx/manifest/desktop/windows10/9"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  IgnorableNamespaces="uap uap10 rescap desktop6 desktop4 desktop5 com">
+
+  <Identity Name="Minimal.CompareExtension"
+            Publisher="CN=SZ"
+            Version="1.0.0.0"
+            ProcessorArchitecture="neutral" />
+
+  <Properties>
+    <DisplayName>Minimal.CompareCommand</DisplayName>
+    <PublisherDisplayName>Sergey Zorin</PublisherDisplayName>
+    <Logo>assets/Logo.png</Logo>
+    <desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
+    <desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization>
+    <uap10:AllowExternalContent>true</uap10:AllowExternalContent>
+  </Properties>
+
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.18950.0" MaxVersionTested="10.0.22000.160" />
+  </Dependencies>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+    <rescap:Capability Name="unvirtualizedResources"/>
+  </Capabilities>
+
+  <Applications>
+    <Application Id="CompareHost"
+                 Executable="diff-ext-setup.exe"
+                 uap10:TrustLevel="mediumIL"
+                 uap10:RuntimeBehavior="win32App">
+      <uap:VisualElements
+        DisplayName="Compare commands"
+        BackgroundColor="transparent"
+        Square150x150Logo="assets/Logo.png"
+        Square44x44Logo="assets/SmallLogo.png"
+        Description="Compare files." />
+
+      <Extensions>
+        <desktop4:Extension Category="windows.fileExplorerContextMenus">
+          <desktop4:FileExplorerContextMenus>
+            <desktop5:ItemType Type="*">
+              <desktop5:Verb Id="Compare"         Clsid="C42D8356-32CB-11F0-8E44-FAE5B572B91D" />
+              <desktop5:Verb Id="CompareLater"    Clsid="C42D8357-32CB-11F0-8E44-FAE5B572B91D" />
+              <desktop5:Verb Id="CompareWithTop"  Clsid="C42D8358-32CB-11F0-8E44-FAE5B572B91D" />
+              <desktop5:Verb Id="MRUMenu"         Clsid="C42D8359-32CB-11F0-8E44-FAE5B572B91D" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type="Directory">
+              <desktop5:Verb Id="Compare"         Clsid="C42D8356-32CB-11F0-8E44-FAE5B572B91D" />
+              <desktop5:Verb Id="CompareLater"    Clsid="C42D8357-32CB-11F0-8E44-FAE5B572B91D" />
+              <desktop5:Verb Id="CompareWithTop"  Clsid="C42D8358-32CB-11F0-8E44-FAE5B572B91D" />
+              <desktop5:Verb Id="MRUMenu"         Clsid="C42D8359-32CB-11F0-8E44-FAE5B572B91D" />
+            </desktop5:ItemType>
+          </desktop4:FileExplorerContextMenus>
+        </desktop4:Extension>
+        <desktop9:Extension Category="windows.fileExplorerClassicContextMenuHandler">
+          <desktop9:FileExplorerClassicContextMenuHandler>
+            <desktop9:ExtensionHandler Type="*"         Clsid="C42D835A-32CB-11F0-8E44-FAE5B572B91D" />
+            <desktop9:ExtensionHandler Type="Directory" Clsid="C42D835A-32CB-11F0-8E44-FAE5B572B91D" />
+          </desktop9:FileExplorerClassicContextMenuHandler>
+        </desktop9:Extension>
+
+
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:SurrogateServer DisplayName="Compare Context Menu Handler">
+              <com:Class Id="C42D8356-32CB-11F0-8E44-FAE5B572B91D" Path="diff-ext-modern.dll"  ThreadingModel="STA" />
+              <com:Class Id="C42D8357-32CB-11F0-8E44-FAE5B572B91D" Path="diff-ext-modern.dll"  ThreadingModel="STA" />
+              <com:Class Id="C42D8358-32CB-11F0-8E44-FAE5B572B91D" Path="diff-ext-modern.dll"  ThreadingModel="STA" />
+              <com:Class Id="C42D8359-32CB-11F0-8E44-FAE5B572B91D" Path="diff-ext-modern.dll"  ThreadingModel="STA" />
+              <com:Class Id="C42D835A-32CB-11F0-8E44-FAE5B572B91D" Path="diff-ext-classic.dll" ThreadingModel="STA" />
+            </com:SurrogateServer>
+          </com:ComServer>
+        </com:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+</Package>

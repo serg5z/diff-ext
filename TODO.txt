@@ -1,0 +1,5 @@
+-documentation!
+-watchdog for registry changes. should minimize registry queries and i18n library loading.
+-share recent files information with IE.
+-switch to msi installer???
+-drag-and-drop compare???

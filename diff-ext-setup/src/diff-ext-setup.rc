@@ -1,0 +1,19 @@
+#include <windows.h>
+#include <commctrl.h>
+
+1 DIALOGEX 0, 0, 260, 93
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_SIZEBOX
+CAPTION "Compare Extension Setup"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Diff Tool:", -1, 5, 10, 75, 8
+    EDITTEXT        1001, 85, 8, 115, 12, ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse...", 1003, 205, 8, 45, 12
+
+    LTEXT           "Max MRU Size (1 - 64):", -1, 5, 30, 75, 8
+    EDITTEXT        1002, 85, 28, 30, 12, ES_NUMBER
+    CONTROL         "", 1004, UPDOWN_CLASS, WS_VISIBLE | UDS_ALIGNRIGHT | UDS_SETBUDDYINT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS, 140, 28, 10, 12
+
+    DEFPUSHBUTTON   "OK", IDOK, 145, 70, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 200, 70, 50, 14
+END
