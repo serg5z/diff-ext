@@ -12,7 +12,7 @@
   IgnorableNamespaces="uap uap10 rescap desktop6 desktop4 desktop5 com">
 
   <Identity Name="Minimal.CompareExtension"
-            Publisher="CN=SZ"
+            Publisher="CN=Sergey Zorin"
             Version="2.0.0.0"
             ProcessorArchitecture="neutral" />
 
@@ -41,12 +41,25 @@
   </Capabilities>
 
   <Applications>
-    <Application Id="DiffExtSetup"
+      <Application Id="DiffExtSetup"
                  Executable="diff-ext-setup.exe"
                  uap10:TrustLevel="mediumIL"
                  uap10:RuntimeBehavior="win32App">
       <uap:VisualElements
         DisplayName="diff-ext setup"
+        BackgroundColor="transparent"
+        Square150x150Logo="assets/Logo.png"
+        Square44x44Logo="assets/SmallLogo.png"
+        Description="Compare files." />
+    </Application>
+
+    <Application Id="DiffExt"
+                 Executable="diff-ext-setup.exe"
+                 uap10:TrustLevel="mediumIL"
+                 uap10:RuntimeBehavior="win32App">
+      <uap:VisualElements
+        DisplayName="Compare Commands"
+        AppListEntry="none"
         BackgroundColor="transparent"
         Square150x150Logo="assets/Logo.png"
         Square44x44Logo="assets/SmallLogo.png"
