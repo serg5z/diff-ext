@@ -164,4 +164,3 @@ ContextMenu::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT*, LPSTR pszName,
 
     return S_OK;
 }
-

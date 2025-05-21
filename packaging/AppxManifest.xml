@@ -11,14 +11,14 @@
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
   IgnorableNamespaces="uap uap10 rescap desktop6 desktop4 desktop5 com">
 
-  <Identity Name="diff-ext"
-            Publisher="CN=Sergey Zorin"
+  <Identity Name="SergeyVZorin.diff-ext"
+            Publisher="CN=43E1399F-BA1C-4045-B577-EAC98E3A26EC"
             Version="2.0.0.0"
             ProcessorArchitecture="neutral" />
 
   <Properties>
     <DisplayName>diff-ext</DisplayName>
-    <PublisherDisplayName>Sergey Zorin</PublisherDisplayName>
+    <PublisherDisplayName>Sergey V Zorin</PublisherDisplayName>
     <Logo>assets/Logo.png</Logo>
     <desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
     <desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization>
@@ -50,7 +50,7 @@
         BackgroundColor="transparent"
         Square150x150Logo="assets/Logo.png"
         Square44x44Logo="assets/SmallLogo.png"
-        Description="Compare files." />
+        Description="Diff-ext setup." />
     </Application>
 
     <Application Id="DiffExt"
