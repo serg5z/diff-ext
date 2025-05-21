@@ -41,7 +41,7 @@
   </Capabilities>
 
   <Applications>
-      <Application Id="DiffExtSetup"
+    <Application Id="DiffExtSetup"
                  Executable="diff-ext-setup.exe"
                  uap10:TrustLevel="mediumIL"
                  uap10:RuntimeBehavior="win32App">

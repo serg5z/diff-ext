@@ -36,7 +36,24 @@ add_subdirectory(modern)
 add_subdirectory(diff-ext-setup)
 
 # MSIX config
-set(MSIX_NAME "diff-ext.msix")
+find_program(MAKEAPPX_EXE makeappx REQUIRED)
+if(NOT MAKEAPPX_EXE)
+    message(FATAL_ERROR "makeappx.exe not found. Install Windows SDK.")
+endif()
+
+# Determine architecture name (e.g., x64, x86, arm64)
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(ARCH_SUFFIX "x64")
+else()
+    set(ARCH_SUFFIX "x86")
+endif()
+
+# Optional: override with Visual Studio platform name if defined
+if(CMAKE_VS_PLATFORM_NAME)
+    set(ARCH_SUFFIX "${CMAKE_VS_PLATFORM_NAME}")
+endif()
+
+set(MSIX_NAME "diff-ext-${ARCH_SUFFIX}.msix")
 set(MSIX_OUTPUT_DIR "${CMAKE_BINARY_DIR}/msix")
 set(MSIX_BUILD_DIR "${CMAKE_BINARY_DIR}/msix_build")
 
@@ -57,6 +74,6 @@ add_custom_command(
 # Create the MSIX package
 add_custom_command(
     TARGET msix POST_BUILD
-    COMMAND makeappx.exe pack /d "${MSIX_BUILD_DIR}" /p "${MSIX_OUTPUT_DIR}/${MSIX_NAME}" /overwrite
+    COMMAND ${MAKEAPPX_EXE} pack /d "${MSIX_BUILD_DIR}" /p "${MSIX_OUTPUT_DIR}/${MSIX_NAME}" /overwrite
     COMMENT "MSIX package created at ${MSIX_OUTPUT_DIR}/${MSIX_NAME}"
 )
