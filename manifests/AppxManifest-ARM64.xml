@@ -14,7 +14,7 @@
   <Identity Name="SergeyVZorin.diff-ext"
             Publisher="CN=43E1399F-BA1C-4045-B577-EAC98E3A26EC"
             Version="2.0.0.0"
-            ProcessorArchitecture="neutral" />
+            ProcessorArchitecture="arm64" />
 
   <Properties>
     <DisplayName>diff-ext</DisplayName>
