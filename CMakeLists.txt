@@ -74,9 +74,13 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:diff-ext-classic>" "${MSIX_BUILD_DIR}"
 )
 
+message(NOTICE, ${MAKEAPPX_EXECUTABLE})
+
 # Create the MSIX package
 add_custom_command(
     TARGET msix POST_BUILD
+    COMMAND -E echo ${MAKEAPPX_EXECUTABLE}
+    COMMAND powershell ls ${MSIX_BUILD_DIR}
     COMMAND ${MAKEAPPX_EXECUTABLE} pack /d "${MSIX_BUILD_DIR}" /p "${MSIX_OUTPUT_DIR}/${MSIX_NAME}" /overwrite
     COMMENT "MSIX package created at ${MSIX_OUTPUT_DIR}/${MSIX_NAME}"
 )

@@ -34,6 +34,6 @@ jobs:
           cat build-${{ matrix.arch }}/msix.vcxproj
           
       - name: Build
-        shell: cmd
+        shell: pwsh
         run: |
           cmake --build build-${{ matrix.arch }} --config Release
