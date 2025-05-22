@@ -16,7 +16,7 @@ jobs:
 
       - name: check env
         run: |
-          Get-ChildItem Env:
+          echo $Env:PATH
           $makeappx = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter "makeappx.exe" |
                 Where-Object { $_.FullName -match "x64" } |
                 Select-Object -First 1 -ExpandProperty FullName
