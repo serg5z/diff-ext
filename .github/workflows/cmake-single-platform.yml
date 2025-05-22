@@ -1,0 +1,25 @@
+name: Windows MSIX Build
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  build-msix:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x64, x86, arm64]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: |
+          $cmakeArch = if ("${{ matrix.arch }}" -eq "x86") { "Win32" } else { "${{ matrix.arch }}" }
+          cmake -S . -B build-${{ matrix.arch }} -A $cmakeArch -DCMAKE_BUILD_TYPE=Release
+        shell: pwsh
+          
+      - name: Build
+          cmake --build build-${{ matrix.arch }} --config Release
+        shell: pwsh
