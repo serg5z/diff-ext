@@ -14,7 +14,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: check env
+      - name: update env
         run: |
           echo $Env:PATH
           $makeappx = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter "makeappx.exe" |
@@ -24,13 +24,8 @@ jobs:
             throw "MakeAppx.exe not found."
           }
           echo "Found MakeAppx.exe at $makeappx"
-          $makeappx = Get-ChildItem "C:\Program Files" -Recurse -Filter "makeappx.exe" |
-                Where-Object { $_.FullName -match "x64" } |
-                Select-Object -First 1 -ExpandProperty FullName
-          if (-not $makeappx) {
-            throw "MakeAppx.exe not found."
-          }
-          echo "Found MakeAppx.exe at $makeappx"
+          $makeappxDir = Split-Path $makeappxPath -Parent
+          echo "$makeappxDir" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
 
       - name: Configure CMake
         shell: pwsh
