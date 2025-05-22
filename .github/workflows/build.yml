@@ -24,7 +24,7 @@ jobs:
             throw "MakeAppx.exe not found."
           }
           echo "Found MakeAppx.exe at $makeappx"
-          $makeappxDir = Split-Path $makeappxPath -Parent
+          $makeappxDir = Split-Path $makeappx -Parent
           echo "$makeappxDir" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
 
       - name: Configure CMake
