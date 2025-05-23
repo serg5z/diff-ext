@@ -6,9 +6,6 @@ on:
 jobs:
   build-msix:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        arch: [x64, x86, arm64]
 
     steps:
       - name: Checkout source
@@ -29,11 +26,10 @@ jobs:
       - name: Configure CMake
         shell: pwsh
         run: |
-          $cmakeArch = if ("${{ matrix.arch }}" -eq "x86") { "Win32" } else { "${{ matrix.arch }}" }
-          cmake -S . -B build-${{ matrix.arch }} -A $cmakeArch -DCMAKE_BUILD_TYPE=Release
-          cat build-${{ matrix.arch }}/msix.vcxproj
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cat build/msix.vcxproj
           
       - name: Build
         shell: pwsh
         run: |
-          cmake --build build-${{ matrix.arch }} --config Release
+          cmake --build build --config Release
