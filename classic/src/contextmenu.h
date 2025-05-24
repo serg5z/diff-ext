@@ -9,7 +9,8 @@
 
 using namespace Microsoft::WRL;
 
-class ContextMenu : public RuntimeClass<RuntimeClassFlags<ClassicCom>, IContextMenu, IShellExtInit> {
+class __declspec(uuid("C42D835A-32CB-11F0-8E44-FAE5B572B91D")) 
+ContextMenu : public RuntimeClass<RuntimeClassFlags<ClassicCom>, IContextMenu, IShellExtInit> {
 	public:
 	    ContextMenu();
 

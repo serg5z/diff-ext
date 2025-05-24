@@ -45,5 +45,6 @@ target_link_libraries(diff-ext-modern PRIVATE
     ole32
     uuid
     shlwapi
+    runtimeobject
     shared
 )

@@ -12,9 +12,6 @@
 #define IDC_BROWSE 1003
 #define IDC_SPIN_MRU 1004
 
-static std::wstring selectedDiffTool;
-static int maxMRUSize = 10;
-
 static SIZE g_originalDlgSize = { 0, 0 };
 
 
@@ -163,6 +160,8 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
                 case IDOK: {
                     wchar_t buffer[MAX_PATH];
+                    std::wstring selectedDiffTool;
+                    
                     GetDlgItemTextW(hwnd, 1001, buffer, MAX_PATH);
                     selectedDiffTool = buffer;
 

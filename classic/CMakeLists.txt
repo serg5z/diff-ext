@@ -28,5 +28,6 @@ target_link_libraries(diff-ext-classic PRIVATE
     shell32
     ole32
     uuid
+    runtimeobject
     shlwapi
 )

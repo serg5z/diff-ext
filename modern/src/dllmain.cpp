@@ -2,6 +2,7 @@
 #include <guiddef.h>
 #include <shlobj_core.h>
 #include <shobjidl.h>
+#include <wrl/module.h>
 #include <wrl/implements.h>
 
 #include "settings.h"
@@ -28,6 +29,16 @@ static const CLSID CLSID_CompareWithTopMRU =
 static const CLSID CLSID_MRUSubmenu = 
 { 0xc42d8359, 0x32cb, 0x11f0, { 0x8e, 0x44, 0xfa, 0xe5, 0xb5, 0x72, 0xb9, 0x1d } };
 
+CoCreatableClass(CompareFilesCommand);
+CoCreatableClass(RememberFilesCommand);
+CoCreatableClass(CompareWithTopCommand);
+CoCreatableClass(MRUSubmenu);
+
+extern "C" HRESULT __stdcall DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv) {
+    return Module<InProc>::GetModule().GetClassObject(rclsid, riid, ppv);
+}
+
+/*
 extern "C" HRESULT __stdcall 
 DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv)
 {
@@ -45,6 +56,7 @@ DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv)
 
     return CLASS_E_CLASSNOTAVAILABLE;
 }
+*/
 
 extern "C" HRESULT __stdcall 
 DllCanUnloadNow() {

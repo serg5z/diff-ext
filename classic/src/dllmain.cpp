@@ -2,13 +2,14 @@
 #include <guiddef.h>
 #include <shlobj_core.h>
 #include <shobjidl.h>
+#include <wrl/module.h> 
 #include <wrl/implements.h>
 
 #include <string>
 
 #include "settings.h"
 #include "contextmenu.h"
-#include "classfactory.h"
+//#include "classfactory.h"
 
 using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Details;
@@ -17,6 +18,13 @@ using namespace Microsoft::WRL::Details;
 static const CLSID CLSID_ClassicContextMenu = 
 { 0xc42d835a, 0x32cb, 0x11f0, { 0x8e, 0x44, 0xfa, 0xe5, 0xb5, 0x72, 0xb9, 0x1d } };
 
+CoCreatableClass(ContextMenu);
+
+extern "C" HRESULT __stdcall 
+DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv) {
+    return Module<InProc>::GetModule().GetClassObject(rclsid, riid, ppv);
+}
+/*
 extern "C" HRESULT __stdcall 
 DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv) {
     if(IsEqualCLSID(rclsid, CLSID_ClassicContextMenu)) {
@@ -26,6 +34,7 @@ DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv) {
 
     return CLASS_E_CLASSNOTAVAILABLE;
 }
+*/
 
 extern "C" HRESULT __stdcall 
 DllCanUnloadNow() {

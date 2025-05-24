@@ -3,7 +3,8 @@
 #include "basecommand.h"
 
 
-class CompareFilesCommand : public BaseCommand {
+class __declspec(uuid("C42D8356-32CB-11F0-8E44-FAE5B572B91D"))
+CompareFilesCommand : public BaseCommand {
   public:
     CompareFilesCommand();
     IFACEMETHODIMP Invoke(IShellItemArray*, IBindCtx*) override;

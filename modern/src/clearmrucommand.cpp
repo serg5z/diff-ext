@@ -11,3 +11,9 @@ ClearMRUCommand::Invoke(IShellItemArray*, IBindCtx*) {
 
   return S_OK;
 }
+
+IFACEMETHODIMP
+ClearMRUCommand::GetFlags(EXPCMDFLAGS* pFlags) {
+	*pFlags = ECF_DEFAULT | ECF_SEPARATORBEFORE;
+	return S_OK;
+}
