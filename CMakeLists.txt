@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.15)
 
 project(diff-ext VERSION 2.0.0 LANGUAGES CXX)
 
+option(DEVELOPMENT_BUILD "Build with development Appx manifest" OFF)
+
+message(STATUS "DEVELOPMENT_BUILD: ${DEVELOPMENT_BUILD}")
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -42,20 +46,20 @@ if(NOT MAKEAPPX_EXECUTABLE)
     message(FATAL_ERROR "makeappx.exe not found in PATH")
 endif()
 
-
-# Determine architecture name (e.g., x64, x86, arm64)
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(ARCH_SUFFIX "x64")
+# Determine architecture for MSIX manifest
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^[Aa][Mm][Dd]64|x86_64$")
+    set(PACKAGE_ARCH "x64")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86|i[3-6]86)$")
+    set(PACKAGE_ARCH "x86")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(ARM64|aarch64)$")
+    set(PACKAGE_ARCH "arm64")
 else()
-    set(ARCH_SUFFIX "x86")
+    message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
-# Override with Visual Studio platform name if defined
-if(CMAKE_VS_PLATFORM_NAME)
-    set(ARCH_SUFFIX "${CMAKE_VS_PLATFORM_NAME}")
-endif()
+message(STATUS "Detected architecture for MSIX: ${PACKAGE_ARCH}")
 
-set(MSIX_NAME "diff-ext-${ARCH_SUFFIX}.msix")
+set(MSIX_NAME "diff-ext-${PACKAGE_ARCH}.msix")
 set(MSIX_OUTPUT_DIR "${CMAKE_BINARY_DIR}/msix")
 set(MSIX_BUILD_DIR "${CMAKE_BINARY_DIR}/msix_build")
 
@@ -63,12 +67,27 @@ add_custom_target(msix ALL
     COMMENT "Generating MSIX package"
 )
 
+if(DEVELOPMENT_BUILD)
+    message(STATUS "Using development manifest")
+    set(APPX_MANIFEST_TEMPLATE "${CMAKE_SOURCE_DIR}/manifests/AppxManifest.dev.xml.in")
+else()
+    message(STATUS "Using production manifest")
+    set(APPX_MANIFEST_TEMPLATE "${CMAKE_SOURCE_DIR}/manifests/AppxManifest.xml.in")
+endif()
+
+message(STATUS "Appx manifest template: ${APPX_MANIFEST_TEMPLATE}")
+
+configure_file(
+    ${APPX_MANIFEST_TEMPLATE}
+    ${MSIX_BUILD_DIR}/AppxManifest.xml
+    @ONLY
+)
+
 # Copy files into MSIX staging directory
 add_custom_command(
     TARGET msix PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory "${MSIX_BUILD_DIR}"
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/packaging" "${MSIX_BUILD_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/manifests/AppxManifest-${ARCH_SUFFIX}.xml" "${MSIX_BUILD_DIR}/AppxManifest.xml"
     COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:diff-ext-setup>" "${MSIX_BUILD_DIR}"
     COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:diff-ext-modern>" "${MSIX_BUILD_DIR}"
     COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:diff-ext-classic>" "${MSIX_BUILD_DIR}"
