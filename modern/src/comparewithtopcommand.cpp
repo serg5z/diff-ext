@@ -1,7 +1,10 @@
 #include "settings.h"
 #include "util.h"
+#include "resources.h"
 #include "comparewithtopcommand.h"
 
+
+extern "C" IMAGE_DOS_HEADER __ImageBase;
 
 CompareWithTopCommand::CompareWithTopCommand() 
   : BaseCommand(L"", L"Compare with most recently remembered file") {
@@ -10,6 +13,20 @@ CompareWithTopCommand::CompareWithTopCommand()
   if(!mru.empty()) {
     _title = (L"Compare to " + get_shortened_display_path(mru[0])).c_str();
   }
+}
+
+IFACEMETHODIMP 
+CompareWithTopCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
+  wchar_t modulePath[MAX_PATH];
+
+  if(!GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH)) {
+    return HRESULT_FROM_WIN32(GetLastError());
+  }
+
+  wchar_t iconPath[MAX_PATH + 20];
+  swprintf_s(iconPath, L"%s,-%d", modulePath, IDI_COMPARE_ICON);
+
+  return SHStrDupW(iconPath, icon);
 }
 
 IFACEMETHODIMP 

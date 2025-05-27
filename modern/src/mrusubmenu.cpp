@@ -1,24 +1,68 @@
 #include "settings.h"
-#include "mruenumerator.h"
+#include "util.h"
+#include "clearmrucommand.h"
+#include "comparewithmrucommand.h"
+#include "resources.h"
 #include "mrusubmenu.h"
 
 
-MRUSubmenu::MRUSubmenu() : BaseCommand(L"Compare to", L"List of previously remembered files") {  
+extern "C" IMAGE_DOS_HEADER __ImageBase;
+
+MRUSubmenu::MRUSubmenu() {  
+  const auto& mru = getMRU();
+
+  size_t index = 0;
+  for(const auto& file : mru) {
+    _commands.push_back(Make<CompareWithMRUCommand>(get_shortened_display_path(file), index++));
+  }
+
+  if (!mru.empty()) {
+    _commands.push_back(Make<ClearMRUCommand>());
+  }
 }
 
 IFACEMETHODIMP 
-MRUSubmenu::GetFlags(EXPCMDFLAGS* pFlags) { *pFlags = ECF_HASSUBCOMMANDS; return S_OK; }
+MRUSubmenu::GetTitle(IShellItemArray*, LPWSTR* ppszName) {
+  return SHStrDupW(L"Compare to", ppszName);
+}
 
 IFACEMETHODIMP 
-MRUSubmenu::EnumSubCommands(IEnumExplorerCommand** ppenum) {
-  auto enumerator = Make<MRUEnumerator>();
-  
-  if (!enumerator) 
-    return E_OUTOFMEMORY;
+MRUSubmenu::GetToolTip(IShellItemArray*, LPWSTR* ppszTip) {
+  return SHStrDupW(L"List of previously remembered files", ppszTip);
+}
 
-  *ppenum = enumerator.Detach();
+IFACEMETHODIMP 
+MRUSubmenu::GetIcon(IShellItemArray*, LPWSTR* icon) {
+  wchar_t modulePath[MAX_PATH];
+
+  if(!GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH)) {
+    return HRESULT_FROM_WIN32(GetLastError());
+  }
+
+  wchar_t iconPath[MAX_PATH + 20];
+  swprintf_s(iconPath, L"%s,-%d", modulePath, IDI_COMPARE_ICON);
+
+  return SHStrDupW(iconPath, icon);
+}
+
+IFACEMETHODIMP 
+MRUSubmenu::GetCanonicalName(GUID* pguidCommandName) {
+  *pguidCommandName = GUID_NULL;
 
   return S_OK;
+}
+
+
+IFACEMETHODIMP 
+MRUSubmenu::GetFlags(EXPCMDFLAGS* pFlags) { 
+  *pFlags = ECF_HASSUBCOMMANDS; 
+  
+  return S_OK; 
+}
+
+IFACEMETHODIMP 
+MRUSubmenu::EnumSubCommands(IEnumExplorerCommand** enumerator) {
+  return QueryInterface(IID_PPV_ARGS(enumerator));
 }
 
 IFACEMETHODIMP 
@@ -34,4 +78,38 @@ MRUSubmenu::GetState(IShellItemArray* psiItemArray, BOOL, EXPCMDSTATE* pCmdState
   *pCmdState = (count == 1 && !getMRU().empty()) ? ECS_ENABLED : ECS_HIDDEN;
 
   return S_OK;
+}
+
+IFACEMETHODIMP 
+MRUSubmenu::Next(ULONG celt, IExplorerCommand** rgelt, ULONG* pceltFetched) {
+  ULONG count = 0;
+
+  while(_current < _commands.size() && count < celt) {
+    rgelt[count++] = _commands[_current++].Detach();
+  }
+
+  if(pceltFetched) {
+    *pceltFetched = count;
+  }
+
+  return (count > 0) ? S_OK : S_FALSE;
+}
+
+IFACEMETHODIMP 
+MRUSubmenu::Skip(ULONG celt) {
+  _current += celt;
+
+  return (_current < _commands.size()) ? S_OK : S_FALSE;
+}
+
+IFACEMETHODIMP 
+MRUSubmenu::Reset() {
+  _current = 0;
+  
+  return S_OK;
+}
+
+IFACEMETHODIMP 
+MRUSubmenu::Clone(IEnumExplorerCommand**) {
+  return E_NOTIMPL;
 }

@@ -2,12 +2,30 @@
 
 #include "settings.h"
 #include "util.h"
+#include "resources.h"
 #include "comparefilescommand.h"
+#include <string>
 
 
-using namespace Microsoft::WRL;
+extern "C" IMAGE_DOS_HEADER __ImageBase;
 
 CompareFilesCommand::CompareFilesCommand() : BaseCommand(L"Compare", L"Compare two selected files") {}
+
+IFACEMETHODIMP 
+CompareFilesCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
+  wchar_t modulePath[MAX_PATH];
+
+  if(!GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH)) {
+    return HRESULT_FROM_WIN32(GetLastError());
+  }
+
+  wchar_t iconPath[MAX_PATH + 20];
+  swprintf_s(iconPath, L"%s,-%d", modulePath, IDI_COMPARE_ICON);
+
+  OutputDebugStringW((std::wstring(L"CompareFilesCommand::GetIcon: ") + iconPath).c_str());
+
+  return SHStrDupW(iconPath, icon);
+}
 
 IFACEMETHODIMP 
 CompareFilesCommand::Invoke(IShellItemArray* items, IBindCtx*) {

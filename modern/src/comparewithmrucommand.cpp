@@ -1,10 +1,41 @@
 #include "settings.h"
 #include "util.h"
+#include "resources.h"
 #include "comparewithmrucommand.h"
 
 
+extern "C" IMAGE_DOS_HEADER __ImageBase;
+
 CompareWithMRUCommand::CompareWithMRUCommand(const std::wstring& title, ULONG index) 
   : BaseCommand(title, L"Compare with MRU item"), _index(index) {
+}
+
+IFACEMETHODIMP 
+CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
+  wchar_t modulePath[MAX_PATH];
+
+  if(!GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH)) {
+    return HRESULT_FROM_WIN32(GetLastError());
+  }
+
+  wchar_t iconPath[MAX_PATH + 20];
+  swprintf_s(iconPath, L"%s,-%d", modulePath, IDI_COMPARE_ICON);
+
+  OutputDebugStringW((std::wstring(L"CompareWithMRUCommand::GetIcon: ") + iconPath).c_str());
+
+  // *icon = ::SysAllocString(iconPath);
+  // return (*icon) ? S_OK : E_OUTOFMEMORY;
+  return SHStrDupW(iconPath, icon);
+
+  // SHFILEINFO sfi = { 0 };
+
+  // if(SHGetFileInfoW(getMRU()[_index].c_str(), 0, &sfi, sizeof(sfi), SHGFI_ICONLOCATION | SHGFI_USEFILEATTRIBUTES)) {
+  //   std::wstring iconPath = L"%SystemRoot%\\System32\\shell32.dll,";
+  //   iconPath += std::to_wstring(sfi.iIcon);
+  //   return SHStrDupW(iconPath.c_str(), icon);
+  // }
+
+  // return SHStrDupW(L"%SystemRoot%\\System32\\shell32.dll,-1", icon);
 }
 
 IFACEMETHODIMP 
@@ -43,8 +74,8 @@ CompareWithMRUCommand::GetState(IShellItemArray* psiItemArray, BOOL, EXPCMDSTATE
   return S_OK;
 }
 
-IFACEMETHODIMP 
-CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* ppszIcon) {
+// IFACEMETHODIMP 
+// CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* ppszIcon) {
   // SHFILEINFO sfi = { 0 };
 
   // if(SHGetFileInfoW(getMRU()[_index].c_str(), 0, &sfi, sizeof(sfi), SHGFI_ICONLOCATION | SHGFI_USEFILEATTRIBUTES)) {
@@ -54,8 +85,8 @@ CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* ppszIcon) {
   // }
 
   // return SHStrDupW(L"%SystemRoot%\\System32\\shell32.dll,-1", ppszIcon);
-  return SHStrDupW(L"", ppszIcon);
-}
+//   return SHStrDupW(L"", ppszIcon);
+// }
 
 ULONG 
 CompareWithMRUCommand::getIndex() const { 

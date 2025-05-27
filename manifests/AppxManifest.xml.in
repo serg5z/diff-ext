@@ -9,7 +9,7 @@
   xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
   xmlns:desktop9="http://schemas.microsoft.com/appx/manifest/desktop/windows10/9"
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
-  IgnorableNamespaces="uap uap10 rescap desktop6 desktop4 desktop5 com">
+  IgnorableNamespaces="uap uap10 rescap desktop6 desktop4 desktop5 desktop9 com">
 
   <Identity Name="SergeyVZorin.diff-ext"
             Publisher="CN=43E1399F-BA1C-4045-B577-EAC98E3A26EC"
@@ -29,7 +29,7 @@
   </Resources>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22621.0" MaxVersionTested="10.0.26100.4061" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22000.318" MaxVersionTested="10.0.26100.4061" />
   </Dependencies>
 
   <Capabilities>

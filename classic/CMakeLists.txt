@@ -8,6 +8,10 @@ add_library(diff-ext-classic SHARED
     src/contextmenu.cpp
     src/dllmain.cpp
     src/diff-ext-classic.def
+    src/resources.h
+    src/resources.rc
+    src/icons/compare.ico
+    src/icons/remember.ico
 )
 
 # Include directories (if MRUManager exports include dirs, you might skip this)
@@ -30,4 +34,5 @@ target_link_libraries(diff-ext-classic PRIVATE
     uuid
     runtimeobject
     shlwapi
+    gdiplus
 )

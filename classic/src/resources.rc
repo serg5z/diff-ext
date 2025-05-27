@@ -1,0 +1,4 @@
+#include "resources.h"
+
+IDI_COMPARE_ICON ICON "icons/compare.ico"
+IDI_REMEMBER_ICON ICON "icons/remember.ico"

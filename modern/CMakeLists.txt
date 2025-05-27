@@ -14,14 +14,16 @@ add_library(diff-ext-modern SHARED
     src/comparewithmrucommand.cpp
     src/comparewithtopcommand.h
     src/comparewithtopcommand.cpp
-    src/mruenumerator.h
-    src/mruenumerator.cpp
     src/rememberfilescommand.h
     src/rememberfilescommand.cpp
     src/mrusubmenu.h
     src/mrusubmenu.cpp
     src/dllmain.cpp
     src/diff-ext-modern.def
+    src/resources.h
+    src/resources.rc
+    src/icons/compare.ico
+    src/icons/remember.ico
 )
 
 # Link to MRUManager library

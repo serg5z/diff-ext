@@ -11,7 +11,7 @@ std::wstring
 get_shortened_display_path(const std::wstring& path) {
     wchar_t buffer[MAX_PATH];
 
-    if (PathCompactPathExW(buffer, path.c_str(), 40, 0)) {
+    if(PathCompactPathExW(buffer, path.c_str(), 40, 0)) {
         return buffer;
     }
 

@@ -1,18 +1,29 @@
-#include <Windows.h>
+#include <windows.h>
 #include <guiddef.h>
 #include <shlobj_core.h>
 #include <shobjidl.h>
 #include <wrl/module.h> 
 #include <wrl/implements.h>
+#include <gdiplus.h>
 
 #include <string>
 
 #include "settings.h"
 #include "contextmenu.h"
-//#include "classfactory.h"
+#include "resources.h"
 
 using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Details;
+using namespace Gdiplus;
+
+HBITMAP compare_bitmap;
+HBITMAP remember_bitmap;
+HBITMAP clear_mru_bitmap;
+
+static ULONG_PTR g_gdiplusToken = 0;
+static bool g_gdiplusInitialized = false;
+
+extern "C" IMAGE_DOS_HEADER __ImageBase;
 
 // {C42D835A-32CB-11F0-8E44-FAE5B572B91D}
 static const CLSID CLSID_ClassicContextMenu = 
@@ -24,24 +35,11 @@ extern "C" HRESULT __stdcall
 DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv) {
     return Module<InProc>::GetModule().GetClassObject(rclsid, riid, ppv);
 }
-/*
-extern "C" HRESULT __stdcall 
-DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv) {
-    if(IsEqualCLSID(rclsid, CLSID_ClassicContextMenu)) {
-        ComPtr<ClassFactory<ContextMenu>> factory = Make<ClassFactory<ContextMenu>>();
-        return factory.CopyTo(riid, ppv);
-    }
-
-    return CLASS_E_CLASSNOTAVAILABLE;
-}
-*/
 
 extern "C" HRESULT __stdcall 
 DllCanUnloadNow() {
     return S_OK;
 }
-
-extern "C" IMAGE_DOS_HEADER __ImageBase;
 
 extern "C" HRESULT __stdcall 
 DllRegisterServer() {
@@ -110,20 +108,134 @@ DllUnregisterServer() {
     return S_OK;
 }
 
+HICON LoadIconFromDll(const std::wstring& dllPath, int iconIndex)
+{
+    HICON hIconLarge = nullptr;
+    int iconsExtracted = ExtractIconExW(
+        dllPath.c_str(),  // Path to DLL or EXE
+        iconIndex,        // Icon index (0-based, or negative for resource ID)
+        &hIconLarge,      // Large icon
+        nullptr,          // Small icon (optional)
+        1                 // Number of icons to extract
+    );
+
+    if(iconsExtracted > 0 && hIconLarge != nullptr) {
+        return hIconLarge;
+    }
+
+    return nullptr;
+}
+
+void 
+EnsureGDIPlusStarted()
+{
+    if (!g_gdiplusInitialized) {
+        Gdiplus::GdiplusStartupInput input;
+        if (Gdiplus::GdiplusStartup(&g_gdiplusToken, &input, nullptr) == Ok) {
+            g_gdiplusInitialized = true;
+        }
+    }
+}
+
+void 
+CleanupGDIPlus()
+{
+    if(g_gdiplusInitialized) {
+        Gdiplus::GdiplusShutdown(g_gdiplusToken);
+        g_gdiplusInitialized = false;
+    }
+}
+
+HBITMAP 
+IconToBitmapGdiPlus(HICON hIcon, int width, int height) {
+    HBITMAP result = nullptr;
+
+    if(hIcon) {
+        Bitmap* iconBitmap = Bitmap::FromHICON(hIcon);
+        if(iconBitmap) {
+            if (iconBitmap->GetLastStatus() == Ok) {
+                Bitmap bmp(width, height, PixelFormat32bppARGB);
+                Graphics g(&bmp);
+                g.SetCompositingMode(CompositingModeSourceCopy);
+                g.Clear(Color(0, 0, 0, 0));
+                g.DrawImage(iconBitmap, 0, 0, width, height);
+
+                HBITMAP hBitmap = nullptr;
+                Color background(0, 0, 0, 0);
+
+                if (bmp.GetHBITMAP(background, &hBitmap) == Ok) {
+                    result = hBitmap;
+                }
+            }
+            delete iconBitmap;
+        }
+    }
+
+    return result;
+}
+
 BOOL APIENTRY 
 DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID) {
+    wchar_t modulePath[MAX_PATH];
+
+    if(!GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH))
+        return HRESULT_FROM_WIN32(GetLastError());
+
     switch (ul_reason_for_call) {
         case DLL_THREAD_ATTACH:
             break;
         case DLL_THREAD_DETACH:
             break;
-        case DLL_PROCESS_ATTACH:
-            OutputDebugStringW(L"DiffExt-classic: DLL_PROCESS_ATTACH\n");
+        case DLL_PROCESS_ATTACH: {
+            int w = 32; //GetSystemMetrics(SM_CXSMICON);
+            int h = 32; //GetSystemMetrics(SM_CYSMICON);
+
+            EnsureGDIPlusStarted();
+
+            HICON clear_mru_icon = LoadIconFromDll(L"%SystemRoot%\\System32\\shell32.dll", 32);
+            if(clear_mru_icon) {
+                clear_mru_bitmap = IconToBitmapGdiPlus(clear_mru_icon, w, h);
+            } else {
+                OutputDebugStringW(L"Failed to load icon from shell32.dll,32");
+            }
+            DeleteObject(clear_mru_icon);
+
+            HICON compare_icon = (HICON)LoadImageW(reinterpret_cast<HINSTANCE>(&__ImageBase),
+                                     MAKEINTRESOURCEW(IDI_COMPARE_ICON),
+                                     IMAGE_ICON,
+                                     w,
+                                     h,
+                                     LR_DEFAULTCOLOR);
+            if (compare_icon) {
+                compare_bitmap = IconToBitmapGdiPlus(compare_icon, w, h);
+            } else {
+                OutputDebugStringW(L"Failed to load IDI_COMPARE_ICON");
+            }
+            DeleteObject(compare_icon);
+
+            HICON remember_icon = (HICON)LoadImageW(reinterpret_cast<HINSTANCE>(&__ImageBase),
+                                     MAKEINTRESOURCEW(IDI_REMEMBER_ICON),
+                                     IMAGE_ICON,
+                                     w,
+                                     h,
+                                     LR_DEFAULTCOLOR);
+            if (remember_icon) {
+                remember_bitmap = IconToBitmapGdiPlus(remember_icon, w, h);
+            } else {
+                OutputDebugStringW(L"Failed to load IDI_COMPARE_ICON");
+            }
+            DeleteObject(remember_icon);
+
             LoadSettings();
+
             break;
+        }
         case DLL_PROCESS_DETACH:
-            OutputDebugStringW(L"DiffExt-classic: DLL_PROCESS_DETACH\n");
             SaveSettings();
+            DeleteObject(clear_mru_bitmap);
+            DeleteObject(compare_bitmap);
+            DeleteObject(remember_bitmap);
+            CleanupGDIPlus();
             break;
     }
 

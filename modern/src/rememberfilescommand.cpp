@@ -1,8 +1,27 @@
 #include "settings.h"
+#include "resources.h"
 #include "rememberfilescommand.h"
 
 
+extern "C" IMAGE_DOS_HEADER __ImageBase;
+
 RememberFilesCommand::RememberFilesCommand() : BaseCommand(L"Remember", L"Add selected files to MRU list") {
+}
+
+IFACEMETHODIMP 
+RememberFilesCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
+  wchar_t modulePath[MAX_PATH];
+
+  if(!GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH)) {
+    return HRESULT_FROM_WIN32(GetLastError());
+  }
+
+  wchar_t iconPath[MAX_PATH + 20];
+  swprintf_s(iconPath, L"%s,-%d", modulePath, IDI_REMEMBER_ICON);
+
+  OutputDebugStringW((std::wstring(L"RememberFilesCommand::GetIcon: ") + iconPath).c_str());
+
+  return SHStrDupW(iconPath, icon);
 }
 
 IFACEMETHODIMP 
