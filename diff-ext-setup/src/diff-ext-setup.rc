@@ -1,19 +1,72 @@
 #include <windows.h>
 #include <commctrl.h>
+#include "resource.h"
 
-1 DIALOGEX 0, 0, 260, 93
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_SIZEBOX
+
+IDI_MAIN_ICON ICON "diff-ext.ico"
+IDI_APPICON ICON "diff-ext-app.ico"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 2,0,0,0
+PRODUCTVERSION 2,0,0,0
+FILEFLAGSMASK 0x3F
+FILEFLAGS 0x0
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904b0"
+    BEGIN
+      VALUE "Comments", "\0"
+      VALUE "CompanyName", "\0"
+      VALUE "FileDescription", "diff shell extension setup\0"
+      VALUE "FileVersion", "2.0.0"
+      VALUE "InternalName", "diff shell extension setup\0"
+      VALUE "LegalCopyright", "Copyright \xA9 2003-2025 Sergey Zorin\0"
+      VALUE "LegalTrademarks", "\0"
+      VALUE "OriginalFilename", "diff-ext-setup.exe\0"
+      VALUE "PrivateBuild", "\0"
+      VALUE "ProductName", "Diff Context Menu Extension\0"
+      VALUE "ProductVersion", "2.0.0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 0x4B0
+  END
+END
+
+IDD_MAIN_DIALOG DIALOGEX 0, 0, 315, 93
+STYLE DS_MODALFRAME | WS_POPUP | DS_CENTER | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_SIZEBOX
 CAPTION "Compare Extension Setup"
 FONT 8, "MS Shell Dlg"
 BEGIN
     LTEXT           "Diff Tool:", -1, 5, 10, 75, 8
-    EDITTEXT        1001, 85, 8, 115, 12, ES_AUTOHSCROLL
-    PUSHBUTTON      "Browse...", 1003, 205, 8, 45, 12
+    EDITTEXT        IDC_EDIT_DIFF, 85, 8, 170, 12, ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse...", IDC_BROWSE, 260, 8, 45, 12
 
     LTEXT           "Max MRU Size (1 - 64):", -1, 5, 30, 75, 8
-    EDITTEXT        1002, 85, 28, 30, 12, ES_NUMBER
-    CONTROL         "", 1004, UPDOWN_CLASS, WS_VISIBLE | UDS_ALIGNRIGHT | UDS_SETBUDDYINT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS, 140, 28, 10, 12
+    EDITTEXT        IDC_EDIT_MRU, 85, 28, 30, 12, ES_NUMBER
+    CONTROL         "", IDC_SPIN_MRU, UPDOWN_CLASS, WS_VISIBLE | UDS_ALIGNRIGHT | UDS_SETBUDDYINT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS, 140, 28, 10, 12
 
     DEFPUSHBUTTON   "OK", IDOK, 145, 70, 50, 14
     PUSHBUTTON      "Cancel", IDCANCEL, 200, 70, 50, 14
+    PUSHBUTTON      "About", IDC_ABOUT, 255, 70, 50, 14
+
+    CONTROL "", IDC_RESIZE, "ScrollBar", 0x04000014, 304, 82, 11, 11
+END
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 220, 120
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About diff-ext"
+FONT 9, "Segoe UI"
+BEGIN
+    ICON            IDI_APPICON,IDC_STATIC,15,15,32,32
+    LTEXT           "", IDC_VERSION,60,15,140,12
+    LTEXT           "", IDC_COPYRIGHT,60,30,140,12
+    LTEXT           "All rights reserved.", IDC_STATIC,60,45,140,12
+    LTEXT           "Released under BSD License", IDC_STATIC,60,60,140,12
+    DEFPUSHBUTTON   "OK",IDOK,85,95,50,14
 END

@@ -2,20 +2,116 @@
 #include <commdlg.h>
 #include <commctrl.h>
 #include <shellapi.h>
+
 #include <string>
+#include <format>
 
 #include "settings.h"
+#include "resource.h"
 
-
-#define IDC_EDIT_DIFF 1001
-#define IDC_EDIT_MRU 1002
-#define IDC_BROWSE 1003
-#define IDC_SPIN_MRU 1004
 
 static SIZE g_originalDlgSize = { 0, 0 };
+static RECT r_cancel, r_ok, r_browse, r_diff, r_about, r_resize;
 
+extern "C" IMAGE_DOS_HEADER __ImageBase;
 
-RECT r_cancel, r_ok, r_browse, r_diff;
+std::wstring 
+GetProductVersionString() {
+  WCHAR modulePath[MAX_PATH] = {};
+  GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH);
+
+  DWORD dummy = 0;
+  DWORD size = GetFileVersionInfoSizeW(modulePath, &dummy);
+  if (!size) return L"";
+
+  std::vector<BYTE> data(size);
+  if (!GetFileVersionInfoW(modulePath, 0, size, data.data()))
+    return L"";
+
+  struct LANGANDCODEPAGE { WORD wLanguage; WORD wCodePage; };
+  LANGANDCODEPAGE* lpTranslate = nullptr;
+  UINT cbTranslate = 0;
+  if (!VerQueryValueW(data.data(), L"\\VarFileInfo\\Translation", (LPVOID*)&lpTranslate, &cbTranslate) || cbTranslate < sizeof(LANGANDCODEPAGE))
+    return L"";
+
+  wchar_t subBlock[128];
+  swprintf_s(subBlock, L"\\StringFileInfo\\%04x%04x\\ProductVersion",
+             lpTranslate[0].wLanguage, lpTranslate[0].wCodePage);
+
+  LPVOID lpBuffer = nullptr;
+  UINT dwBytes = 0;
+  if (VerQueryValueW(data.data(), subBlock, &lpBuffer, &dwBytes) && lpBuffer)
+    return std::wstring((wchar_t*)lpBuffer);
+
+  return L"";
+}
+
+std::wstring 
+GetCopyrightString() {
+  WCHAR modulePath[MAX_PATH] = {};
+  GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH);
+
+  DWORD dummy = 0;
+  DWORD size = GetFileVersionInfoSizeW(modulePath, &dummy);
+  if (!size) return L"";
+
+  std::vector<BYTE> data(size);
+  if (!GetFileVersionInfoW(modulePath, 0, size, data.data()))
+    return L"";
+
+  struct LANGANDCODEPAGE { WORD wLanguage; WORD wCodePage; };
+  LANGANDCODEPAGE* lpTranslate = nullptr;
+  UINT cbTranslate = 0;
+  if (!VerQueryValueW(data.data(), L"\\VarFileInfo\\Translation", (LPVOID*)&lpTranslate, &cbTranslate) || cbTranslate < sizeof(LANGANDCODEPAGE))
+    return L"";
+
+  wchar_t subBlock[128];
+  swprintf_s(subBlock, L"\\StringFileInfo\\%04x%04x\\LegalCopyright",
+             lpTranslate[0].wLanguage, lpTranslate[0].wCodePage);
+
+  LPVOID lpBuffer = nullptr;
+  UINT dwBytes = 0;
+  if (VerQueryValueW(data.data(), subBlock, &lpBuffer, &dwBytes) && lpBuffer)
+    return std::wstring((wchar_t*)lpBuffer);
+
+  return L"";
+}
+
+static INT_PTR CALLBACK 
+AboutDialogProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
+        case WM_INITDIALOG: {
+            std::wstring version = std::format(L"diff-ext {}", GetProductVersionString());
+            SetDlgItemTextW(hwnd, IDC_VERSION, version.c_str());
+
+            std::wstring copyright = GetCopyrightString();
+            SetDlgItemTextW(hwnd, IDC_COPYRIGHT, copyright.c_str());
+
+            HICON hIcon = (HICON)LoadImage(
+                GetModuleHandle(nullptr),
+                MAKEINTRESOURCE(IDI_MAIN_ICON),
+                IMAGE_ICON,
+                GetSystemMetrics(SM_CXSMICON),
+                GetSystemMetrics(SM_CYSMICON),
+                LR_DEFAULTCOLOR);
+
+            if(hIcon) {
+                SendMessageW(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+                SendMessageW(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+            }
+
+            return TRUE;
+        }
+
+        case WM_COMMAND:
+            if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) {
+                EndDialog(hwnd, LOWORD(wParam));
+                return TRUE;
+            }
+            break;
+    }
+    return FALSE;
+}
 
 static INT_PTR CALLBACK 
 DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -55,14 +151,42 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
             GetWindowRect(GetDlgItem(hwnd, IDC_EDIT_DIFF), &r_diff);
 
             r_diff.left -= rc.left;
-            r_diff.right -= rc.left;
+            r_diff.right -= rc.right;
             r_diff.top -= rc.top;
             r_diff.bottom -= rc.top;
+
+            GetWindowRect(GetDlgItem(hwnd, IDC_ABOUT), &r_about);
+
+            r_about.left -= rc.right;
+            r_about.right -= rc.right;
+            r_about.top -= rc.bottom;
+            r_about.bottom -= rc.bottom;
+
+            GetWindowRect(GetDlgItem(hwnd, IDC_RESIZE), &r_resize);
+
+            r_resize.left -= rc.right;
+            r_resize.right -= rc.right;
+            r_resize.top -= rc.bottom;
+            r_resize.bottom -= rc.bottom;            
 
             // Initialize values
             SetDlgItemTextW(hwnd, IDC_EDIT_DIFF, getDiffTool().c_str());
             SetDlgItemInt(hwnd, IDC_EDIT_MRU, getMRUCapacity(), FALSE);
             SendMessageW(GetDlgItem(hwnd, IDC_SPIN_MRU), UDM_SETRANGE, 0, MAKELPARAM(64, 1));
+
+            HICON hIcon = (HICON)LoadImage(
+                GetModuleHandle(nullptr),
+                MAKEINTRESOURCE(IDI_MAIN_ICON),
+                IMAGE_ICON,
+                GetSystemMetrics(SM_CXSMICON),
+                GetSystemMetrics(SM_CYSMICON),
+                LR_DEFAULTCOLOR);
+
+            if(hIcon) {
+                SendMessageW(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+                SendMessageW(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+            }
+
             return TRUE;
         }
 
@@ -104,11 +228,25 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 r_browse.bottom - r_browse.top,
                 SWP_NOZORDER);
 
+            DeferWindowPos(position_handle, GetDlgItem(hwnd, IDC_ABOUT), 0,
+                r_about.left + width,
+                r_about.top + height,
+                r_about.right - r_about.left,
+                r_about.bottom - r_about.top,
+                SWP_NOZORDER);
+
             DeferWindowPos(position_handle, GetDlgItem(hwnd, IDC_EDIT_DIFF), 0,
                 r_diff.left,
                 r_diff.top,
-                width - r_diff.right - r_browse.left,
+                width - r_diff.left + r_diff.right,
                 r_diff.bottom - r_browse.top,
+                SWP_NOZORDER);
+
+            DeferWindowPos(position_handle, GetDlgItem(hwnd, IDC_RESIZE), 0,
+                r_resize.left + width,
+                r_resize.top + height,
+                r_resize.right - r_resize.left,
+                r_resize.bottom - r_resize.top,
                 SWP_NOZORDER);
 
             EndDeferWindowPos(position_handle);
@@ -152,17 +290,21 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
                     ofn.lpstrFile = path;
                     ofn.nMaxFile = MAX_PATH;
                     ofn.Flags = OFN_FILEMUSTEXIST;
-                    if (GetOpenFileNameW(&ofn)) {
-                        SetDlgItemTextW(hwnd, 1001, path);
+                    if (GetOpenFileName(&ofn)) {
+                        SetDlgItemText(hwnd, 1001, path);
                     }
                     return TRUE;
                 }
+
+                case IDC_ABOUT:
+                    DialogBoxParam(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd, AboutDialogProc, 0);
+                    return TRUE;
 
                 case IDOK: {
                     wchar_t buffer[MAX_PATH];
                     std::wstring selectedDiffTool;
                     
-                    GetDlgItemTextW(hwnd, 1001, buffer, MAX_PATH);
+                    GetDlgItemText(hwnd, 1001, buffer, MAX_PATH);
                     selectedDiffTool = buffer;
 
                     BOOL success = FALSE;
@@ -173,10 +315,11 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
                         SaveSettings();
                         EndDialog(hwnd, IDOK);
                     } else {
-                        MessageBoxW(hwnd, L"Please enter a valid MRU size (1 - 64).", L"Invalid Input", MB_OK | MB_ICONWARNING);
+                        MessageBox(hwnd, L"Please enter a valid MRU size (1 - 64).", L"Invalid Input", MB_OK | MB_ICONWARNING);
                     }
                     return TRUE;
                 }
+
                 case IDCANCEL:
                     EndDialog(hwnd, IDCANCEL);
                     return TRUE;
@@ -192,6 +335,6 @@ wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int) {
     INITCOMMONCONTROLSEX icex = { sizeof(icex), ICC_STANDARD_CLASSES };
     InitCommonControlsEx(&icex);
 
-    DialogBoxParamW(hInstance, MAKEINTRESOURCE(1), nullptr, DiffExtSetupDialogProc, 0);
+    DialogBoxParamW(hInstance, MAKEINTRESOURCE(IDD_MAIN_DIALOG), nullptr, DiffExtSetupDialogProc, 0);
     return 0;
 }
