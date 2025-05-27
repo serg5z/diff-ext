@@ -7,6 +7,7 @@
 #include "settings.h"
 #include "util.h"
 
+
 enum {
     IDM_COMPARE = 0,
     IDM_COMPARE_TO_MRU_TOP = 1,
@@ -19,7 +20,6 @@ extern HBITMAP compare_bitmap;
 extern HBITMAP remember_bitmap;
 extern HBITMAP clear_mru_bitmap;
 
-
 void
 insert_menu_item(HMENU menu, UINT id, const wchar_t* text, HBITMAP bitmap, UINT index) {
     MENUITEMINFO mii = { sizeof(mii) };
@@ -28,12 +28,11 @@ insert_menu_item(HMENU menu, UINT id, const wchar_t* text, HBITMAP bitmap, UINT 
     mii.wID = id;
     mii.fType = MFT_STRING;
     mii.dwTypeData = const_cast<LPWSTR>(text);
-#ifndef _M_ARM64
+    
     if(bitmap) {
         mii.fMask |= MIIM_BITMAP;
         mii.hbmpItem = compare_bitmap;
     }
-#endif
 
     InsertMenuItem(menu, index, TRUE, &mii);
 }
@@ -106,14 +105,14 @@ ContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT
                 
                 _submenu = CreatePopupMenu();
 
-                auto str = std::make_unique<std::wstring>(L"Compare to " + get_shortened_display_path(mru[0]));
+                auto str = std::make_unique<std::wstring>(std::format(L"Compare to {}", get_shortened_display_path(mru[0])));
                 _compare_to_items.push_back(std::move(str));                        
 
                 insert_menu_item(hMenu, idCmdFirst + IDM_COMPARE_TO_MRU_TOP, _compare_to_items.back()->data(), compare_bitmap, indexMenu++);
 
                 size_t pos = 0;
                 for (size_t i = 0; i < mru.size(); ++i, ++id, ++pos) {
-                    auto str = std::make_unique<std::wstring>(L"Compare to " + get_shortened_display_path(mru[i]));
+                    auto str = std::make_unique<std::wstring>(get_shortened_display_path(mru[i]));
                     _compare_to_items.push_back(std::move(str)); 
 
                     insert_menu_item(_submenu, id, _compare_to_items.back()->data(), compare_bitmap, pos);

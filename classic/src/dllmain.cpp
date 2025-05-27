@@ -16,9 +16,9 @@ using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Details;
 using namespace Gdiplus;
 
-HBITMAP compare_bitmap;
-HBITMAP remember_bitmap;
-HBITMAP clear_mru_bitmap;
+HBITMAP compare_bitmap = nullptr;
+HBITMAP remember_bitmap = nullptr;
+HBITMAP clear_mru_bitmap = nullptr;
 
 static ULONG_PTR g_gdiplusToken = 0;
 static bool g_gdiplusInitialized = false;
@@ -187,6 +187,8 @@ DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID) {
         case DLL_THREAD_DETACH:
             break;
         case DLL_PROCESS_ATTACH: {
+            LoadSettings();
+#ifndef _M_ARM64
             int w = 32; //GetSystemMetrics(SM_CXSMICON);
             int h = 32; //GetSystemMetrics(SM_CYSMICON);
 
@@ -195,10 +197,8 @@ DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID) {
             HICON clear_mru_icon = LoadIconFromDll(L"%SystemRoot%\\System32\\shell32.dll", 32);
             if(clear_mru_icon) {
                 clear_mru_bitmap = IconToBitmapGdiPlus(clear_mru_icon, w, h);
-            } else {
-                OutputDebugStringW(L"Failed to load icon from shell32.dll,32");
+                DestroyIcon(clear_mru_icon);
             }
-            DeleteObject(clear_mru_icon);
 
             HICON compare_icon = (HICON)LoadImageW(reinterpret_cast<HINSTANCE>(&__ImageBase),
                                      MAKEINTRESOURCEW(IDI_COMPARE_ICON),
@@ -208,10 +208,8 @@ DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID) {
                                      LR_DEFAULTCOLOR);
             if (compare_icon) {
                 compare_bitmap = IconToBitmapGdiPlus(compare_icon, w, h);
-            } else {
-                OutputDebugStringW(L"Failed to load IDI_COMPARE_ICON");
+                DestroyIcon(compare_icon);
             }
-            DeleteObject(compare_icon);
 
             HICON remember_icon = (HICON)LoadImageW(reinterpret_cast<HINSTANCE>(&__ImageBase),
                                      MAKEINTRESOURCEW(IDI_REMEMBER_ICON),
@@ -221,21 +219,19 @@ DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID) {
                                      LR_DEFAULTCOLOR);
             if (remember_icon) {
                 remember_bitmap = IconToBitmapGdiPlus(remember_icon, w, h);
-            } else {
-                OutputDebugStringW(L"Failed to load IDI_COMPARE_ICON");
+                DestroyIcon(remember_icon);
             }
-            DeleteObject(remember_icon);
-
-            LoadSettings();
-
+#endif
             break;
         }
         case DLL_PROCESS_DETACH:
             SaveSettings();
+#ifndef _M_ARM64
             DeleteObject(clear_mru_bitmap);
             DeleteObject(compare_bitmap);
             DeleteObject(remember_bitmap);
             CleanupGDIPlus();
+#endif            
             break;
     }
 
