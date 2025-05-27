@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 cmake_policy(SET CMP0135 NEW)
 
-project(diff-ext VERSION 2.0.0 LANGUAGES CXX)
+project(diff-ext VERSION 2.0.1 LANGUAGES CXX)
 
 option(DEVELOPMENT_BUILD "Build with development Appx manifest" OFF)
 option(TARGET_WINDOWS10 "Build with Windows 10 SDK compatibility" OFF)
@@ -142,18 +142,18 @@ add_custom_command(
 # Enable source packaging
 set(CPACK_SOURCE_GENERATOR "ZIP")
 set(CPACK_GENERATOR "")  # Avoid creating binary installers
+set(CPACK_SOURCE_TOPLEVEL_TAG "" CACHE STRING "No tag")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}")
 set(CPACK_SOURCE_IGNORE_FILES
-    "/build.*/.*"
-    "/_CPack_Packages/.*"
-    "/\\\\.git/.*"
-    "/\\\\.vscode/.*"
-    "/\\\\.idea/.*"
-    "/\\\\.vs/.*"
-    "/bin/.*"
-    "/lib/.*"
-    "/msix/.*"
-    "/msix_build/.*"
+    "(^|/|\\\\)build[^/\\\\]*([/\\\\]|$)"
+    "(^|/|\\\\)\\.git([/\\\\]|$)"
+    "(^|/|\\\\)\\.github([/\\\\]|$)"
+    "/\\.vscode([/\\\\]|$)"
+    "/\\.idea([/\\\\]|$)"
+    "/\\.vs([/\\\\]|$)"
+    "/\\.DS_Store$"
+    "/Thumbs\\.db$"
+    "/\\.gitignore$"
     "~$"
 )
 
