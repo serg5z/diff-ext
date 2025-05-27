@@ -13,16 +13,13 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (TARGET_WINDOWS10)
-    add_compile_definitions(
-        WINVER=0x0A00
-        _WIN32_WINNT=0x0A00
-    )
+if(TARGET_WINDOWS10)
+    add_compile_definitions(WINVER=0x0A00 _WIN32_WINNT=0x0A00)
 endif()
 
-# if(MSVC AND TARGET_WINDOWS10)
-#     set(CMAKE_SYSTEM_VERSION 10.0)
-# endif()
+if(MSVC AND TARGET_WINDOWS10)
+    set(CMAKE_SYSTEM_VERSION 10.0)
+endif()
 
 include(FetchContent)
 

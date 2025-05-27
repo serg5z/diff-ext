@@ -1,3 +1,12 @@
+/*
+* Copyright (c) 2025, Sergey Zorin.
+* All rights reserved.
+*
+* This software is distributed under the BSD license. See the terms
+* of the BSD license in the LICENSE file provided with this software.
+*
+*/
+
 #include <windows.h>
 #include <commdlg.h>
 #include <commctrl.h>
@@ -15,71 +24,75 @@ static RECT r_cancel, r_ok, r_browse, r_diff, r_about, r_resize;
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
-std::wstring 
+std::wstring
 GetProductVersionString() {
-  WCHAR modulePath[MAX_PATH] = {};
-  GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH);
+    WCHAR modulePath[MAX_PATH] = {};
+    GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH);
 
-  DWORD dummy = 0;
-  DWORD size = GetFileVersionInfoSizeW(modulePath, &dummy);
-  if (!size) return L"";
+    DWORD dummy = 0;
+    DWORD size = GetFileVersionInfoSizeW(modulePath, &dummy);
+    if(!size) return L"";
 
-  std::vector<BYTE> data(size);
-  if (!GetFileVersionInfoW(modulePath, 0, size, data.data()))
+    std::vector<BYTE>
+    data(size);
+    if(!GetFileVersionInfoW(modulePath, 0, size, data.data()))
+        return L"";
+
+    struct LANGANDCODEPAGE { WORD wLanguage; WORD wCodePage; };
+    LANGANDCODEPAGE* lpTranslate = nullptr;
+    UINT cbTranslate = 0;
+    if(!VerQueryValueW(data.data(), L"\\VarFileInfo\\Translation", (LPVOID*)&lpTranslate, &cbTranslate) || cbTranslate < sizeof(LANGANDCODEPAGE))
+        return L"";
+
+    wchar_t subBlock[128];
+    swprintf_s(subBlock, L"\\StringFileInfo\\%04x%04x\\ProductVersion",
+                lpTranslate[0].wLanguage, lpTranslate[0].wCodePage);
+
+    LPVOID lpBuffer = nullptr;
+    UINT dwBytes = 0;
+    if(VerQueryValueW(data.data(), subBlock, &lpBuffer, &dwBytes) && lpBuffer)
+        return
+        std::wstring((wchar_t*)lpBuffer);
+
     return L"";
-
-  struct LANGANDCODEPAGE { WORD wLanguage; WORD wCodePage; };
-  LANGANDCODEPAGE* lpTranslate = nullptr;
-  UINT cbTranslate = 0;
-  if (!VerQueryValueW(data.data(), L"\\VarFileInfo\\Translation", (LPVOID*)&lpTranslate, &cbTranslate) || cbTranslate < sizeof(LANGANDCODEPAGE))
-    return L"";
-
-  wchar_t subBlock[128];
-  swprintf_s(subBlock, L"\\StringFileInfo\\%04x%04x\\ProductVersion",
-             lpTranslate[0].wLanguage, lpTranslate[0].wCodePage);
-
-  LPVOID lpBuffer = nullptr;
-  UINT dwBytes = 0;
-  if (VerQueryValueW(data.data(), subBlock, &lpBuffer, &dwBytes) && lpBuffer)
-    return std::wstring((wchar_t*)lpBuffer);
-
-  return L"";
 }
 
-std::wstring 
+std::wstring
 GetCopyrightString() {
-  WCHAR modulePath[MAX_PATH] = {};
-  GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH);
+    WCHAR modulePath[MAX_PATH] = {};
+    GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH);
 
-  DWORD dummy = 0;
-  DWORD size = GetFileVersionInfoSizeW(modulePath, &dummy);
-  if (!size) return L"";
+    DWORD dummy = 0;
+    DWORD size = GetFileVersionInfoSizeW(modulePath, &dummy);
+    if(!size) return L"";
 
-  std::vector<BYTE> data(size);
-  if (!GetFileVersionInfoW(modulePath, 0, size, data.data()))
+    std::vector<BYTE>
+    data(size);
+    if(!GetFileVersionInfoW(modulePath, 0, size, data.data()))
+        return L"";
+
+    struct LANGANDCODEPAGE { WORD wLanguage; WORD wCodePage; };
+    LANGANDCODEPAGE* lpTranslate = nullptr;
+    UINT cbTranslate = 0;
+    if(!VerQueryValueW(data.data(), L"\\VarFileInfo\\Translation", (LPVOID*)&lpTranslate, &cbTranslate) || cbTranslate < sizeof(LANGANDCODEPAGE))
+        return L"";
+
+    wchar_t subBlock[128];
+    swprintf_s(subBlock, L"\\StringFileInfo\\%04x%04x\\LegalCopyright",
+                lpTranslate[0].wLanguage, lpTranslate[0].wCodePage);
+
+    LPVOID lpBuffer = nullptr;
+    UINT dwBytes = 0;
+    if(VerQueryValueW(data.data(), subBlock, &lpBuffer, &dwBytes) && lpBuffer)
+        return
+        std::wstring((wchar_t*)lpBuffer);
+
     return L"";
-
-  struct LANGANDCODEPAGE { WORD wLanguage; WORD wCodePage; };
-  LANGANDCODEPAGE* lpTranslate = nullptr;
-  UINT cbTranslate = 0;
-  if (!VerQueryValueW(data.data(), L"\\VarFileInfo\\Translation", (LPVOID*)&lpTranslate, &cbTranslate) || cbTranslate < sizeof(LANGANDCODEPAGE))
-    return L"";
-
-  wchar_t subBlock[128];
-  swprintf_s(subBlock, L"\\StringFileInfo\\%04x%04x\\LegalCopyright",
-             lpTranslate[0].wLanguage, lpTranslate[0].wCodePage);
-
-  LPVOID lpBuffer = nullptr;
-  UINT dwBytes = 0;
-  if (VerQueryValueW(data.data(), subBlock, &lpBuffer, &dwBytes) && lpBuffer)
-    return std::wstring((wchar_t*)lpBuffer);
-
-  return L"";
 }
 
 static INT_PTR CALLBACK 
 AboutDialogProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    switch (msg) {
+    switch(msg) {
         case WM_INITDIALOG: {
             std::wstring version = std::format(L"diff-ext {}", GetProductVersionString());
             SetDlgItemTextW(hwnd, IDC_VERSION, version.c_str());
@@ -104,18 +117,19 @@ AboutDialogProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         case WM_COMMAND:
-            if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) {
+            if(LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) {
                 EndDialog(hwnd, LOWORD(wParam));
                 return TRUE;
             }
             break;
     }
+
     return FALSE;
 }
 
 static INT_PTR CALLBACK 
 DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    switch (uMsg) {
+    switch(uMsg) {
         case WM_INITDIALOG: {
             RECT dialog;
             GetWindowRect(hwnd, &dialog);
@@ -200,7 +214,7 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         }
 
         case WM_SIZE: {
-			RECT client;
+            RECT client;
             GetClientRect(hwnd, &client);
             int width = client.right;
             int height = client.bottom;
@@ -256,20 +270,20 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
         case WM_NOTIFY: {
             NMHDR* pnmh = (NMHDR*)lParam;
-            if (pnmh->idFrom == IDC_SPIN_MRU && pnmh->code == UDN_DELTAPOS) {
+            if(pnmh->idFrom == IDC_SPIN_MRU && pnmh->code == UDN_DELTAPOS) {
                 NMUPDOWN* pnmud = (NMUPDOWN*)pnmh;
 
                 // Get current value
                 BOOL success;
                 int value = GetDlgItemInt(hwnd, IDC_EDIT_MRU, &success, FALSE);
-                if (!success) value = 1;
+                if(!success) value = 1;
 
                 // Adjust value: note negation of iDelta to fix reversed control
                 int newValue = value + pnmud->iDelta;
 
                 // Clamp to range
-                if (newValue < 1) newValue = 1;
-                if (newValue > 64) newValue = 64;
+                if(newValue < 1) newValue = 1;
+                if(newValue > 64) newValue = 64;
 
                 SetDlgItemInt(hwnd, IDC_EDIT_MRU, newValue, FALSE);
 
@@ -280,7 +294,7 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         break;
         
         case WM_COMMAND:
-            switch (LOWORD(wParam)) {
+            switch(LOWORD(wParam)) {
                 case 1003: { // Browse button
                     wchar_t path[MAX_PATH] = {};
                     OPENFILENAMEW ofn = {};
@@ -290,7 +304,7 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
                     ofn.lpstrFile = path;
                     ofn.nMaxFile = MAX_PATH;
                     ofn.Flags = OFN_FILEMUSTEXIST;
-                    if (GetOpenFileName(&ofn)) {
+                    if(GetOpenFileName(&ofn)) {
                         SetDlgItemText(hwnd, 1001, path);
                     }
                     return TRUE;
@@ -309,9 +323,9 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
                     BOOL success = FALSE;
                     UINT size = GetDlgItemInt(hwnd, 1002, &success, FALSE);
-                    if (success && size > 0 && size <= 64) {
-						setMRUCapacity(size);
-						setDiffTool(selectedDiffTool);
+                    if(success && size > 0 && size <= 64) {
+                        setMRUCapacity(size);
+                        setDiffTool(selectedDiffTool);
                         SaveSettings();
                         EndDialog(hwnd, IDOK);
                     } else {
@@ -325,6 +339,7 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
                     return TRUE;
             }
     }
+    
     return FALSE;
 }
 

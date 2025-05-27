@@ -1,3 +1,12 @@
+/*
+* Copyright (c) 2025, Sergey Zorin.
+* All rights reserved.
+*
+* This software is distributed under the BSD license. See the terms
+* of the BSD license in the LICENSE file provided with this software.
+*
+*/
+
 #include <windows.h>
 #include <shlobj.h>
 
@@ -30,7 +39,8 @@ get_mru_file_path() {
 static std::string 
 WStringToUtf8(const std::wstring& wstr) {
     int len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
-    std::string utf8(len, 0);
+    std::string
+    utf8(len, 0);
     WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &utf8[0], len, nullptr, nullptr);
     utf8.resize(strlen(utf8.c_str())); // Remove null terminator padding
     return utf8;
@@ -39,15 +49,17 @@ WStringToUtf8(const std::wstring& wstr) {
 static std::wstring 
 Utf8ToWString(const std::string& utf8) {
     int len = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, nullptr, 0);
-    std::wstring wstr(len, 0);
+    std::wstring
+    wstr(len, 0);
     MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, &wstr[0], len);
     wstr.resize(wcslen(wstr.c_str())); // Remove null terminator padding
     return wstr;
 }
 
-bool 
+bool
 LoadSettings() {
-    std::ifstream file(get_mru_file_path());
+    std::ifstream
+    file(get_mru_file_path());
 
     if(!file.is_open()) {
         return false;
@@ -56,7 +68,7 @@ LoadSettings() {
     nlohmann::json j;
     try {
         file >> j;
-    } catch (...) {
+    } catch(...) {
         return false;
     }
 
@@ -82,7 +94,7 @@ LoadSettings() {
     return true;
 }
 
-bool 
+bool
 SaveSettings() {
     std::wstring dir = get_mru_file_path();
 
@@ -99,7 +111,8 @@ SaveSettings() {
         j["mru_list"].push_back(WStringToUtf8(item));
     }
 
-    std::ofstream file(get_mru_file_path(), std::ios::trunc);
+    std::ofstream
+    file(get_mru_file_path(), std::ios::trunc);
 
     if(!file.is_open()) {
         return false;
@@ -107,19 +120,19 @@ SaveSettings() {
 
     try {
         file << j.dump(4);
-    } catch (...) {
+    } catch(...) {
         return false;
     }
 
     return true;
 }
 
-std::vector<std::wstring> 
+std::vector<std::wstring>
 getMRU() {
     return _MRU;
 }
 
-void 
+void
 addToMRU(const std::wstring& path) {
     // Remove if already in list
     auto it = std::find(_MRU.begin(), _MRU.end(), path);
@@ -135,27 +148,27 @@ addToMRU(const std::wstring& path) {
     }
 }
 
-void 
+void
 clearMRU() {
     _MRU.clear();
 }
 
-std::wstring 
+std::wstring
 getDiffTool() {
     return _diffTool;
 }
 
-void 
+void
 setDiffTool(const std::wstring& tool) {
     _diffTool = tool;
 }
 
-size_t 
+size_t
 getMRUCapacity() {
     return _MRUCapacity;
 }
 
-void 
+void
 setMRUCapacity(size_t capacity) {
     if(capacity >= 1 && capacity <= 64) {
         _MRUCapacity = capacity;

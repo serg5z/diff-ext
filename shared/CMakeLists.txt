@@ -7,7 +7,6 @@ add_library(shared STATIC
     src/settings.cpp
     include/util.h
     src/util.cpp
-    include/classfactory.h
 )
 
 target_include_directories(shared PUBLIC

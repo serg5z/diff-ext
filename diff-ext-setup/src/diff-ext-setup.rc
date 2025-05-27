@@ -1,14 +1,23 @@
+/*
+* Copyright (c) 2025, Sergey Zorin.
+* All rights reserved.
+*
+* This software is distributed under the BSD license. See the terms
+* of the BSD license in the LICENSE file provided with this software.
+*
+*/
+
 #include <windows.h>
 #include <commctrl.h>
 #include "resource.h"
 
 
-IDI_MAIN_ICON ICON "diff-ext.ico"
-IDI_APPICON ICON "diff-ext-app.ico"
+IDI_MAIN_ICON ICON "icons/diff-ext.ico"
+IDI_APPICON ICON "icons/diff-ext-app.ico"
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 2,0,0,0
-PRODUCTVERSION 2,0,0,0
+FILEVERSION 2,0,1,0
+PRODUCTVERSION 2,0,1,0
 FILEFLAGSMASK 0x3F
 FILEFLAGS 0x0
 FILEOS VOS_NT_WINDOWS32
@@ -29,7 +38,7 @@ BEGIN
       VALUE "OriginalFilename", "diff-ext-setup.exe\0"
       VALUE "PrivateBuild", "\0"
       VALUE "ProductName", "Diff Context Menu Extension\0"
-      VALUE "ProductVersion", "2.0.0"
+      VALUE "ProductVersion", "2.0.1"
     END
   END
   BLOCK "VarFileInfo"

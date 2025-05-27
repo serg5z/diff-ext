@@ -1,3 +1,12 @@
+/*
+* Copyright (c) 2025, Sergey Zorin.
+* All rights reserved.
+*
+* This software is distributed under the BSD license. See the terms
+* of the BSD license in the LICENSE file provided with this software.
+*
+*/
+
 #include <windows.h>
 #include <shlwapi.h>
 
@@ -7,7 +16,7 @@
 #include "util.h"
 
 
-std::wstring 
+std::wstring
 get_shortened_display_path(const std::wstring& path) {
     wchar_t buffer[MAX_PATH];
 
@@ -18,7 +27,7 @@ get_shortened_display_path(const std::wstring& path) {
     return path;
 }
 
-bool 
+bool
 launch_diff_tool(const std::wstring& file1, const std::wstring& file2) {
     // Construct command line: "toolPath" "file1" "file2"
     std::wstring cmdLine = L"\"" + getDiffTool() + L"\" \"" + file1 + L"\" \"" + file2 + L"\"";
@@ -27,7 +36,8 @@ launch_diff_tool(const std::wstring& file1, const std::wstring& file2) {
     PROCESS_INFORMATION pi = {};
 
     // CreateProcessW needs the command line to be a writable buffer
-    std::vector<wchar_t> buffer(cmdLine.begin(), cmdLine.end());
+    std::vector<wchar_t>
+    buffer(cmdLine.begin(), cmdLine.end());
     buffer.push_back(L'\0');
 
     BOOL success = CreateProcessW(
@@ -43,7 +53,7 @@ launch_diff_tool(const std::wstring& file1, const std::wstring& file2) {
         &pi
     );
 
-    if (success) {
+    if(success) {
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess); // Close immediately, or use WaitForSingleObject to wait
         return true;

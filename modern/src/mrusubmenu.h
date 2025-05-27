@@ -1,3 +1,12 @@
+/*
+* Copyright (c) 2025, Sergey Zorin.
+* All rights reserved.
+*
+* This software is distributed under the BSD license. See the terms
+* of the BSD license in the LICENSE file provided with this software.
+*
+*/
+
 #pragma once
 
 #include <windows.h>
@@ -12,26 +21,27 @@
 
 using namespace Microsoft::WRL;
 
-class __declspec(uuid("C42D8359-32CB-11F0-8E44-FAE5B572B91D"))
+class
+__declspec(uuid("C42D8359-32CB-11F0-8E44-FAE5B572B91D"))
 MRUSubmenu : public RuntimeClass<RuntimeClassFlags<ClassicCom>, IExplorerCommand, IEnumExplorerCommand> {
-  public:
-    MRUSubmenu();
-    
-    IFACEMETHODIMP GetTitle(IShellItemArray*, LPWSTR* ppszName) override;
-    IFACEMETHODIMP GetToolTip(IShellItemArray*, LPWSTR* ppszTip) override;
-    IFACEMETHODIMP GetIcon(IShellItemArray*, LPWSTR*) override;
-    IFACEMETHODIMP GetCanonicalName(GUID*) override;
-    IFACEMETHODIMP GetFlags(EXPCMDFLAGS*) override;
-    IFACEMETHODIMP EnumSubCommands(IEnumExplorerCommand**) override;
-    IFACEMETHODIMP Invoke(IShellItemArray*, IBindCtx*) override;
-    IFACEMETHODIMP GetState(IShellItemArray*, BOOL, EXPCMDSTATE*) override;
+    public:
+        MRUSubmenu();
+        
+        IFACEMETHODIMP GetTitle(IShellItemArray*, LPWSTR* ppszName) override;
+        IFACEMETHODIMP GetToolTip(IShellItemArray*, LPWSTR* ppszTip) override;
+        IFACEMETHODIMP GetIcon(IShellItemArray*, LPWSTR*) override;
+        IFACEMETHODIMP GetCanonicalName(GUID*) override;
+        IFACEMETHODIMP GetFlags(EXPCMDFLAGS*) override;
+        IFACEMETHODIMP EnumSubCommands(IEnumExplorerCommand**) override;
+        IFACEMETHODIMP Invoke(IShellItemArray*, IBindCtx*) override;
+        IFACEMETHODIMP GetState(IShellItemArray*, BOOL, EXPCMDSTATE*) override;
 
-    IFACEMETHODIMP Next(ULONG, IExplorerCommand**, ULONG*) override;
-    IFACEMETHODIMP Skip(ULONG) override;
-    IFACEMETHODIMP Reset() override;
-    IFACEMETHODIMP Clone(IEnumExplorerCommand**) override;
+        IFACEMETHODIMP Next(ULONG, IExplorerCommand**, ULONG*) override;
+        IFACEMETHODIMP Skip(ULONG) override;
+        IFACEMETHODIMP Reset() override;
+        IFACEMETHODIMP Clone(IEnumExplorerCommand**) override;
 
-  private:
-    std::vector<ComPtr<IExplorerCommand>> _commands;
-    size_t _current = 0;
+    private:
+        std::vector<ComPtr<IExplorerCommand>> _commands;
+        size_t _current = 0;
 };

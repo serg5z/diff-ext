@@ -1,3 +1,12 @@
+/*
+* Copyright (c) 2025, Sergey Zorin.
+* All rights reserved.
+*
+* This software is distributed under the BSD license. See the terms
+* of the BSD license in the LICENSE file provided with this software.
+*
+*/
+
 #include <strsafe.h>
 
 #include <format>
@@ -42,36 +51,36 @@ ContextMenu::ContextMenu() {
 
 ContextMenu::~ContextMenu() {
     _compare_to_items.clear();  
-     
+    
     if(_submenu) {
         DestroyMenu(_submenu);
     }
 }
 
-IFACEMETHODIMP 
+IFACEMETHODIMP
 ContextMenu::Initialize(PCIDLIST_ABSOLUTE, IDataObject* pdtobj, HKEY) {
-    OutputDebugStringW(L"Initialize called\n");
     _selected_files.clear();
 
-    if (!pdtobj)
+    if(!pdtobj)
         return E_INVALIDARG;
 
     FORMATETC fmt = { CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
     STGMEDIUM stg;
 
-    if (FAILED(pdtobj->GetData(&fmt, &stg)))
+    if(FAILED(pdtobj->GetData(&fmt, &stg)))
         return E_FAIL;
 
     HDROP hDrop = (HDROP)GlobalLock(stg.hGlobal);
-    if (!hDrop) {
+
+    if(!hDrop) {
         ReleaseStgMedium(&stg);
         return E_FAIL;
     }
 
     UINT fileCount = DragQueryFile(hDrop, 0xFFFFFFFF, nullptr, 0);
-    for (UINT i = 0; i < fileCount; ++i) {
+    for(UINT i = 0; i < fileCount; ++i) {
         wchar_t filePath[MAX_PATH];
-        if (DragQueryFile(hDrop, i, filePath, MAX_PATH)) {
+        if(DragQueryFile(hDrop, i, filePath, MAX_PATH)) {
             _selected_files.emplace_back(filePath);
         }
     }
@@ -82,7 +91,7 @@ ContextMenu::Initialize(PCIDLIST_ABSOLUTE, IDataObject* pdtobj, HKEY) {
     return S_OK;
 }
 
-IFACEMETHODIMP 
+IFACEMETHODIMP
 ContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT, UINT uFlags) {
     ULONG result = 0;
 
@@ -111,7 +120,7 @@ ContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT
                 insert_menu_item(hMenu, idCmdFirst + IDM_COMPARE_TO_MRU_TOP, _compare_to_items.back()->data(), compare_bitmap, indexMenu++);
 
                 size_t pos = 0;
-                for (size_t i = 0; i < mru.size(); ++i, ++id, ++pos) {
+                for(size_t i = 0; i < mru.size(); ++i, ++id, ++pos) {
                     auto str = std::make_unique<std::wstring>(get_shortened_display_path(mru[i]));
                     _compare_to_items.push_back(std::move(str)); 
 
@@ -140,14 +149,15 @@ ContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT
         InsertMenuW(hMenu, indexMenu++, MF_BYPOSITION | MF_SEPARATOR, 0, nullptr);
     }
 
-    return MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, result);
+    return
+    MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, result);
 }
 
-IFACEMETHODIMP 
+IFACEMETHODIMP
 ContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici) {
     OutputDebugStringW(L"InvokeCommand called\n");
-    if (!pici) return E_POINTER;
-    if (HIWORD(pici->lpVerb) != 0) return E_FAIL;
+    if(!pici) return E_POINTER;
+    if(HIWORD(pici->lpVerb) != 0) return E_FAIL;
 
     int cmd = LOWORD(pici->lpVerb);
     auto mru = getMRU();
@@ -160,25 +170,30 @@ ContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici) {
 
             launch_diff_tool(_selected_files[0], _selected_files[1]);
             break;
+
         case IDM_REMEMBER:
             for(const auto& file : _selected_files) {
                 addToMRU(file);
             }
             SaveSettings();
             break;
+
         case IDM_CLEAR_MRU:
             clearMRU();
             SaveSettings();
             break;
+
         case IDM_COMPARE_TO_MRU_TOP: {
                 swprintf_s(buffer, L"comparing to top %s to %s\n", _selected_files[0].c_str(), mru[0].c_str());
                 OutputDebugStringW(buffer);
                 launch_diff_tool(_selected_files[0], mru[0]);
             }
             break;
+
         default:
             if(cmd >= IDM_COMPARE_TO_MRU_BASE && cmd < IDM_COMPARE_TO_MRU_BASE + getMRUCapacity()) {
                 int index = cmd - IDM_COMPARE_TO_MRU_BASE;
+
                 if(index >= 0 && index < mru.size()) {
                     swprintf_s(buffer, L"comparing to index %s to %s\n", _selected_files[0].c_str(), mru[index].c_str());
                     launch_diff_tool(_selected_files[0], mru[index]);
@@ -189,26 +204,23 @@ ContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici) {
     return S_OK;
 }
 
-IFACEMETHODIMP 
+IFACEMETHODIMP
 ContextMenu::GetCommandString(UINT_PTR idCmd, UINT uFlags, UINT*, LPSTR pszName, UINT cchMax) {
-    if (uFlags & GCS_HELPTEXT) {
+    if(uFlags & GCS_HELPTEXT) {
         if(idCmd == IDM_COMPARE) {
             StringCchCopyW(reinterpret_cast<LPWSTR>(pszName), cchMax, L"Compare the selected file.");
-        }
-        else if(idCmd == IDM_REMEMBER) {
+        } else if(idCmd == IDM_REMEMBER) {
             StringCchCopyW(reinterpret_cast<LPWSTR>(pszName), cchMax, L"Add the selected file to the MRU list.");
-        }
-        else if(idCmd == IDM_CLEAR_MRU) {
+        } else if(idCmd == IDM_CLEAR_MRU) {
             StringCchCopyW(reinterpret_cast<LPWSTR>(pszName), cchMax, L"Clear the MRU list.");
-        }
-        else if(idCmd == IDM_COMPARE_TO_MRU_TOP) {
+        } else if(idCmd == IDM_COMPARE_TO_MRU_TOP) {
             auto mru = getMRU();
+
             if(!mru.empty()) {
                 auto message = std::format(L"Compare {} to {}", _selected_files[0], mru[0]);
                 StringCchCopyW(reinterpret_cast<LPWSTR>(pszName), cchMax, message.c_str());
             }
-        } 
-        else if(idCmd >= IDM_COMPARE_TO_MRU_BASE && idCmd < IDM_COMPARE_TO_MRU_BASE + getMRUCapacity()) {
+        } else if(idCmd >= IDM_COMPARE_TO_MRU_BASE && idCmd < IDM_COMPARE_TO_MRU_BASE + getMRUCapacity()) {
             int index = idCmd - IDM_COMPARE_TO_MRU_BASE;
             auto mru = getMRU();
             if(index >= 0 && index < mru.size()) {

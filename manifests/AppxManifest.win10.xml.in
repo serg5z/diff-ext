@@ -12,7 +12,7 @@
 
   <Identity Name="SergeyVZorin.diff-ext"
             Publisher="CN=43E1399F-BA1C-4045-B577-EAC98E3A26EC"
-            Version="2.0.0.0"
+            Version="2.0.1.0"
             ProcessorArchitecture="@PACKAGE_ARCH@" />
 
   <Properties>

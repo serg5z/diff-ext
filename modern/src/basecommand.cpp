@@ -1,44 +1,53 @@
+/*
+* Copyright (c) 2025, Sergey Zorin.
+* All rights reserved.
+*
+* This software is distributed under the BSD license. See the terms
+* of the BSD license in the LICENSE file provided with this software.
+*
+*/
+
 #include "basecommand.h"
 
 
 BaseCommand::BaseCommand(const std::wstring& title, const std::wstring& tooltip, const std::wstring& icon)
-  : _title(title), _tooltip(tooltip), _icon(icon) {
+: _title(title), _tooltip(tooltip), _icon(icon) {
 }
 
-IFACEMETHODIMP 
+IFACEMETHODIMP
 BaseCommand::GetTitle(IShellItemArray*, LPWSTR* ppszName) {
-  return SHStrDupW(_title.c_str(), ppszName);
+    return SHStrDupW(_title.c_str(), ppszName);
 }
 
-IFACEMETHODIMP 
+IFACEMETHODIMP
 BaseCommand::GetIcon(IShellItemArray*, LPWSTR* ppszIcon) {
-  return SHStrDupW(_icon.c_str(), ppszIcon);
+    return SHStrDupW(_icon.c_str(), ppszIcon);
 }
 
-IFACEMETHODIMP 
+IFACEMETHODIMP
 BaseCommand::GetToolTip(IShellItemArray*, LPWSTR* ppszTip) {
-  return SHStrDupW(_tooltip.c_str(), ppszTip);
+    return SHStrDupW(_tooltip.c_str(), ppszTip);
 }
 
-IFACEMETHODIMP 
+IFACEMETHODIMP
 BaseCommand::GetCanonicalName(GUID* pguidCommandName) {
-  *pguidCommandName = GUID_NULL;
-  return S_OK;
+    *pguidCommandName = GUID_NULL;
+    return S_OK;
 }
 
-IFACEMETHODIMP 
+IFACEMETHODIMP
 BaseCommand::GetState(IShellItemArray*, BOOL, EXPCMDSTATE* pCmdState) {
-  *pCmdState = ECS_ENABLED;
-  return S_OK;
+    *pCmdState = ECS_ENABLED;
+    return S_OK;
 }
 
-IFACEMETHODIMP 
+IFACEMETHODIMP
 BaseCommand::GetFlags(EXPCMDFLAGS* pFlags) {
-  *pFlags = ECF_DEFAULT;
-  return S_OK;
+    *pFlags = ECF_DEFAULT;
+    return S_OK;
 }
 
-IFACEMETHODIMP 
+IFACEMETHODIMP
 BaseCommand::EnumSubCommands(IEnumExplorerCommand**) {
-  return E_NOTIMPL;
+    return E_NOTIMPL;
 }
