@@ -46,20 +46,25 @@ if(NOT MAKEAPPX_EXECUTABLE)
     message(FATAL_ERROR "makeappx.exe not found in PATH")
 endif()
 
-if(DEFINED CMAKE_GENERATOR_PLATFORM)
+message(STATUS "CMAKE_GENERATOR_PLATFORM: ${CMAKE_GENERATOR_PLATFORM}")
+message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR: ${CMAKE_HOST_SYSTEM_PROCESSOR}")
+message(STATUS "CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
+
+if(DEFINED CMAKE_GENERATOR_PLATFORM AND NOT "${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
     string(TOLOWER "${CMAKE_GENERATOR_PLATFORM}" ARCH)
-elseif(CMAKE_SYSTEM_PROCESSOR)
+elseif(DEFINED CMAKE_SYSTEM_PROCESSOR AND NOT "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "")
     string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" ARCH)
 else()
     message(FATAL_ERROR "Unable to determine target architecture.")
 endif()
 
 # Determine architecture for MSIX manifest
-if(ARCH MATCHES "^([Aa][Mm][Dd]64|x86_64|x64)$")
+if(ARCH MATCHES "^(amd64|x86_64|x64)$")
     set(PACKAGE_ARCH "x64")
-elseif(ARCH MATCHES "^([Ww][Ii][Nn]32|i[3-6]86)$")
+elseif(ARCH MATCHES "^(win32|i[3-6]86)$")
     set(PACKAGE_ARCH "x86")
-elseif(ARCH MATCHES "^(ARM64|aarch64)$")
+elseif(ARCH MATCHES "^(arm64|aarch64)$")
     set(PACKAGE_ARCH "arm64")
 else()
     message(FATAL_ERROR "Unsupported architecture: ${ARCH}")
@@ -124,6 +129,10 @@ set(CPACK_SOURCE_IGNORE_FILES
     "/\\.idea([/\\\\]|$)"
     "/\\.vs([/\\\\]|$)"
     "/\\.DS_Store$"
+    "/installer[/\\\\]arm64([/\\\\]|$)"
+    "/installer[/\\\\]x64([/\\\\]|$)"
+    "/installer[/\\\\]x86([/\\\\]|$)"
+    "/installer[/\\\\].*\\.exe$"
     "/Thumbs\\.db$"
     "/\\.gitignore$"
     "~$"
