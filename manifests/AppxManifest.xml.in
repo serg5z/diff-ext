@@ -7,9 +7,8 @@
   xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
   xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
   xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
-  xmlns:desktop9="http://schemas.microsoft.com/appx/manifest/desktop/windows10/9"
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
-  IgnorableNamespaces="uap uap10 rescap desktop6 desktop4 desktop5 desktop9 com">
+  IgnorableNamespaces="uap uap10 rescap desktop6 desktop4 desktop5 com">
 
   <Identity Name="SergeyVZorin.diff-ext"
             Publisher="CN=43E1399F-BA1C-4045-B577-EAC98E3A26EC"
@@ -29,7 +28,7 @@
   </Resources>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22000.318" MaxVersionTested="10.0.26100.4061" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.508" MaxVersionTested="10.0.26100.4061" />
   </Dependencies>
 
   <Capabilities>
@@ -80,13 +79,6 @@
           </desktop4:FileExplorerContextMenus>
         </desktop4:Extension>
 
-        <desktop9:Extension Category="windows.fileExplorerClassicContextMenuHandler">
-          <desktop9:FileExplorerClassicContextMenuHandler>
-            <desktop9:ExtensionHandler Type="*"         Clsid="C42D835A-32CB-11F0-8E44-FAE5B572B91D" />
-            <desktop9:ExtensionHandler Type="Directory" Clsid="C42D835A-32CB-11F0-8E44-FAE5B572B91D" />
-          </desktop9:FileExplorerClassicContextMenuHandler>
-        </desktop9:Extension>
-
         <com:Extension Category="windows.comServer">
           <com:ComServer>
             <com:SurrogateServer DisplayName="Compare Context Menu Handler">
@@ -94,7 +86,6 @@
               <com:Class Id="C42D8357-32CB-11F0-8E44-FAE5B572B91D" Path="diff-ext-modern.dll"  ThreadingModel="STA" />
               <com:Class Id="C42D8358-32CB-11F0-8E44-FAE5B572B91D" Path="diff-ext-modern.dll"  ThreadingModel="STA" />
               <com:Class Id="C42D8359-32CB-11F0-8E44-FAE5B572B91D" Path="diff-ext-modern.dll"  ThreadingModel="STA" />
-              <com:Class Id="C42D835A-32CB-11F0-8E44-FAE5B572B91D" Path="diff-ext-classic.dll" ThreadingModel="STA" />
             </com:SurrogateServer>
           </com:ComServer>
         </com:Extension>

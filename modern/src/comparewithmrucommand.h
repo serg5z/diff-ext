@@ -12,9 +12,11 @@
 #include "basecommand.h"
 
 
-class CompareWithMRUCommand : public BaseCommand {
+class 
+__declspec(uuid("C42D8358-32CB-11F0-8E44-FAE5B572B91D"))
+CompareWithMRUCommand : public BaseCommand {
     public:
-        CompareWithMRUCommand(const std::wstring& title, ULONG index);
+        CompareWithMRUCommand(ULONG index = 0);
         IFACEMETHODIMP GetIcon(IShellItemArray*, LPWSTR* icon) override;
         IFACEMETHODIMP Invoke(IShellItemArray*, IBindCtx*) override;
         IFACEMETHODIMP GetState(IShellItemArray*, BOOL, EXPCMDSTATE*) override;

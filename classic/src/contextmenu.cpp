@@ -7,7 +7,11 @@
 *
 */
 
+#include <windows.h>
 #include <strsafe.h>
+#include <shellapi.h> 
+#include <commctrl.h>
+#include <commoncontrols.h> 
 
 #include <format>
 #include <string>
@@ -29,18 +33,60 @@ extern HBITMAP compare_bitmap;
 extern HBITMAP remember_bitmap;
 extern HBITMAP clear_mru_bitmap;
 
+extern HBITMAP IconToBitmap(HICON hIcon, int width, int height);
+
+HBITMAP
+GetFileTypeBitmap(const std::wstring path) {
+    HBITMAP result = nullptr;
+    SHFILEINFO sfi = { 0 };
+
+    SHGetFileInfo(path.c_str(), FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi), SHGFI_SYSICONINDEX | SHGFI_USEFILEATTRIBUTES);
+
+    int iconIndex = sfi.iIcon;
+
+    if(iconIndex >= 0) {
+        IImageList* pImageList = nullptr;
+        HRESULT hr = SHGetImageList(SHIL_SMALL, IID_IImageList, (void**)&pImageList);
+
+        if(SUCCEEDED(hr) && pImageList) {
+            IMAGEINFO imageInfo;
+            HICON hIcon = nullptr;
+            HRESULT hr = pImageList->GetIcon(iconIndex, ILD_TRANSPARENT, &hIcon);
+
+            if(SUCCEEDED(hr) && hIcon) {
+                int w = 32; //GetSystemMetrics(SM_CXSMICON);
+                int h = 32; //GetSystemMetrics(SM_CYSMICON);
+
+                HBITMAP bitmap = IconToBitmap(hIcon, w, h);
+                result = bitmap;
+            }
+        }
+    }
+
+    return result;
+}
+
 void
-insert_menu_item(HMENU menu, UINT id, const wchar_t* text, HBITMAP bitmap, UINT index) {
+insert_menu_item(HMENU menu, UINT id, UINT index, const wchar_t* text = nullptr, HBITMAP bitmap = nullptr, HMENU submenu = nullptr) {
     MENUITEMINFO mii = { sizeof(mii) };
 
-    mii.fMask = MIIM_STRING | MIIM_ID | MIIM_FTYPE;
+    mii.fMask = MIIM_ID | MIIM_FTYPE;
     mii.wID = id;
     mii.fType = MFT_STRING;
-    mii.dwTypeData = const_cast<LPWSTR>(text);
-    
-    if(bitmap) {
+
+    if (text) {
+        mii.fMask |= MIIM_STRING;
+        mii.dwTypeData = const_cast<LPWSTR>(text);
+    }
+
+    if (bitmap) {
         mii.fMask |= MIIM_BITMAP;
-        mii.hbmpItem = compare_bitmap;
+        mii.hbmpItem = bitmap;
+    }
+
+    if (submenu) {
+        mii.fMask |= MIIM_SUBMENU;
+        mii.hSubMenu = submenu;
     }
 
     InsertMenuItem(menu, index, TRUE, &mii);
@@ -103,7 +149,7 @@ ContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT
         if(_selected_files.size() == 1) {
             auto mru = getMRU();
 
-            insert_menu_item(hMenu, idCmdFirst + IDM_REMEMBER, L"Remember", remember_bitmap, indexMenu++);
+            insert_menu_item(hMenu, idCmdFirst + IDM_REMEMBER, indexMenu++, L"Remember", remember_bitmap);
 
             if(!mru.empty()) {
                 UINT id = idCmdFirst + IDM_COMPARE_TO_MRU_BASE;
@@ -114,36 +160,42 @@ ContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT
                 
                 _submenu = CreatePopupMenu();
 
+                HBITMAP bitmap = GetFileTypeBitmap(mru[0]);
                 auto str = std::make_unique<std::wstring>(std::format(L"Compare to {}", get_shortened_display_path(mru[0])));
-                _compare_to_items.push_back(std::move(str));                        
 
-                insert_menu_item(hMenu, idCmdFirst + IDM_COMPARE_TO_MRU_TOP, _compare_to_items.back()->data(), compare_bitmap, indexMenu++);
+                _compare_to_items.push_back(std::move(str));                        
+                _compare_to_bitmaps.push_back(bitmap);
+
+                insert_menu_item(hMenu, idCmdFirst + IDM_COMPARE_TO_MRU_TOP, indexMenu++, _compare_to_items.back()->data(), bitmap);
 
                 size_t pos = 0;
                 for(size_t i = 0; i < mru.size(); ++i, ++id, ++pos) {
                     auto str = std::make_unique<std::wstring>(get_shortened_display_path(mru[i]));
+                    bitmap = GetFileTypeBitmap(mru[i]);
+
+                    _compare_to_bitmaps.push_back(bitmap);
                     _compare_to_items.push_back(std::move(str)); 
 
-                    insert_menu_item(_submenu, id, _compare_to_items.back()->data(), compare_bitmap, pos);
+                    insert_menu_item(_submenu, id, pos, _compare_to_items.back()->data(), bitmap);
                 }
 
+                pos++;
                 AppendMenuW(_submenu, MF_SEPARATOR, 0, nullptr);
 
-                insert_menu_item(_submenu, idCmdFirst + IDM_CLEAR_MRU, L"Clear MRU", clear_mru_bitmap, pos++);
-
-                InsertMenuW(hMenu, indexMenu++, MF_BYPOSITION | MF_POPUP, (UINT_PTR)_submenu, L"Compare to");
+                insert_menu_item(_submenu, idCmdFirst + IDM_CLEAR_MRU, pos++, L"Clear MRU", clear_mru_bitmap);
+                insert_menu_item(hMenu, idCmdFirst + IDM_CLEAR_MRU, indexMenu++, L"Compare to", compare_bitmap, _submenu);
 
                 result = id - idCmdFirst + 1;
             } else {
                 result = IDM_REMEMBER + 1;
             }
         } else if(_selected_files.size() == 2) {        
-            insert_menu_item(hMenu, idCmdFirst + IDM_COMPARE, L"Compare", compare_bitmap, indexMenu++);
-            insert_menu_item(hMenu, idCmdFirst + IDM_REMEMBER, L"Remember", remember_bitmap, indexMenu++);
+            insert_menu_item(hMenu, idCmdFirst + IDM_COMPARE, indexMenu++, L"Compare", compare_bitmap);
+            insert_menu_item(hMenu, idCmdFirst + IDM_REMEMBER, indexMenu++, L"Remember", remember_bitmap);
 
             result = IDM_REMEMBER + 1;
         } else {
-            insert_menu_item(hMenu, idCmdFirst + IDM_REMEMBER, L"Remember", remember_bitmap, indexMenu++);
+            insert_menu_item(hMenu, idCmdFirst + IDM_REMEMBER, indexMenu++, L"Remember", remember_bitmap);
             result = IDM_REMEMBER + 1;
         }
         InsertMenuW(hMenu, indexMenu++, MF_BYPOSITION | MF_SEPARATOR, 0, nullptr);

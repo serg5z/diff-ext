@@ -12,8 +12,6 @@ add_library(diff-ext-modern SHARED
     src/comparefilescommand.cpp
     src/comparewithmrucommand.h
     src/comparewithmrucommand.cpp
-    src/comparewithtopcommand.h
-    src/comparewithtopcommand.cpp
     src/rememberfilescommand.h
     src/rememberfilescommand.cpp
     src/mrusubmenu.h

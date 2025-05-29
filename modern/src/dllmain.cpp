@@ -17,13 +17,13 @@
 #include "settings.h"
 #include "comparefilescommand.h"
 #include "rememberfilescommand.h"
-#include "comparewithtopcommand.h"
+#include "comparewithmrucommand.h"
 #include "mrusubmenu.h"
 
 
 CoCreatableClass(CompareFilesCommand);
 CoCreatableClass(RememberFilesCommand);
-CoCreatableClass(CompareWithTopCommand);
+CoCreatableClass(CompareWithMRUCommand);
 CoCreatableClass(MRUSubmenu);
 
 extern "C" HRESULT __stdcall 

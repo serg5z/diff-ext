@@ -22,7 +22,7 @@ MRUSubmenu::MRUSubmenu() {
 
     size_t index = 0;
     for(const auto& file : mru) {
-        _commands.push_back(Make<CompareWithMRUCommand>(get_shortened_display_path(file), index++));
+        _commands.push_back(Make<CompareWithMRUCommand>(index++));
     }
 
     if(!mru.empty()) {

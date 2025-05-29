@@ -7,44 +7,149 @@
 *
 */
 
+#include <filesystem>
+#include <string>
+
+
 #include "settings.h"
 #include "util.h"
 #include "resources.h"
 #include "comparewithmrucommand.h"
 
 
+namespace fs = std::filesystem;
+
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
-CompareWithMRUCommand::CompareWithMRUCommand(const std::wstring& title, ULONG index) 
-: BaseCommand(title, L"Compare with MRU item"), _index(index) {
+CompareWithMRUCommand::CompareWithMRUCommand(ULONG index) 
+: BaseCommand(L"", L"Compare with MRU item"), _index(index) {
+    auto mru = getMRU();
+
+    if(_index < mru.size()) {
+        _title = (L"Compare to " + get_shortened_display_path(mru[_index])).c_str();
+    }
 }
 
 IFACEMETHODIMP
 CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
-    wchar_t modulePath[MAX_PATH];
+     SHFILEINFO sfi = { 0 };
+    auto mru = getMRU();
+    if(SHGetFileInfoW(mru[_index].c_str(), 0, &sfi, sizeof(sfi), SHGFI_ICONLOCATION | SHGFI_USEFILEATTRIBUTES)) {
+        fs::path p = mru[_index];
+        std::wstring ext = p.extension();
+        wchar_t progid[256] = L"";
+        DWORD progid_size = sizeof(progid);
 
-    if(!GetModuleFileNameW(reinterpret_cast<HMODULE>(&__ImageBase), modulePath, MAX_PATH)) {
-        return HRESULT_FROM_WIN32(GetLastError());
+        OutputDebugStringW(ext.c_str());
+
+        if(ext == L"") {
+            DWORD attr = GetFileAttributesW(mru[_index].c_str());
+            if((attr != INVALID_FILE_ATTRIBUTES) && (attr & FILE_ATTRIBUTE_DIRECTORY)) {
+                wchar_t iconpath[512] = L"";
+                DWORD size = sizeof(iconpath);
+                LONG res = SHGetValueW(
+                    HKEY_CLASSES_ROOT,
+                    L"Directory\\DefaultIcon",
+                    nullptr,
+                    nullptr,
+                    iconpath,
+                    &size
+                );
+
+                if(res == ERROR_SUCCESS) {
+                    OutputDebugStringW(iconpath);
+                    return SHStrDupW(iconpath, icon);
+                }
+                // fallback: hard-coded standard folder icon, just in case
+                return SHStrDupW(L"%SystemRoot%\\System32\\shell32.dll,3", icon);
+            }
+        }
+
+        if(SHGetValueW(HKEY_CLASSES_ROOT, ext.c_str(), nullptr, nullptr, progid, &progid_size) == ERROR_SUCCESS) {
+            std::wstring key = std::wstring(progid) + L"\\DefaultIcon";
+            wchar_t iconpath[512] = L"";
+            DWORD iconpath_size = sizeof(progid);
+
+            if (SHGetValueW(HKEY_CLASSES_ROOT, key.c_str(), nullptr, nullptr, iconpath, &iconpath_size) == ERROR_SUCCESS) {
+                if ((wcscmp(iconpath, L"%1") == 0) || (wcscmp(iconpath,  L"\"%1\"") == 0)) {
+                    std::wstring path = mru[_index] + L",0";
+                    OutputDebugStringW((L"self1: " + path).c_str());
+                    return SHStrDupW(path.c_str(), icon);
+                }
+
+                OutputDebugStringW(iconpath);
+                return SHStrDupW(iconpath, icon);
+            } else {
+                HKEY hExtKey = NULL;
+                if(RegOpenKeyExW(HKEY_CLASSES_ROOT, ext.c_str(), 0, KEY_READ, &hExtKey) == ERROR_SUCCESS) {
+                    HKEY hOWP = NULL;
+                    if(RegOpenKeyExW(hExtKey, L"OpenWithProgids", 0, KEY_READ, &hOWP) == ERROR_SUCCESS) {
+                        wchar_t progid[256];
+                        DWORD index = 0;
+                        DWORD progidLen = ARRAYSIZE(progid);
+                        LONG res;
+                        // Enumerate first ProgID
+                        while(true) {
+                            progidLen = ARRAYSIZE(progid);
+                            res = RegEnumValueW(hOWP, index, progid, &progidLen, NULL, NULL, NULL, NULL);
+                            if(res == ERROR_NO_MORE_ITEMS) break;
+                            if(res == ERROR_SUCCESS) {
+                                std::wstring key = std::wstring(progid) + L"\\DefaultIcon";
+                                wchar_t iconpath[512] = L"";
+                                DWORD iconpath_size = sizeof(progid);
+
+                                if(SHGetValueW(HKEY_CLASSES_ROOT, key.c_str(), nullptr, nullptr, iconpath, &iconpath_size) == ERROR_SUCCESS) {                    
+                                    OutputDebugStringW(iconpath);
+                                    return SHStrDupW(iconpath, icon);
+                                } else {
+                                    OutputDebugStringW(L"SHGetValueW 3 failed");
+                                }
+                            }
+                            ++index;
+                        }
+                        RegCloseKey(hOWP);
+                    }
+                    RegCloseKey(hExtKey);
+                }
+            }
+        } else {
+            HKEY hExtKey = NULL;
+            if(RegOpenKeyExW(HKEY_CLASSES_ROOT, ext.c_str(), 0, KEY_READ, &hExtKey) == ERROR_SUCCESS) {
+                HKEY hOWP = NULL;
+                if(RegOpenKeyExW(hExtKey, L"OpenWithProgids", 0, KEY_READ, &hOWP) == ERROR_SUCCESS) {
+                    wchar_t progid[256];
+                    DWORD index = 0;
+                    DWORD progidLen = ARRAYSIZE(progid);
+                    LONG res;
+                    // Enumerate first ProgID
+                    while(true) {
+                        progidLen = ARRAYSIZE(progid);
+                        res = RegEnumValueW(hOWP, index, progid, &progidLen, NULL, NULL, NULL, NULL);
+                        if(res == ERROR_NO_MORE_ITEMS) break;
+                        if(res == ERROR_SUCCESS) {
+                            std::wstring key = std::wstring(progid) + L"\\DefaultIcon";
+                            wchar_t iconpath[512] = L"";
+                            DWORD iconpath_size = sizeof(progid);
+
+                            if(SHGetValueW(HKEY_CLASSES_ROOT, key.c_str(), nullptr, nullptr, iconpath, &iconpath_size) == ERROR_SUCCESS) {                    
+                                OutputDebugStringW(iconpath);
+                                return SHStrDupW(iconpath, icon);
+                            } else {
+                                OutputDebugStringW(L"SHGetValueW 3 failed");
+                            }
+                        }
+                        ++index;
+                    }
+                    RegCloseKey(hOWP);
+                }
+                RegCloseKey(hExtKey);
+            }
+        }
+    } else {
+        OutputDebugStringW(L"SHGetFileInfoW failed");
     }
 
-    wchar_t iconPath[MAX_PATH + 20];
-    swprintf_s(iconPath, L"%s,-%d", modulePath, IDI_COMPARE_ICON);
-
-    OutputDebugStringW((std::wstring(L"CompareWithMRUCommand::GetIcon: ") + iconPath).c_str());
-
-    // *icon = ::SysAllocString(iconPath);
-    // return (*icon) ? S_OK : E_OUTOFMEMORY;
-    return SHStrDupW(iconPath, icon);
-
-// SHFILEINFO sfi = { 0 };
-
-// if(SHGetFileInfoW(getMRU()[_index].c_str(), 0, &sfi, sizeof(sfi), SHGFI_ICONLOCATION | SHGFI_USEFILEATTRIBUTES)) {
-//   std::wstring iconPath = L"%SystemRoot%\\System32\\shell32.dll,";
-//   iconPath += std::to_wstring(sfi.iIcon);
-//   return SHStrDupW(iconPath.c_str(), icon);
-// }
-
-// return SHStrDupW(L"%SystemRoot%\\System32\\shell32.dll,-1", icon);
+    return SHStrDupW(L"", icon);
 }
 
 IFACEMETHODIMP
@@ -82,20 +187,6 @@ CompareWithMRUCommand::GetState(IShellItemArray* psiItemArray, BOOL, EXPCMDSTATE
 
     return S_OK;
 }
-
-// IFACEMETHODIMP 
-// CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* ppszIcon) {
-// SHFILEINFO sfi = { 0 };
-
-// if(SHGetFileInfoW(getMRU()[_index].c_str(), 0, &sfi, sizeof(sfi), SHGFI_ICONLOCATION | SHGFI_USEFILEATTRIBUTES)) {
-//   std::wstring iconPath = L"%SystemRoot%\\System32\\shell32.dll,";
-//   iconPath += std::to_wstring(sfi.iIcon);
-//   return SHStrDupW(iconPath.c_str(), ppszIcon);
-// }
-
-// return SHStrDupW(L"%SystemRoot%\\System32\\shell32.dll,-1", ppszIcon);
-//   return SHStrDupW(L"", ppszIcon);
-// }
 
 ULONG
 CompareWithMRUCommand::getIndex() const { 
