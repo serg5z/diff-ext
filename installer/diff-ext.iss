@@ -30,7 +30,7 @@ Source: "LICENSE"; DestDir: "{app}"; DestName: "LICENSE";
 [Run]
 ; Register DLL after install
 Filename: "{sys}\regsvr32.exe"; Parameters: "/s ""{app}\diff-ext-classic.dll"""; Flags: runhidden waituntilterminated
-Filename: {app}\diff_ext_setup.exe; Flags: postinstall
+Filename: {app}\diff-ext-setup.exe; Flags: postinstall
 
 [UninstallRun]
 ; Unregister DLL on uninstall
