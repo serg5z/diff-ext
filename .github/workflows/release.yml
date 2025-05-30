@@ -1,8 +1,9 @@
 name: Make release
 
 on:
-  workflow_dispatch:  # Manual trigger
-
+  push:
+    tags:
+      - 'v*.*.*'
 
 permissions:
   contents: write
