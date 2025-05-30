@@ -130,3 +130,13 @@ jobs:
       shell: pwsh
       run: |
         Get-ChildItem -Recurse release
+
+    # - name: Upload Release Asset
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_path: release/Installer/diff-ext-installer.exe
+    #     asset_name: diff-ext-installer.exe
+    #     asset_content_type: application/octet-stream        
