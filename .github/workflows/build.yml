@@ -1,39 +1,111 @@
-name: Windows MSIX Build
+name: Windows CMake Build (MSIX/MSBuild)
 
 on:
   workflow_dispatch:  # Manual trigger only
 
 jobs:
-  build-msix:
+  build:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: [x64, x86, arm64]
-
+        arch: [x64, Win32, ARM64]
+      
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: update env
-        run: |
-          $makeappx = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter "makeappx.exe" |
-                Where-Object { $_.FullName -match "x64" } |
-                Select-Object -First 1 -ExpandProperty FullName
-          if (-not $makeappx) {
-            throw "MakeAppx.exe not found."
-          }
-          echo "Found MakeAppx.exe at $makeappx"
-          $makeappxDir = Split-Path $makeappx -Parent
-          echo "$makeappxDir" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
+    - name: Add latest Windows SDK tools to PATH
+      shell: pwsh
+      run: |
+        # List only directories that match a version pattern (e.g., 10.0.22000.0)
+        $versionDirs = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin' -Directory |
+            Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\d+$' }
+        
+        # Sort by version (as strings, highest last)
+        $latestVersionDir = $versionDirs | Sort-Object Name | Select-Object -Last 1
+        
+        if ($null -eq $latestVersionDir) {
+            Write-Error "No Windows 10 SDK version directories found!"
+            exit 1
+        }
+        
+        $SDKTools = Join-Path $latestVersionDir.FullName 'x64'
+        
+        Write-Output "SDK tools in $SDKTools"
+        echo "$SDKTools" | Out-File -FilePath $env:GITHUB_PATH -Append
 
-      - name: Configure CMake
-        shell: pwsh
-        run: |
-          $cmakeArch = if ("${{ matrix.arch }}" -eq "x86") { "Win32" } else { "${{ matrix.arch }}" }
-          cmake -S . -B build-${{ matrix.arch }} -A $cmakeArch -DCMAKE_BUILD_TYPE=Release
-          cat build-${{ matrix.arch }}/msix.vcxproj
+    - name: Configure (CMake, Visual Studio generator)
+      run: cmake -S . -B build -A ${{ matrix.arch }}
+
+    - name: Build (MSBuild)
+      run: cmake --build build --config Release
+
+    - name: Normalize architecture
+      id: arch_map
+      shell: pwsh
+      run: |
+        if ("${{ matrix.arch }}" -eq "Win32") {
+          $normarch = "x86"
+        } elseif ("${{ matrix.arch }}" -eq "ARM64") {
+          $normarch = "arm64"
+        } else {
+          $normarch = "${{ matrix.arch }}"
+        }
+        echo "normarch=$normarch" >> $env:GITHUB_OUTPUT
+    
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-${{ steps.arch_map.outputs.normarch }}
+        path: |
+          build/bin/**/diff-ext-setup.exe
+          build/bin/**/diff-ext-classic.dll
+          build/msix/*.msix
           
-      - name: Build
-        shell: pwsh
-        run: |
-          cmake --build build-${{ matrix.arch }} --config Release
+  package:
+    runs-on: windows-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: all-builds
+
+    - name: List downloaded artifacts
+      shell: pwsh
+      run: |
+        Get-ChildItem -Recurse all-builds
+    
+    - name: Organize artifacts for installer
+      shell: pwsh
+      run: |
+        Get-ChildItem -Recurse .
+        $ErrorActionPreference = "Stop"
+        $archs = @('x64', 'x86', 'arm64')
+        foreach ($arch in $archs) {
+          New-Item -Force -ItemType Directory -Path "installer\$arch" | Out-Null
+          $src = "all-builds\build-$arch\bin\Release"
+          if (Test-Path $src) {
+            Copy-Item "$src\*" "installer\$arch\" -Force
+          } else {
+            Write-Error "Missing build for $arch!"
+          }
+        }
+        Get-ChildItem -Recurse installer
+      
+    - name: Setup Inno Setup
+      uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+      with:
+        path: 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+
+    - name: Build Inno Setup installer
+      run: |
+        "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\diff-ext.iss
+
+    - name: Upload installer
+      uses: actions/upload-artifact@v4
+      with:
+        name: Installer
+        path: installer/diff-ext-installer.exe
