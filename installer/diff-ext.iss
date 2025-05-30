@@ -23,8 +23,8 @@ Source: "x86\diff-ext-classic.dll"; DestDir: "{app}"; DestName: "diff-ext-classi
 Source: "x86\diff-ext-setup.exe"; DestDir: "{app}"; DestName: "diff-ext-setup.exe"; Check: IsX86
 Source: "x64\diff-ext-classic.dll"; DestDir: "{app}"; DestName: "diff-ext-classic.dll"; Check: IsX64
 Source: "x64\diff-ext-setup.exe"; DestDir: "{app}"; DestName: "diff-ext-setup.exe"; Check: IsX64
-Source: "arm64\diff-ext-classic.dll"; DestDir: "{app}"; DestName: "diff-ext-classic.dll"; Check: IsArm64
-Source: "arm64\diff-ext-setup.exe"; DestDir: "{app}"; DestName: "diff-ext-setup.exe"; Check: IsArm64
+;Source: "arm64\diff-ext-classic.dll"; DestDir: "{app}"; DestName: "diff-ext-classic.dll"; Check: IsArm64
+;Source: "arm64\diff-ext-setup.exe"; DestDir: "{app}"; DestName: "diff-ext-setup.exe"; Check: IsArm64
 Source: "LICENSE"; DestDir: "{app}"; DestName: "LICENSE";
 
 [Run]
