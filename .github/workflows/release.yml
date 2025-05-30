@@ -127,6 +127,11 @@ jobs:
         name: installer
         path: .
 
+    - name: List downloaded artifacts
+      shell: pwsh
+      run: |
+        Get-ChildItem -Recurse .
+
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
