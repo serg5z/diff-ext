@@ -124,12 +124,8 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
-        path: release
-
-    - name: List downloaded artifacts
-      shell: pwsh
-      run: |
-        Get-ChildItem -Recurse release
+        name: installer
+        path: .
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
@@ -137,7 +133,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: release/installer/diff-ext-installer.exe
+        asset_path: installer/diff-ext-installer.exe
         asset_name: diff-ext-installer.exe
         asset_content_type: application/octet-stream    
     
