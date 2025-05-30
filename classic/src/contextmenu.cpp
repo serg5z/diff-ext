@@ -207,7 +207,6 @@ ContextMenu::QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT
 
 IFACEMETHODIMP
 ContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici) {
-    OutputDebugStringW(L"InvokeCommand called\n");
     if(!pici) return E_POINTER;
     if(HIWORD(pici->lpVerb) != 0) return E_FAIL;
 
@@ -217,9 +216,6 @@ ContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici) {
     wchar_t buffer[1024];
     switch(cmd) {
         case IDM_COMPARE:
-            swprintf_s(buffer, L"comparing %s to %s\n", _selected_files[0].c_str(), _selected_files[1].c_str());
-            OutputDebugStringW(buffer);
-
             launch_diff_tool(_selected_files[0], _selected_files[1]);
             break;
 
@@ -235,11 +231,8 @@ ContextMenu::InvokeCommand(LPCMINVOKECOMMANDINFO pici) {
             SaveSettings();
             break;
 
-        case IDM_COMPARE_TO_MRU_TOP: {
-                swprintf_s(buffer, L"comparing to top %s to %s\n", _selected_files[0].c_str(), mru[0].c_str());
-                OutputDebugStringW(buffer);
-                launch_diff_tool(_selected_files[0], mru[0]);
-            }
+        case IDM_COMPARE_TO_MRU_TOP: 
+            launch_diff_tool(_selected_files[0], mru[0]);
             break;
 
         default:

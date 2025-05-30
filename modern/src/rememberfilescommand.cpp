@@ -29,8 +29,6 @@ RememberFilesCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
     wchar_t iconPath[MAX_PATH + 20];
     swprintf_s(iconPath, L"%s,-%d", modulePath, IDI_REMEMBER_ICON);
 
-    OutputDebugStringW((std::wstring(L"RememberFilesCommand::GetIcon: ") + iconPath).c_str());
-
     return SHStrDupW(iconPath, icon);
 }
 

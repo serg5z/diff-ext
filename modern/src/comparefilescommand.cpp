@@ -32,8 +32,6 @@ CompareFilesCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
     wchar_t iconPath[MAX_PATH + 20];
     swprintf_s(iconPath, L"%s,-%d", modulePath, IDI_COMPARE_ICON);
 
-    OutputDebugStringW((std::wstring(L"CompareFilesCommand::GetIcon: ") + iconPath).c_str());
-
     return SHStrDupW(iconPath, icon);
 }
 

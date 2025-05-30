@@ -30,7 +30,6 @@ get_mru_file_path() {
         path = app_data_path;
         CoTaskMemFree(app_data_path);
         path += L"\\diff-ext\\settings.json";
-        OutputDebugStringW((L"MRU file path: " + path).c_str());
     }
 
     return path;

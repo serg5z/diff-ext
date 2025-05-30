@@ -40,8 +40,6 @@ CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
         wchar_t progid[256] = L"";
         DWORD progid_size = sizeof(progid);
 
-        OutputDebugStringW(ext.c_str());
-
         if(ext == L"") {
             DWORD attr = GetFileAttributesW(mru[_index].c_str());
             if((attr != INVALID_FILE_ATTRIBUTES) && (attr & FILE_ATTRIBUTE_DIRECTORY)) {
@@ -57,7 +55,6 @@ CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
                 );
 
                 if(res == ERROR_SUCCESS) {
-                    OutputDebugStringW(iconpath);
                     return SHStrDupW(iconpath, icon);
                 }
                 // fallback: hard-coded standard folder icon, just in case
@@ -73,11 +70,9 @@ CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
             if (SHGetValueW(HKEY_CLASSES_ROOT, key.c_str(), nullptr, nullptr, iconpath, &iconpath_size) == ERROR_SUCCESS) {
                 if ((wcscmp(iconpath, L"%1") == 0) || (wcscmp(iconpath,  L"\"%1\"") == 0)) {
                     std::wstring path = mru[_index] + L",0";
-                    OutputDebugStringW((L"self1: " + path).c_str());
                     return SHStrDupW(path.c_str(), icon);
                 }
 
-                OutputDebugStringW(iconpath);
                 return SHStrDupW(iconpath, icon);
             } else {
                 HKEY hExtKey = NULL;
@@ -99,10 +94,7 @@ CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
                                 DWORD iconpath_size = sizeof(progid);
 
                                 if(SHGetValueW(HKEY_CLASSES_ROOT, key.c_str(), nullptr, nullptr, iconpath, &iconpath_size) == ERROR_SUCCESS) {                    
-                                    OutputDebugStringW(iconpath);
                                     return SHStrDupW(iconpath, icon);
-                                } else {
-                                    OutputDebugStringW(L"SHGetValueW 3 failed");
                                 }
                             }
                             ++index;
@@ -132,10 +124,7 @@ CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
                             DWORD iconpath_size = sizeof(progid);
 
                             if(SHGetValueW(HKEY_CLASSES_ROOT, key.c_str(), nullptr, nullptr, iconpath, &iconpath_size) == ERROR_SUCCESS) {                    
-                                OutputDebugStringW(iconpath);
                                 return SHStrDupW(iconpath, icon);
-                            } else {
-                                OutputDebugStringW(L"SHGetValueW 3 failed");
                             }
                         }
                         ++index;
@@ -145,8 +134,6 @@ CompareWithMRUCommand::GetIcon(IShellItemArray*, LPWSTR* icon) {
                 RegCloseKey(hExtKey);
             }
         }
-    } else {
-        OutputDebugStringW(L"SHGetFileInfoW failed");
     }
 
     return SHStrDupW(L"", icon);
