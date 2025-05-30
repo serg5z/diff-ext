@@ -14,13 +14,26 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: update env
+        run: |
+          $makeappx = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter "makeappx.exe" |
+                Where-Object { $_.FullName -match "x64" } |
+                Select-Object -First 1 -ExpandProperty FullName
+          if (-not $makeappx) {
+            throw "MakeAppx.exe not found."
+          }
+          echo "Found MakeAppx.exe at $makeappx"
+          $makeappxDir = Split-Path $makeappx -Parent
+          echo "$makeappxDir" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
+
       - name: Configure CMake
+        shell: pwsh
         run: |
           $cmakeArch = if ("${{ matrix.arch }}" -eq "x86") { "Win32" } else { "${{ matrix.arch }}" }
           cmake -S . -B build-${{ matrix.arch }} -A $cmakeArch -DCMAKE_BUILD_TYPE=Release
-        shell: pwsh
+          cat build-${{ matrix.arch }}/msix.vcxproj
           
       - name: Build
+        shell: pwsh
         run: |
           cmake --build build-${{ matrix.arch }} --config Release
-        shell: pwsh
