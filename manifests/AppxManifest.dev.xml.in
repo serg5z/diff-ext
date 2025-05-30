@@ -19,8 +19,6 @@
     <DisplayName>diff-ext</DisplayName>
     <PublisherDisplayName>Sergey V Zorin</PublisherDisplayName>
     <Logo>assets/Logo.png</Logo>
-    <desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
-    <desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization>
     <uap10:AllowExternalContent>true</uap10:AllowExternalContent>
   </Properties>
 
@@ -34,7 +32,6 @@
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
-    <rescap:Capability Name="unvirtualizedResources"/>
   </Capabilities>
 
   <Applications>
