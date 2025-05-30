@@ -73,11 +73,6 @@ jobs:
       with:
         path: all-builds
 
-    - name: List downloaded artifacts
-      shell: pwsh
-      run: |
-        Get-ChildItem -Recurse all-builds
-    
     - name: Organize artifacts for installer
       shell: pwsh
       run: |
@@ -103,23 +98,23 @@ jobs:
     - name: Upload installer
       uses: actions/upload-artifact@v4
       with:
-        name: Installer
+        name: installer
         path: installer/diff-ext-installer.exe
 
   release:
     runs-on: windows-latest
     needs: package
     steps:
-    # - name: Create GitHub Release
-    #   id: create_release
-    #   uses: actions/create-release@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     tag_name: ${{ github.ref_name }}
-    #     release_name: ${{ github.ref_name }}
-    #     draft: false
-    #     prerelease: false
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "test" #${{ github.ref_name }}
+        release_name: "test" #${{ github.ref_name }}
+        draft: false
+        prerelease: false
 
     - name: Download all artifacts
       uses: actions/download-artifact@v4
@@ -131,12 +126,12 @@ jobs:
       run: |
         Get-ChildItem -Recurse release
 
-    # - name: Upload Release Asset
-    #   uses: actions/upload-release-asset@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-    #     asset_path: release/Installer/diff-ext-installer.exe
-    #     asset_name: diff-ext-installer.exe
-    #     asset_content_type: application/octet-stream        
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: release/installer/diff-ext-installer.exe
+        asset_name: diff-ext-installer.exe
+        asset_content_type: application/octet-stream        
