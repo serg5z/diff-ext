@@ -1,11 +1,13 @@
 name: Make release
 
 on:
-  workflow_dispatch:  # Manual trigger only
+  push:
+    tags:
+      - 'v*.*.*'
 
 permissions:
   contents: write
-  
+
 jobs:
   build:
     runs-on: windows-latest
@@ -114,8 +116,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: "test" #${{ github.ref_name }}
-        release_name: "test" #${{ github.ref_name }}
+        tag_name: ${{ github.ref_name }}
+        release_name: ${{ github.ref_name }}
         draft: false
         prerelease: false
 
@@ -137,4 +139,5 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: release/installer/diff-ext-installer.exe
         asset_name: diff-ext-installer.exe
-        asset_content_type: application/octet-stream        
+        asset_content_type: application/octet-stream    
+    
