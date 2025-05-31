@@ -12,6 +12,9 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -29,7 +32,7 @@ FetchContent_MakeAvailable(dialog-layout)
 add_definitions(-DUNICODE -D_UNICODE)
 
 # Use static runtime (MultiThreaded = /MT, MultiThreadedDebug = /MTd)
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+#set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
