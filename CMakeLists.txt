@@ -17,18 +17,6 @@ set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
 
 include(FetchContent)
 
-FetchContent_Declare(
-  nlohmann_json
-  URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz
-)
-FetchContent_MakeAvailable(nlohmann_json)
-
-FetchContent_Declare(
-  dialog-layout
-  URL https://github.com/serg5z/dialog-layout/archive/refs/tags/v1.0.1.tar.gz
-)
-FetchContent_MakeAvailable(dialog-layout)
-
 add_definitions(-DUNICODE -D_UNICODE)
 
 # Use static runtime (MultiThreaded = /MT, MultiThreadedDebug = /MTd)
