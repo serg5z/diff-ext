@@ -9,6 +9,11 @@
 
 #pragma once
 
+#define ANCOR_LEFT   0x000001L;
+#define ANCOR_TOP    0x000002L;
+#define ANCOR_RIGHT  0x000004L;
+#define ANCOR_BOTTOM 0x000008L;
+
 #define IDD_MAIN_DIALOG 1
 #define IDD_ABOUTBOX 2
 
@@ -26,3 +31,5 @@
 
 #define IDC_VERSION 2001
 #define IDC_COPYRIGHT 2002
+
+#define ID_MAINDIALOG_LAYOUT 3000

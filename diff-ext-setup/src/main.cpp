@@ -15,6 +15,10 @@
 #include <string>
 #include <format>
 
+extern "C" {
+    #include <layout.h>
+}
+
 #include "settings.h"
 #include "resource.h"
 
@@ -131,62 +135,12 @@ static INT_PTR CALLBACK
 DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch(uMsg) {
         case WM_INITDIALOG: {
-            RECT dialog;
-            GetWindowRect(hwnd, &dialog);
-            g_originalDlgSize.cx = dialog.right - dialog.left;
-            g_originalDlgSize.cy = dialog.bottom - dialog.top;
-
-            RECT rc;
-            
-            GetClientRect(hwnd, &rc);
-            MapWindowPoints(hwnd, nullptr, (LPPOINT)&rc, 2);
-
-            GetWindowRect(GetDlgItem(hwnd, IDCANCEL), &r_cancel);
-
-            r_cancel.left -= rc.right;
-            r_cancel.right -= rc.right;
-            r_cancel.top -= rc.bottom;
-            r_cancel.bottom -= rc.bottom;
-
-            GetWindowRect(GetDlgItem(hwnd, IDOK), &r_ok);
-
-            r_ok.left -= rc.right;
-            r_ok.right -= rc.right;
-            r_ok.top -= rc.bottom;
-            r_ok.bottom -= rc.bottom;
-
-            GetWindowRect(GetDlgItem(hwnd, IDC_BROWSE), &r_browse);
-
-            r_browse.left -= rc.right;
-            r_browse.right -= rc.right;
-            r_browse.top -= rc.top;
-            r_browse.bottom -= rc.top;
-
-            GetWindowRect(GetDlgItem(hwnd, IDC_EDIT_DIFF), &r_diff);
-
-            r_diff.left -= rc.left;
-            r_diff.right -= rc.right;
-            r_diff.top -= rc.top;
-            r_diff.bottom -= rc.top;
-
-            GetWindowRect(GetDlgItem(hwnd, IDC_ABOUT), &r_about);
-
-            r_about.left -= rc.right;
-            r_about.right -= rc.right;
-            r_about.top -= rc.bottom;
-            r_about.bottom -= rc.bottom;
-
-            GetWindowRect(GetDlgItem(hwnd, IDC_RESIZE), &r_resize);
-
-            r_resize.left -= rc.right;
-            r_resize.right -= rc.right;
-            r_resize.top -= rc.bottom;
-            r_resize.bottom -= rc.bottom;            
-
-            // Initialize values
+            // Initialize control values
             SetDlgItemTextW(hwnd, IDC_EDIT_DIFF, getDiffTool().c_str());
             SetDlgItemInt(hwnd, IDC_EDIT_MRU, getMRUCapacity(), FALSE);
             SendMessageW(GetDlgItem(hwnd, IDC_SPIN_MRU), UDM_SETRANGE, 0, MAKELPARAM(64, 1));
+
+            attach_layout(GetModuleHandle(nullptr), hwnd, MAKEINTRESOURCE(ID_MAINDIALOG_LAYOUT));
 
             HICON hIcon = (HICON)LoadImage(
                 GetModuleHandle(nullptr),
@@ -200,70 +154,6 @@ DiffExtSetupDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
                 SendMessageW(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
                 SendMessageW(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
             }
-
-            return TRUE;
-        }
-
-        case WM_GETMINMAXINFO: {
-            MINMAXINFO* mmi = (MINMAXINFO*)lParam;
-
-            mmi->ptMinTrackSize.x = g_originalDlgSize.cx;
-            mmi->ptMinTrackSize.y = g_originalDlgSize.cy;
-
-            return 0;
-        }
-
-        case WM_SIZE: {
-            RECT client;
-            GetClientRect(hwnd, &client);
-            int width = client.right;
-            int height = client.bottom;
-
-            HDWP position_handle = BeginDeferWindowPos(4);
-
-            DeferWindowPos(position_handle, GetDlgItem(hwnd, IDCANCEL), 0,
-                r_cancel.left + width,
-                r_cancel.top + height,
-                r_cancel.right - r_cancel.left,
-                r_cancel.bottom - r_cancel.top,
-                SWP_NOZORDER);
-
-            DeferWindowPos(position_handle, GetDlgItem(hwnd, IDOK), 0,
-                r_ok.left + width,
-                r_ok.top + height,
-                r_ok.right - r_ok.left,
-                r_ok.bottom - r_ok.top,
-                SWP_NOZORDER);
-
-            DeferWindowPos(position_handle, GetDlgItem(hwnd, IDC_BROWSE), 0,
-                r_browse.left + width,
-                r_browse.top,
-                r_browse.right - r_browse.left,
-                r_browse.bottom - r_browse.top,
-                SWP_NOZORDER);
-
-            DeferWindowPos(position_handle, GetDlgItem(hwnd, IDC_ABOUT), 0,
-                r_about.left + width,
-                r_about.top + height,
-                r_about.right - r_about.left,
-                r_about.bottom - r_about.top,
-                SWP_NOZORDER);
-
-            DeferWindowPos(position_handle, GetDlgItem(hwnd, IDC_EDIT_DIFF), 0,
-                r_diff.left,
-                r_diff.top,
-                width - r_diff.left + r_diff.right,
-                r_diff.bottom - r_browse.top,
-                SWP_NOZORDER);
-
-            DeferWindowPos(position_handle, GetDlgItem(hwnd, IDC_RESIZE), 0,
-                r_resize.left + width,
-                r_resize.top + height,
-                r_resize.right - r_resize.left,
-                r_resize.bottom - r_resize.top,
-                SWP_NOZORDER);
-
-            EndDeferWindowPos(position_handle);
 
             return TRUE;
         }

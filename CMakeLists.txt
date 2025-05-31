@@ -20,6 +20,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
+FetchContent_Declare(
+  dialog-layout
+  URL https://github.com/serg5z/dialog-layout/archive/refs/tags/v1.0.1.tar.gz
+)
+FetchContent_MakeAvailable(dialog-layout)
+
 add_definitions(-DUNICODE -D_UNICODE)
 
 # Use static runtime (MultiThreaded = /MT, MultiThreadedDebug = /MTd)
