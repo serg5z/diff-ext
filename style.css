@@ -110,3 +110,10 @@ footer {
   font-size: 0.9em;
   border-top: 1px solid #eee;
 }
+
+/* Standard links */
+a, a:visited {
+  color: var(--accent);
+  text-decoration: underline;
+  transition: color 0.2s;
+}

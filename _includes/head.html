@@ -1,9 +1,56 @@
 <head>
   <meta charset="UTF-8">
-  <title>
-    {% if page.title %}{{ page.title }} | dialog-layout{% else %}dialog-layout: Dynamic Win32 Dialog Layout Engine{% endif %}
-  </title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>
+    {% if page.title -%} 
+      {{ page.title }} | diff-ext
+    {%- else -%} 
+      diff-ext: Windows Context Menu Extension
+    {%- endif %}
+  </title>
+  <meta name="description" content="
+    {%- if page.description -%}
+      {{ page.description }}
+    {%- else -%}
+      diff-ext adds file comparison and MRU features to Windows Explorer 
+      context menus. Open source, fast, and easy to use.
+    {%- endif %}" />  
+
+  <!-- Open Graph tags for social sharing -->
+  <meta property="og:title" content="
+    {%- if page.title -%} 
+      {{ page.title }} | diff-ext
+    {%- else -%} 
+      diff-ext: Windows Context Menu Extension
+    {%- endif %}" />
+  <meta property="og:description" content="
+    {%- if page.description -%}
+      {{ page.description }}
+    {%- else -%}
+      diff-ext adds file comparison and MRU features to Windows Explorer 
+      context menus. Open source, fast, and easy to use.
+    {%- endif %}" />
+  <meta property="og:url" content="https://serg5z.github.io/diff-ext/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://serg5z.github.io/diff-ext/favicon.png" />
+  
+  <!-- Twitter Card tags -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="
+    {%- if page.title -%} 
+      {{ page.title }} | diff-ext
+    {%- else -%} 
+      diff-ext: Windows Context Menu Extension
+    {%- endif %}" />
+  <meta name="twitter:description" content="
+    {%- if page.description -%}
+      {{ page.description }}
+    {%- else -%}
+      diff-ext adds file comparison and MRU features to Windows Explorer 
+      context menus. Open source, fast, and easy to use.
+    {%- endif %}" />
+  <meta name="twitter:image" content="https://serg5z.github.io/diff-ext/favicon.png" />
+
   <link rel="icon" href="favicon.png">
   <link rel="stylesheet" href="style.css">
   <script defer src="script.js"></script>
