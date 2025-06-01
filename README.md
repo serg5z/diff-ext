@@ -25,6 +25,7 @@
 ├── modern/              # Modern ExplorerCommand extension
 ├── shared/              # Shared logic (MRU handling etc.)
 ├── diff-ext-setup/      # GUI setup tool
+├── installer/           # InnoSetup project file
 ├── packaging/           # MSIX manifest and icons
 ├── CMakeLists.txt       # Main CMake config
 └── build.ps1            # Optional multi-arch build script
@@ -118,7 +119,7 @@ For modern shell extensions, install the MSIX package by double-clicking it.
 To clean up:
 
 ```powershell
-reg delete "HKCR\*\shellex\ContextMenuHandlers\YourHandler" /f
+regsvr32 /u build-x64\bin\diff-ext-classic.dll
 ```
 
 Or uninstall the MSIX from **Apps & Features**.
