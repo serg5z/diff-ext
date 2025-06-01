@@ -1,15 +1,42 @@
-// script.js
-function setTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('theme', theme);
+const themeToggle = document.getElementById('theme-toggle');
+
+function setThemeIcon(isDark) {
+  themeToggle.textContent = isDark ? "🌜" : "🌞";
 }
-function toggleTheme() {
-  setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+
+// Toggle theme and update icon/persistence
+themeToggle.addEventListener('click', () => {
+  const isNowDark = !document.body.classList.contains('dark');
+  document.body.classList.toggle('dark', isNowDark);
+  setThemeIcon(isNowDark);
+  localStorage.setItem('theme', isNowDark ? 'dark' : 'light');
+});
+
+// Apply saved or system theme on load
+let theme = localStorage.getItem('theme');
+if (!theme) {
+  theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
+const isDark = theme === 'dark';
+document.body.classList.toggle('dark', isDark);
+setThemeIcon(isDark);
+
+// Active Nav
+const navLinks = document.querySelectorAll('nav ul li a');
+navLinks.forEach(link => {
+  if(link.href === window.location.href) link.classList.add('active');
+  else link.classList.remove('active');
+});
+/*
 window.onload = function() {
   // Theme
-  const saved = localStorage.getItem('theme');
-  setTheme(saved ? saved : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  let theme = localStorage.getItem('theme');
+  if (!theme) {
+    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  const isDark = theme === 'dark';
+  setTheme(theme);
+  setThemeIcon(isDark);
 
   // Active Nav
   const navLinks = document.querySelectorAll('nav ul li a');
@@ -18,3 +45,4 @@ window.onload = function() {
     else link.classList.remove('active');
   });
 };
+*/
