@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PAD>
+  <Program_Info>
+    <Program_Name>diff-ext</Program_Name>
+    <Program_Version>2.0.1</Program_Version>
+    <Program_Release_Year>2025</Program_Release_Year>
+    <Program_Release_Month>05</Program_Release_Month>
+    <Program_Release_Day>29</Program_Release_Day>
+    <Program_Type>Freeware</Program_Type>
+    <Program_Category>Utilities</Program_Category>
+    <Program_OS_Support>Windows 10, Windows 11</Program_OS_Support>
+    <Program_Language>English</Program_Language>
+    <Program_Description>
+      diff-ext is a Windows Explorer shell extension that adds context menu commands for fast file comparison.
+      Select files and launch your favorite diff tool directly from Explorer. Supports MRU tracking and advanced file selection.
+    </Program_Description>
+    <Program_Short_Description>
+      Windows Explorer shell extension for quick file comparison using external diff tools.
+    </Program_Short_Description>
+    <Program_System_Requirements>
+      Windows 10 or newer. Admin rights required for installation. External diff tool required (WinMerge, KDiff3, Beyond Compare, etc).
+    </Program_System_Requirements>
+    <Program_Change_Info>
+      Initial release for Windows 10+, file comparison menu, and flexible diff tool configuration.
+    </Program_Change_Info>
+    <Program_Screenshot_URL>
+      https://serg5z.github.io/diff-ext/diff-ext-800.png
+    </Program_Screenshot_URL>
+    <Program_Icon_URL>
+      https://serg5z.github.io/diff-ext/favicon.png
+    </Program_Icon_URL>
+    <File_Info>
+      <File_Size_K>2048</File_Size_K>
+      <File_Name>diff-ext-installer.exe</File_Name>
+      <File_Version>2.0.1</File_Version>
+    </File_Info>
+  </Program_Info>
+  <Program_Descriptions>
+    <English>
+      <Char_Desc_250>
+        Windows Explorer shell extension for quick file comparison using external diff tools. Supports MRU list and context menu integration.
+      </Char_Desc_250>
+      <Char_Desc_450>
+        diff-ext adds file comparison features to Windows Explorer. Select files, right-click, and launch your favorite diff tool instantly. Supports a most recently used (MRU) list for quick access, works with many third-party diff programs, and integrates seamlessly with Windows 10 and 11 context menus.
+      </Char_Desc_450>
+      <Char_Desc_2000>
+        diff-ext is a Windows Explorer shell extension that adds advanced file comparison commands to the right-click context menu. Easily compare two or more selected files with your preferred external diff tool (such as WinMerge, Beyond Compare, or KDiff3) directly from Explorer. The extension keeps track of your most recently compared files for fast re-selection (MRU list). Installation requires administrator privileges. Designed for developers, power users, and anyone needing fast, convenient file comparison on Windows 10 or 11.
+      </Char_Desc_2000>
+    </English>
+  </Program_Descriptions>
+  <Publisher_Info>
+    <Company_Name>Sergey Zorin</Company_Name>
+    <Address>
+      <!-- Optional: Your business address or leave blank -->
+    </Address>
+    <Country>United States</Country>
+    <WebSite_URL>https://serg5z.github.io/diff-ext</WebSite_URL>
+    <Contact_Info>
+      <Contact_Name>Sergey Zorin</Contact_Name>
+      <Contact_Email>szorin@gmail.com</Contact_Email>
+      <Contact_URL>https://github.com/serg5z/diff-ext/issues</Contact_URL>
+      <Contact_Phone>
+        <!-- Optional: Phone number -->
+      </Contact_Phone>
+    </Contact_Info>
+  </Publisher_Info>
+  <Web_Info>
+    <Application_URLs>
+      <Application_Info_URL>https://serg5z.github.io/diff-ext</Application_Info_URL>
+      <Application_Icon_URL>https://serg5z.github.io/diff-ext/favicon.png</Application_Icon_URL>
+      <Application_Download_URL>https://github.com/serg5z/diff-ext/releases/download/v2.0.1/diff-ext-installer.exe</Application_Download_URL>
+      <Application_Support_URL>https://github.com/serg5z/diff-ext/issues</Application_Support_URL>
+      <Application_Order_URL></Application_Order_URL>
+      <Application_Update_URL></Application_Update_URL>
+      <Application_Help_URL></Application_Help_URL>
+    </Application_URLs>
+    <Download_URLs>
+      <Primary_Download_URL>https://github.com/serg5z/diff-ext/releases/download/v2.0.1/diff-ext-installer.exe</Primary_Download_URL>
+    </Download_URLs>
+  </Web_Info>
+</PAD>
